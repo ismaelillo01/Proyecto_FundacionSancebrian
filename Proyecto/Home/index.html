@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login EIAROB</title>
+    <link rel="stylesheet" href="estilos.css" />
+</head>
+<body>
+<div class="background">
+    <img src="img/img_2.png" alt="Valora2 Logo" class="Valora2-logo" />
+
+    <div class="login-container-border">
+        <div class="login-container">
+            <img src="img/img_1.png" alt="Fundación Sancebrian logo" class="Sancebrian-logo" />
+
+            <form id="loginForm">
+                <label for="usuario">Usuario</label>
+                <input type="text" id="usuario" placeholder="Usuario" required />
+
+                <label for="contrasena">Contraseña</label>
+                <div class="password-wrapper">
+                    <input type="password" id="contrasena" placeholder="Contraseña" required />
+                    <span class="toggle-password" onclick="togglePassword()">👁️</span>
+                </div>
+
+                <button type="submit" id="loginBtn">Iniciar sesión</button>
+            </form>
+        </div>
+    </div>
+
+    <img src="img/SSCyL.png" alt="logo derecha" class="logo-derecha" />
+</div>
+
+<script>
+    function togglePassword() {
+        const input = document.getElementById('contrasena');
+        const icon = document.querySelector('.toggle-password');
+        const isHidden = input.type === 'password';
+        input.type = isHidden ? 'text' : 'password';
+        icon.textContent = isHidden ? '🙈' : '👁️';
+    }
+
+    // Guardar usuario y redirigir
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const user = document.getElementById('usuario').value.trim();
+        if (user) {
+            localStorage.setItem('username', user);
+            window.location.href = 'index1.html';
+        } else {
+            alert('Por favor, escribe un nombre de usuario.');
+        }
+    });
+</script>
+</body>
+</html>
+
+

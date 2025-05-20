@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Datos sensores</title>
+    <link rel="stylesheet" href="estilos_3.css">
+</head>
+<body>
+<header class="header">
+    <div class="left">
+        <button class="menu-btn" id="menuBtn">&#9662;</button>
+        <p class="menu-title" id="menuTitle">Datos sensores</p>
+        <nav class="menu hidden" id="menu">
+            <a href="index1.html">Vista general</a>
+            <a href="#">Apartado 2</a>
+            <a href="#">Apartado 3</a>
+        </nav>
+    </div>
+    <div class="center">
+        <img src="img/img.png" alt="Logo" class="logo" />
+    </div>
+    <div class="right">
+        <img src="img/img_3.png" alt="Avatar" class="user-avatar" />
+        <span id="usernameDisplay">Usuario</span>
+    </div>
+</header>
+<main>
+    <!-- Selector de usuario -->
+    <section class="usuario-selector section-box">
+        <h2 class="section-header">Usuarios</h2>
+        <div class="autocomplete">
+            <input
+                    type="text"
+                    id="userInput"
+                    placeholder="Buscar usuario"
+                    autocomplete="off"
+            />
+            <button id="toggleBtn">&#9662;</button>
+            <div id="suggestions" class="suggestions"></div>
+        </div>
+    </section>
+    <!-- Información del usuario -->
+    <section id="usuario-info" class="usuario-info section-box">
+        <!-- Cargado desde JS -->
+    </section>
+</main>
+<script>
+    // Mostrar usuario guardado
+    const username = localStorage.getItem("username");
+    if (username) {
+        document.getElementById("usernameDisplay").textContent = username;
+    }
+    // Autocomplete usuarios
+    const userInput = document.getElementById("userInput");
+    const suggestions = document.getElementById("suggestions");
+    const toggleBtn = document.getElementById("toggleBtn");
+    let users = [];
+    let userActividades = [];  // guardamos las actividades del usuario para filtrar sin hacer fetch cada vez
+
+    async function fetchUsers() {
+        const res = await fetch("/api/usuarios");
+        return await res.json();
+    }
+
+    function showSuggestions(list) {
+        suggestions.innerHTML = "";
+        list.forEach((name) => {
+            const item = document.createElement("div");
+            item.textContent = name;
+            item.classList.add("suggestion-item");
+            item.addEventListener("click", () => {
+                userInput.value = name;
+                suggestions.style.display = "none";
+                cargarUsuario(name);
+            });
+            suggestions.appendChild(item);
+        });
+        suggestions.style.display = "block";
+    }
+
+    userInput.addEventListener("input", () => {
+        const filtro = userInput.value.toLowerCase();
+        const filtrados = users.filter((name) =>
+            name.toLowerCase().startsWith(filtro)
+        );
+        showSuggestions(filtrados);
+    });
+
+    toggleBtn.addEventListener("click", () => {
+        showSuggestions(users);
+    });
+
+    document.addEventListener("click", (e) => {
+        if (
+            !suggestions.contains(e.target) &&
+            e.target !== userInput &&
+            e.target !== toggleBtn
+        ) {
+            suggestions.style.display = "none";
+        }
+    });
+
+    async function cargarUsuario(nombre) {
+        const res = await fetch(`/api/usuarios/${nombre}`);
+        const user = await res.json();
+
+        document.getElementById(
+            "usuario-info"
+        ).innerHTML = `<div class="info-container">
+          <img src="${user.foto}" alt="${user.nombre}" />
+          <div>
+            <h3>${user.nombre}</h3>
+            <hr />
+            <ul>
+              <li><strong>Fecha de nacimiento:</strong> ${user.fechaNacimiento}</li>
+              <li><strong>Dirección:</strong> ${user.direccion}</li>
+              <li><strong>Patologías:</strong> ${
+            user.patologias.length ? user.patologias.join(", ") : "Ninguna"
+        }</li>
+            </ul>
+          </div>
+        </div>`;
+</script>
+</body>
+</html>
