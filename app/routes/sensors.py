@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from datetime import datetime
-import pytz  # Asegúrate de tenerlo instalado: pip install pytz
+import pytz
 
 load_dotenv()
 
@@ -18,7 +18,6 @@ HEADERS = {
     "Content-Type": "application/json"
 }
 
-# Define la zona horaria española
 TIMEZONE = pytz.timezone("Europe/Madrid")
 
 @router.get("/sensor")
@@ -26,11 +25,20 @@ def get_sensor_state():
     url = f"{HOME_ASSISTANT_URL}/api/states"
     response = requests.get(url, headers=HEADERS)
 
-    if response.status_code == 200:
-        all_entities = response.json()
+    if response.status_code != 200:
+        return JSONResponse(
+            status_code=response.status_code,
+            content={
+                "success": False,
+                "message": "No se pudo obtener el listado de sensores.",
+                "detail": response.text
+            }
+        )
 
-        # Extraer sensores estándar y binarios, incluyendo vibración
+    try:
+        all_entities = response.json()
         sensors = []
+
         for e in all_entities:
             if (
                 e["entity_id"].startswith(("sensor.", "binary_sensor."))
@@ -46,7 +54,9 @@ def get_sensor_state():
                         dt_local = dt_utc.astimezone(TIMEZONE)
                         formatted_time = dt_local.strftime("%d/%m/%Y %H:%M")
                     except Exception:
-                        formatted_time = raw_time  # fallback si falla el formateo
+                        formatted_time = raw_time  # fallback
+
+                tipo = "binario" if e["entity_id"].startswith("binary_sensor.") else "numérico"
 
                 sensors.append({
                     "entity_id": e["entity_id"],
@@ -54,13 +64,22 @@ def get_sensor_state():
                     "state": e["state"],
                     "unit": e["attributes"].get("unit_of_measurement"),
                     "device_class": e["attributes"].get("device_class"),
-                    "last_updated": formatted_time
+                    "last_updated": formatted_time,
+                    "tipo": tipo
                 })
 
-        return {"sensors": sensors}
+        return {
+            "success": True,
+            "data": sensors,
+            "message": None
+        }
 
-    else:
+    except Exception as e:
         return JSONResponse(
-            status_code=response.status_code,
-            content={"error": "No se pudo obtener el sensor", "detail": response.text}
+            status_code=500,
+            content={
+                "success": False,
+                "message": "Error al procesar la respuesta de Home Assistant.",
+                "detail": str(e)
+            }
         )
