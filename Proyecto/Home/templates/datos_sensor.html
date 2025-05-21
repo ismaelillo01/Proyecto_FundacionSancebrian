@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container-row">
+
+    <div class="left-section">
+        <h2>Buscar usuario</h2>
+        <form method="POST" action="{{ url_for('datos_sensor') }}">
+            <input list="lista_usuarios" name="usuario" placeholder="Escribe el nombre..." required>
+            <datalist id="lista_usuarios">
+                {% for u in usuarios %}
+                <option value="{{ u['usuario'] }}">
+                    {% endfor %}
+            </datalist>
+            <button type="submit">Buscar</button>
+        </form>
+    </div>
+
+    <div class="right-section">
+        <h2>Información del usuario</h2>
+        {% if user_info %}
+        <img src="{{ user_info['foto_perfil'] or url_for('static', filename='img/img_3.png') }}" alt="Foto perfil" class="foto-perfil">
+        <p><strong>Nombre completo:</strong> {{ user_info['nombre'] }}</p>
+        <p><strong>Usuario:</strong> {{ user_info['usuario'] }}</p>
+        <p><strong>Fecha de nacimiento:</strong> {{ user_info['fecha_nacimiento'] }}</p>
+        <p><strong>Dirección:</strong> {{ user_info['direccion'] }}</p>
+        <p><strong>Patologías:</strong> {{ user_info['patologias'] }}</p>
+        {% else %}
+        <p>Selecciona un usuario para ver la información.</p>
+        {% endif %}
+    </div>
+
+</div>
+
+<!-- Plano de la casa -->
+<div class="plano-casa">
+    <h2>Plano de la casa</h2>
+    <div class="habitaciones-superior">
+        <div class="habitacion">
+            <button class="btn-habitacion" onclick="toggleDropdown('cocina-dropdown')">
+                Cocina <span class="flecha">&#9660;</span>
+            </button>
+            <div id="cocina-dropdown" class="dropdown-content">
+                <ul>
+                    <li>Sensor temperatura</li>
+                    <li>Sensor humedad</li>
+                    <li>Detector de humo</li>
+                </ul>
+            </div>
+        </div>
+        <div class="habitacion">
+            <button class="btn-habitacion" onclick="toggleDropdown('bano-grande-dropdown')">
+                Baño grande <span class="flecha">&#9660;</span>
+            </button>
+            <div id="bano-grande-dropdown" class="dropdown-content">
+                <ul>
+                    <li>Sensor de agua</li>
+                    <li>Sensor movimiento</li>
+                </ul>
+            </div>
+        </div>
+        <div class="habitacion">
+            <button class="btn-habitacion" onclick="toggleDropdown('despacho-dropdown')">
+                Despacho <span class="flecha">&#9660;</span>
+            </button>
+            <div id="despacho-dropdown" class="dropdown-content">
+                <ul>
+                    <li>Sensor luminosidad</li>
+                    <li>Sensor temperatura</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="pasillo">Pasillo</div>
+
+    <div class="habitaciones-inferior">
+        <div class="habitacion">
+            <button class="btn-habitacion" onclick="toggleDropdown('sala-estar-dropdown')">
+                Sala de estar <span class="flecha">&#9660;</span>
+            </button>
+            <div id="sala-estar-dropdown" class="dropdown-content">
+                <ul>
+                    <li>Sensor CO2</li>
+                    <li>Sensor movimiento</li>
+                </ul>
+            </div>
+        </div>
+        <div class="habitacion">
+            <button class="btn-habitacion" onclick="toggleDropdown('dormitorio-dropdown')">
+                Dormitorio <span class="flecha">&#9660;</span>
+            </button>
+            <div id="dormitorio-dropdown" class="dropdown-content">
+                <ul>
+                    <li>Sensor temperatura</li>
+                    <li>Sensor humedad</li>
+                </ul>
+            </div>
+        </div>
+        <div class="habitacion">
+            <button class="btn-habitacion" onclick="toggleDropdown('bano-pequeno-dropdown')">
+                Baño pequeño <span class="flecha">&#9660;</span>
+            </button>
+            <div id="bano-pequeno-dropdown" class="dropdown-content">
+                <ul>
+                    <li>Sensor humedad</li>
+                    <li>Detector de fugas</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botón de actualización -->
+    <button id="btn-actualizar" class="btn-actualizar" onclick="toggleActualizar()">
+        Actualización de datos: <span id="estado-actualizacion">Activada</span>
+    </button>
+
+    <!-- Tabla de sensores -->
+    <table class="tabla-sensores">
+        <thead>
+        <tr>
+            <th>Nombre sensor</th>
+            <th>Estancia</th>
+            <th>Último dato</th>
+            <th>Fecha y hora</th>
+            <th>Batería</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Sensor temperatura</td>
+            <td>Cocina</td>
+            <td>22°C</td>
+            <td>2025-05-21 12:15</td>
+            <td>80%</td>
+        </tr>
+        <tr>
+            <td>Detector de humo</td>
+            <td>Cocina</td>
+            <td>No detectado</td>
+            <td>2025-05-21 12:00</td>
+            <td>100%</td>
+        </tr>
+        <tr>
+            <td>Sensor de agua</td>
+            <td>Baño grande</td>
+            <td>Sin agua</td>
+            <td>2025-05-21 11:50</td>
+            <td>90%</td>
+        </tr>
+        <!-- Más filas aquí -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function toggleDropdown(id) {
+        const dropdown = document.getElementById(id);
+        if (dropdown.style.display === "block") {
+            dropdown.style.display = "none";
+        } else {
+            dropdown.style.display = "block";
+        }
+    }
+
+    let actualizacionActivada = true;
+    function toggleActualizar() {
+        const btn = document.getElementById('btn-actualizar');
+        const estado = document.getElementById('estado-actualizacion');
+        actualizacionActivada = !actualizacionActivada;
+        if (actualizacionActivada) {
+            btn.style.backgroundColor = '#4CAF50';  // verde
+            estado.textContent = 'Activada';
+        } else {
+            btn.style.backgroundColor = '#f44336';  // rojo
+            estado.textContent = 'Desactivada';
+        }
+    }
+    // Inicializa el botón con color verde
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('btn-actualizar').style.backgroundColor = '#4CAF50';
+    });
+</script>
+
+{% endblock %}

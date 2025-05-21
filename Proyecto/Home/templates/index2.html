@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Perfil de {{ nombre_buscado }}{% endblock %}
+
+{% block head %}
+
+{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index2.css') }}">
+<main>
+    <!-- Sección centrada con foto y datos -->
+    <section class="perfil centrado">
+        <img src="{{ url_for('static', filename='img/img_3.png') }}" alt="Foto de perfil" width="150" height="150">
+        <h1>{{ nombre }}</h1>
+        <ul class="info-list">
+            <li><strong>Fecha de nacimiento:</strong> {{ fecha_nacimiento or 'No disponible' }}</li>
+            <li><strong>Dirección:</strong> {{ direccion or 'No disponible' }}</li>
+            <li><strong>Patologías:</strong> {{ patologias or 'Ninguna' }}</li>
+        </ul>
+    </section>
+
+    <!-- Sección con dos columnas: actividades y notificaciones -->
+    <section class="secciones fila-separada">
+        <div class="seccion-cuadro actividades">
+            <label for="fecha_actividad" class="fecha-selector"><strong>Selecciona fecha:</strong></label>
+            <input type="date" id="fecha_actividad" name="fecha_actividad" />
+
+            <table>
+                <thead>
+                <tr>
+                    <th>Hora Inicio</th>
+                    <th>Hora Fin</th>
+                    <th>Actividad</th>
+                    <th>Hora Realizada</th>
+                    <th>Estado</th>
+                </tr>
+                </thead>
+                <tbody id="tabla-actividades-body">
+                <tr><td colspan="5" class="empty-msg">No hay actividades para esta fecha.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="seccion-cuadro notificaciones">
+            <div class="notificaciones-header">
+                <button class="btn-notificaciones">Notificaciones Actividades</button>
+                <span class="reload-icon" title="Recargar tabla" onclick="recargarNotificaciones()">&#x21bb;</span>
+            </div>
+            <div class="tabla-notificaciones">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Dato</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tabla-notificaciones-body">
+                    <tr><td colspan="3" class="empty-msg">No hay notificaciones disponibles.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script>
+    function recargarNotificaciones() {
+        alert('Aquí deberías implementar la función para recargar notificaciones, conectando con backend o Home Assistant.');
+    }
+</script>
+{% endblock %}

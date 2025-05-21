@@ -1,0 +1,113 @@
+.container-row {
+    display: flex;
+    gap: 40px;
+    align-items: center; /* centra verticalmente */
+    margin-bottom: 40px;
+}
+.left-section {
+    flex: 1;
+    max-width: 300px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+.right-section {
+    flex: 3;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    width: 100%;
+    text-align: left;
+}
+.foto-perfil {
+    max-width: 150px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+input[list], button {
+    font-size: 1em;
+    padding: 8px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    width: 100%;
+    box-sizing: border-box;
+}
+button {
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+button:hover {
+    background-color: #0056b3;
+}
+/* Estilos para plano y tabla */
+.plano-casa {
+    margin-top: 40px;
+}
+.habitaciones-superior, .habitaciones-inferior {
+    display: flex;
+    gap: 15px;
+}
+.habitacion {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 10px;
+    flex: 1;
+    position: relative;
+}
+.btn-habitacion {
+    background-color: #eee;
+    border: none;
+    width: 100%;
+    text-align: left;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+}
+.btn-habitacion:hover {
+    background-color: #ccc;
+}
+.flecha {
+    float: right;
+}
+.dropdown-content {
+    display: none;
+    margin-top: 8px;
+    background: #f9f9f9;
+    border-radius: 6px;
+    padding: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    font-size: 0.9em;
+}
+.pasillo {
+    margin: 20px 0;
+    text-align: center;
+    font-weight: bold;
+}
+.btn-actualizar {
+    margin-top: 30px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    color: white;
+}
+.tabla-sensores {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+.tabla-sensores th, .tabla-sensores td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+.tabla-sensores th {
+    background-color: #f2f2f2;
+}
+

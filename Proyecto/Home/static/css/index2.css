@@ -1,0 +1,89 @@
+/* Centrar la sección perfil */
+.perfil.centrado {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 30px auto;
+    max-width: 600px;
+    text-align: center;
+}
+
+.perfil.centrado img {
+    border-radius: 50%;
+    margin-bottom: 15px;
+}
+
+/* Lista de info */
+.info-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 1.1em;
+}
+
+/* Sección con las dos columnas en fila */
+.secciones.fila-separada {
+    display: flex;
+    justify-content: space-around; /* espacio entre columnas */
+    gap: 20px; /* espacio entre columnas */
+    margin: 40px auto;
+    max-width: 1100px;
+}
+
+/* Cada cuadro ocupa la mitad menos margen */
+.seccion-cuadro {
+    flex: 1 1 45%;
+    background-color: #f0f4f8;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+    overflow-x: auto;
+}
+
+/* Tablas más responsivas */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    background-color: #004080;
+    color: white;
+}
+
+th, td {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    text-align: center;
+}
+
+.empty-msg {
+    font-style: italic;
+    color: #666;
+}
+
+/* Botón recargar */
+.btn-notificaciones {
+    background-color: #004080;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.btn-notificaciones:hover {
+    background-color: #003366;
+}
+
+.reload-icon {
+    cursor: pointer;
+    font-size: 20px;
+    vertical-align: middle;
+    color: #004080;
+}
+.reload-icon:hover {
+    color: #002244;
+}
+
