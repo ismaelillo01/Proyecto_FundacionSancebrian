@@ -1,12 +1,29 @@
+/* base.css */
+
 body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: linear-gradient(135deg, #0052D4, #4364F7, #6FB1FC);
+    color: #fff;
     margin: 0;
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #a8d0ff, #b0f0b8);
+    padding: 0;
+    min-height: 100vh;
+}
+
+h1, h2 {
+    text-align: center;
+}
+
+a {
+    color: #a0d8f7;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
 }
 
 .main-header {
-    background-color: #004080; /* un azul oscuro */
-    color: white;
+    background: rgba(0, 82, 212, 0.85);
     padding: 10px 20px;
 }
 
@@ -21,59 +38,107 @@ body {
     align-items: center;
 }
 
-.nav-center {
-    flex-grow: 1;
-    justify-content: center;
+.nav-center form input[type="text"] {
+    padding: 5px;
+    border: none;
+    border-radius: 4px;
+    margin-right: 5px;
+    font-size: 14px;
+}
+
+.nav-center form button {
+    background-color: #0b3d91;
+    border: none;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.nav-center form button:hover {
+    background-color: #154ecf;
 }
 
 .logo {
-    height: 50px;
+    height: 40px;
+    width: auto;
 }
 
-.dropdown {
-    position: relative;
-    display: inline-block;
+.login-container {
+    max-width: 320px;
+    margin: 80px auto;
+    background: rgba(0, 82, 212, 0.9);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 82, 212, 0.7);
 }
 
-.dropbtn {
-    background-color: transparent;
-    color: white;
-    font-size: 16px;
+.login-container h2 {
+    margin-bottom: 20px;
+}
+
+.login-container input[type="text"],
+.login-container input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0 16px 0;
     border: none;
-    cursor: pointer;
-    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 14px;
 }
 
-.dropbtn:hover, .dropbtn:focus {
-    background-color: #003366;
-    outline: none;
-}
-
-.dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #004080;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
-    z-index: 1;
-}
-
-.dropdown-content a {
+.login-container button {
+    width: 100%;
+    background-color: #0b3d91;
+    border: none;
+    padding: 12px;
+    font-size: 16px;
     color: white;
-    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.login-container button:hover {
+    background-color: #154ecf;
+}
+
+.error {
+    background-color: #b32121;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    list-style: none;
+}
+
+ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+ul li {
+    margin: 5px 0;
+}
+
+.btn-actualizar {
+    display: block;
+    width: 220px;
+    margin: 20px auto;
+    padding: 10px 0;
+    background-color: #0b3d91;
+    text-align: center;
+    color: white;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
     text-decoration: none;
-    display: block;
 }
 
-.dropdown-content a:hover {
-    background-color: #002244;
+.btn-actualizar:hover {
+    background-color: #154ecf;
 }
 
-.dropdown:hover .dropdown-content {
-    display: block;
-}
-
-.dropdown-content.right {
-    right: 0;
-    left: auto;
+main {
+    padding: 20px;
 }

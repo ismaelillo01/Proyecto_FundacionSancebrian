@@ -1,22 +1,47 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>Inicio - EIAROB</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
+</head>
+<body>
+<header class="main-header">
+    <nav class="navbar">
+        <div class="nav-left">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo EIAROB" class="logo" />
+        </div>
+        <div class="nav-center">
+            <form action="{{ url_for('buscar_usuario') }}" method="get">
+                <input type="text" name="usuario" placeholder="Buscar usuario" required>
+                <button type="submit">Buscar</button>
+            </form>
+        </div>
+        <div class="nav-right">
+            <span style="margin-right:10px; color:white;">{{ usuario }}</span>
+            <a href="{{ url_for('logout') }}" style="color:white;">Salir</a>
+        </div>
+    </nav>
+</header>
 
-{% block title %}Inicio{% endblock %}
+<main>
+    <h1>Bienvenido, {{ usuario }}</h1>
 
-{% block content %}
-
-
-<h1>Bienvenido a la página principal</h1>
-
-<!-- Buscador de usuarios con datalist -->
-<form action="{{ url_for('buscar_usuario') }}" method="GET" style="margin-top: 20px;">
-    <input list="lista_usuarios" name="usuario" placeholder="Buscar usuario..." required>
-    <datalist id="lista_usuarios">
-        {% for u in usuarios %}
-        <option value="{{ u['usuario'] }}">
+    <section>
+        <h2>Usuarios registrados</h2>
+        <ul>
+            {% for user in usuarios %}
+            <li><a href="{{ url_for('perfil_usuario', usuario_buscado=user['usuario']) }}">{{ user['usuario'] }}</a></li>
             {% endfor %}
-    </datalist>
-    <button type="submit">Buscar</button>
-</form>
-{% endblock %}
+        </ul>
+    </section>
+
+    <section>
+        <a href="{{ url_for('datos_sensor') }}" class="btn-actualizar">Ver datos de sensores</a>
+    </section>
+</main>
+</body>
+</html>
+
 
 

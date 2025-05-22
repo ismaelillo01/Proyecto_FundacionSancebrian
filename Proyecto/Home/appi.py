@@ -1,11 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import sqlite3
 import os
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'tu_clave_secreta'
 
-# Ruta absoluta a la base de datos
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, 'usuarios.db')
 
@@ -44,27 +44,6 @@ def login():
 
     return render_template('login.html')
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        usuario = request.form['usuario']
-        contrasena = request.form['contrasena']
-
-        conn = get_db_connection()
-        existing = conn.execute("SELECT * FROM usuarios WHERE usuario = ?", (usuario,)).fetchone()
-        if existing:
-            flash("El usuario ya existe.")
-            conn.close()
-            return render_template('register.html')
-
-        conn.execute("INSERT INTO usuarios (usuario, contrasena) VALUES (?, ?)", (usuario, contrasena))
-        conn.commit()
-        conn.close()
-        flash("Registro exitoso. Ahora inicia sesión.")
-        return redirect(url_for('login'))
-
-    return render_template('register.html')
-
 @app.route('/logout')
 def logout():
     session.pop('usuario', None)
@@ -89,13 +68,22 @@ def perfil_usuario(usuario_buscado):
         flash("Usuario no encontrado.")
         return redirect(url_for('home'))
 
+    fecha_nac = user['fecha_nacimiento']
+    if fecha_nac:
+        try:
+            fecha_nacimiento_formateada = datetime.strptime(fecha_nac, "%Y-%m-%d").strftime("%d-%m-%Y")
+        except ValueError:
+            fecha_nacimiento_formateada = fecha_nac
+    else:
+        fecha_nacimiento_formateada = None
+
     foto_perfil = user['foto_perfil'] if user['foto_perfil'] else url_for('static', filename='images/perfil_default.jpg')
 
     return render_template('index2.html',
                            usuario=session['usuario'],
                            usuario_buscado=user['usuario'],
                            nombre=user['nombre'],
-                           fecha_nacimiento=user['fecha_nacimiento'],
+                           fecha_nacimiento=fecha_nacimiento_formateada,
                            direccion=user['direccion'],
                            patologias=user['patologias'],
                            foto_perfil=foto_perfil)
@@ -112,7 +100,6 @@ def buscar_usuario():
 
     return redirect(url_for('perfil_usuario', usuario_buscado=usuario_buscado))
 
-# Ruta para datos_sensor (solo una función, sin duplicados)
 @app.route('/datos_sensor', methods=['GET', 'POST'])
 def datos_sensor():
     if 'usuario' not in session:
@@ -134,8 +121,17 @@ def datos_sensor():
                 flash("Usuario no encontrado.")
 
     conn.close()
-    return render_template('datos_sensor.html', usuarios=usuarios, user_info=user_info, usuario=session['usuario'])
 
+    # Datos sensores - aquí podrás integrar con Home Assistant luego
+    sensores = [
+        {"nombre": "Sensor temperatura", "estancia": "Cocina", "ultimo_dato": "22°C", "fecha_hora": "2025-05-21 12:15", "bateria": "80%"},
+        {"nombre": "Detector de humo", "estancia": "Cocina", "ultimo_dato": "No detectado", "fecha_hora": "2025-05-21 12:00", "bateria": "100%"},
+        {"nombre": "Sensor de agua", "estancia": "Baño grande", "ultimo_dato": "Sin agua", "fecha_hora": "2025-05-21 11:50", "bateria": "90%"},
+        {"nombre": "Sensor movimiento", "estancia": "Sala de estar", "ultimo_dato": "No detectado", "fecha_hora": "2025-05-21 11:45", "bateria": "85%"},
+        {"nombre": "Sensor humedad", "estancia": "Dormitorio", "ultimo_dato": "45%", "fecha_hora": "2025-05-21 12:10", "bateria": "75%"},
+    ]
+
+    return render_template('datos_sensor.html', usuarios=usuarios, user_info=user_info, sensores=sensores, usuario=session['usuario'])
 
 if __name__ == '__main__':
     print("Arrancando servidor Flask...")

@@ -1,89 +1,86 @@
-/* Centrar la sección perfil */
-.perfil.centrado {
+/* perfil.css */
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: linear-gradient(135deg, #0052D4, #4364F7, #6FB1FC);
+    color: #fff;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+.main-header {
+    background: rgba(0, 82, 212, 0.85);
+    padding: 10px 20px;
+}
+
+.navbar {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    margin: 30px auto;
-    max-width: 600px;
+    justify-content: space-between;
+}
+
+.nav-left, .nav-center, .nav-right {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    height: 40px;
+    width: auto;
+}
+
+.container-profile {
+    max-width: 900px;
+    margin: 40px auto;
+    background: rgba(0, 82, 212, 0.85);
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 0 20px rgba(0, 82, 212, 0.5);
+}
+
+.container-profile h2 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.perfil-content {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+.perfil-left {
+    flex: 1;
     text-align: center;
 }
 
-.perfil.centrado img {
+.foto-perfil {
+    width: 180px;
+    height: 180px;
+    object-fit: cover;
     border-radius: 50%;
+    border: 4px solid #0b3d91;
     margin-bottom: 15px;
 }
 
-/* Lista de info */
-.info-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    font-size: 1.1em;
+.perfil-left p {
+    font-size: 16px;
+    margin: 5px 0;
 }
 
-/* Sección con las dos columnas en fila */
-.secciones.fila-separada {
-    display: flex;
-    justify-content: space-around; /* espacio entre columnas */
-    gap: 20px; /* espacio entre columnas */
-    margin: 40px auto;
-    max-width: 1100px;
+.perfil-right {
+    flex: 2;
+    font-size: 15px;
 }
 
-/* Cada cuadro ocupa la mitad menos margen */
-.seccion-cuadro {
-    flex: 1 1 45%;
-    background-color: #f0f4f8;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
-    overflow-x: auto;
+.perfil-right h3 {
+    border-bottom: 2px solid #0b3d91;
+    padding-bottom: 8px;
+    margin-bottom: 15px;
 }
 
-/* Tablas más responsivas */
-table {
-    width: 100%;
-    border-collapse: collapse;
+.perfil-right p {
+    margin-bottom: 10px;
+    line-height: 1.6;
 }
-
-thead {
-    background-color: #004080;
-    color: white;
-}
-
-th, td {
-    padding: 8px 12px;
-    border: 1px solid #ccc;
-    text-align: center;
-}
-
-.empty-msg {
-    font-style: italic;
-    color: #666;
-}
-
-/* Botón recargar */
-.btn-notificaciones {
-    background-color: #004080;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-right: 10px;
-}
-
-.btn-notificaciones:hover {
-    background-color: #003366;
-}
-
-.reload-icon {
-    cursor: pointer;
-    font-size: 20px;
-    vertical-align: middle;
-    color: #004080;
-}
-.reload-icon:hover {
-    color: #002244;
-}
-

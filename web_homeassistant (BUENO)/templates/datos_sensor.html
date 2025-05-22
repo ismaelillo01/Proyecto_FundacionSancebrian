@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Datos Sensores</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/datos_sensor.css') }}">
+</head>
+<body>
+    <main class="container-row">
+        <section class="left-section">
+            <h2>Seleccionar Usuario</h2>
+            <form method="post">
+                <select name="usuario">
+                    {% for u in usuarios %}
+                        <option value="{{ u['usuario'] }}">{{ u['usuario'] }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Ver info</button>
+            </form>
+            {% if user_info %}
+                <img class="foto-perfil" src="{{ user_info['foto_perfil'] or url_for('static', filename='images/perfil_default.jpg') }}" alt="Foto de perfil">
+                <p><strong>Nombre:</strong> {{ user_info['nombre'] }}</p>
+                <p><strong>Patologías:</strong> {{ user_info['patologias'] }}</p>
+            {% endif %}
+        </section>
+        <section class="right-section">
+            <h2>Datos Sensores</h2>
+            <table class="tabla-sensores">
+                <thead>
+                    <tr><th>Nombre</th><th>Estancia</th><th>Último Dato</th><th>Fecha/Hora</th><th>Batería</th></tr>
+                </thead>
+                <tbody>
+                    {% for sensor in sensores %}
+                        <tr>
+                            <td>{{ sensor.nombre }}</td>
+                            <td>{{ sensor.estancia }}</td>
+                            <td>{{ sensor.ultimo_dato }}</td>
+                            <td>{{ sensor.fecha_hora }}</td>
+                            <td>{{ sensor.bateria }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
+</body>
+</html>

@@ -1,9 +1,8 @@
 {% extends 'base.html' %}
 
-{% block title %}Perfil de {{ nombre_buscado }}{% endblock %}
+{% block title %}Perfil de {{ nombre_buscado or 'Usuario no encontrado' }}{% endblock %}
 
 {% block head %}
-
 {% endblock %}
 
 {% block content %}
@@ -12,7 +11,7 @@
     <!-- Sección centrada con foto y datos -->
     <section class="perfil centrado">
         <img src="{{ url_for('static', filename='img/img_3.png') }}" alt="Foto de perfil" width="150" height="150">
-        <h1>{{ nombre }}</h1>
+        <h1>{{ nombre or 'Usuario no encontrado' }}</h1>
         <ul class="info-list">
             <li><strong>Fecha de nacimiento:</strong> {{ fecha_nacimiento or 'No disponible' }}</li>
             <li><strong>Dirección:</strong> {{ direccion or 'No disponible' }}</li>
