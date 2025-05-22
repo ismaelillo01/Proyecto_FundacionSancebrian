@@ -7,7 +7,6 @@ import pytz
 
 router = APIRouter()
 
-# Carga de configuración y zona horaria
 load_dotenv()
 HOME_ASSISTANT_URL = os.getenv("HA_URL")
 TOKEN = os.getenv("HA_TOKEN")
@@ -33,15 +32,15 @@ def get_dispositivos_detalle():
 
     for sensor in sensores_raw:
         entity_id = sensor.get("entity_id", "")
+        # Filtro
         if not entity_id.startswith(("sensor.", "binary_sensor.", "button.", "update.")):
             continue
 
-        # Agrupación basada en las dos primeras partes del entity_id sin prefijo
-        sin_prefijo = entity_id.split(".")[1]
-        partes = sin_prefijo.split("_")
-        dispositivo_id = "_".join(partes[:2]) if len(partes) >= 2 else partes[0]
+        # Obtener parte común para el id de dispositivo: tras punto hasta primer guion bajo o todo si no hay guion bajo
+        id_part = entity_id.split(".", 1)[1]  
+        dispositivo_id = id_part.split("_", 1)[0]  
 
-        nombre = dispositivo_id
+        nombre = dispositivo_id  
         friendly = sensor["attributes"].get("friendly_name", entity_id)
         raw_time = sensor.get("last_updated", "")
         unidad = sensor["attributes"].get("unit_of_measurement")

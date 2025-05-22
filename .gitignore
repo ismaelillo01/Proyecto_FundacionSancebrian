@@ -1,0 +1,13 @@
+# Entorno virtual
+venv/
+
+# Bytecode python
+__pycache__/
+*.py[cod]
+
+# Archivos de logs
+*.log
+
+# Archivos de configuración de IDEs
+.vscode/
+.idea/

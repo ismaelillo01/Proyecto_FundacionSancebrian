@@ -54,7 +54,7 @@ def get_sensor_state():
                         dt_local = dt_utc.astimezone(TIMEZONE)
                         formatted_time = dt_local.strftime("%d/%m/%Y %H:%M")
                     except Exception:
-                        formatted_time = raw_time  # fallback
+                        formatted_time = raw_time  
 
                 tipo = "binario" if e["entity_id"].startswith("binary_sensor.") else "numérico"
 
