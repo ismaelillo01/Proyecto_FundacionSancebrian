@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Datos Sensores</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/datos_sensor.css') }}">
+</head>
+<body>
+<header class="main-header">
+    <div class="nav-left">
+        <div class="dropdown">
+            <span>&gt; Datos sensores</span>
+            <div class="dropdown-content">
+                <a href="{{ url_for('home') }}">Panel principal</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-center">
+        <img src="{{ url_for('static', filename='img/img.png') }}" alt="Logo Fundación" class="logo">
+    </div>
+
+    <div class="nav-right">
+        <img src="{{ url_for('static', filename='img/img_1.png') }}" alt="Foto perfil">
+        <div class="dropdown">
+            <span>{{ nombre }}</span>
+            <div class="dropdown-content">
+                <a href="{{ url_for('logout') }}">Cerrar sesión</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="container-row">
+    <section class="left-section">
+        <h2>Seleccionar Usuario</h2>
+        <form method="post">
+            <select name="usuario">
+                {% for u in usuarios %}
+                <option value="{{ u['usuario'] }}">{{ u['usuario'] }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Ver info</button>
+        </form>
+        {% if user_info %}
+        <img class="foto-perfil" src="{{ user_info['foto_perfil'] }}" alt="Foto de perfil">
+        <p><strong>Nombre:</strong> {{ user_info['nombre'] }}</p>
+        {% endif %}
+    </section>
+    <section class="right-section">
+        <h2>Datos Sensores</h2>
+        <table class="tabla-sensores">
+            <thead>
+            <tr><th>Nombre</th><th>Estancia</th><th>Último Dato</th><th>Fecha/Hora</th><th>Batería</th></tr>
+            </thead>
+            <tbody>
+            {% for sensor in sensores %}
+            <tr>
+                <td>{{ sensor.nombre }}</td>
+                <td>{{ sensor.estancia }}</td>
+                <td>{{ sensor.ultimo_dato }}</td>
+                <td>{{ sensor.fecha_hora }}</td>
+                <td>{{ sensor.bateria }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>
