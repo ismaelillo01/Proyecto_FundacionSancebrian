@@ -36,16 +36,13 @@ def home():
     user_detail = None
     if usuario_buscado:
         cur.execute("""
-                    SELECT nombre_usuario, fecha_nacimiento, direccion, patologias
+                    SELECT nombre_usuario
                     FROM usuarios WHERE nombre_usuario = :usuario_buscado
                     """, usuario_buscado=usuario_buscado)
         row = cur.fetchone()
         if row:
             user_detail = {
                 'nombre_usuario': row[0],
-                'fecha_nacimiento': row[1],
-                'direccion': row[2],
-                'patologias': row[3],
             }
         else:
             flash("Usuario no encontrado.")
@@ -82,7 +79,7 @@ def datos_sensor():
     if request.method == 'POST':
         usuario_sel = request.form.get('usuario')
         cur.execute("""
-                    SELECT nombre_usuario, fecha_nacimiento, direccion, patologias
+                    SELECT nombre_usuario
                     FROM usuarios WHERE nombre_usuario = :usuario_sel
                     """, usuario_sel=usuario_sel)
         user_data = cur.fetchone()
@@ -90,9 +87,6 @@ def datos_sensor():
         if user_data:
             user_info = {
                 'nombre': user_data[0],
-                'fecha_nacimiento': user_data[1],
-                'direccion': user_data[2],
-                'patologias': user_data[3],
                 'foto_perfil': url_for('static', filename='img/img_1.png')  # fija o dinámica según tu lógica
             }
             cur.execute("""

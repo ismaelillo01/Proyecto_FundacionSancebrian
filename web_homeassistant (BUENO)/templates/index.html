@@ -31,42 +31,80 @@
         </div>
     </div>
 </header>
-
 <main>
-    <!-- Formulario de búsqueda -->
-    <form class="buscador" method="GET" action="{{ url_for('home') }}">
-        <input
-                type="text"
-                name="usuario"
-                placeholder="Escribe el nombre de usuario"
-                list="usuarios"
-                autocomplete="off"
-                value="{{ request.args.get('usuario', '') }}"
-        >
-        <datalist id="usuarios">
-            {% for u in usuarios %}
-            <option value="{{ u.nombre_usuario }}"></option>
-            {% endfor %}
-        </datalist>
-        <input type="submit" style="display:none">
-    </form>
+    <div class="fila-principal">
+        <!-- Columna izquierda -->
+        <div class="columna-izquierda">
+            <!-- Buscador -->
+            <h2 class="titulo-buscador">Buscador de usuarios</h2>
+            <form class="buscador" method="GET" action="{{ url_for('home') }}">
+                <input
+                        type="text"
+                        name="usuario"
+                        placeholder="Escribe el nombre de usuario"
+                        list="usuarios"
+                        autocomplete="off"
+                        value="{{ request.args.get('usuario', '') }}"
+                >
+                <datalist id="usuarios">
+                    {% for u in usuarios %}
+                    <option value="{{ u.nombre_usuario }}"></option>
+                    {% endfor %}
+                </datalist>
+                <input type="submit" style="display:none">
+            </form>
 
-    <!-- Si hay usuario buscado, mostrar detalles -->
-    {% if user_detail %}
-    <section class="perfil-contenedor" style="margin-top: 2rem;">
-        <img src="{{ url_for('static', filename='img/img_1.png') }}" alt="Foto perfil" class="foto-perfil">
-        <div class="datos-perfil">
-            <h2>{{ user_detail.nombre_usuario }}</h2>
-            <hr>
-            <ul>
-                <li><strong>Fecha de nacimiento:</strong> {{ user_detail.fecha_nacimiento }}</li>
-                <li><strong>Dirección:</strong> {{ user_detail.direccion }}</li>
-                <li><strong>Patologías:</strong> {{ user_detail.patologias }}</li>
-            </ul>
+            {% if user_detail %}
+            <!-- Sección de actividades con tabla -->
+            <section class="tabla-actividades">
+                <h3>Actividades del día</h3>
+                <form method="GET" action="{{ url_for('home') }}">
+                    <input type="hidden" name="usuario" value="{{ request.args.get('usuario') }}">
+                    <input type="date" name="fecha" class="selector-fecha" value="{{ request.args.get('fecha', '') }}">
+                    <input type="submit" value="Buscar" class="boton-fecha">
+                </form>
+
+                {% if actividades %}
+                <table class="tabla">
+                    <thead>
+                    <tr>
+                        <th>Hora Inicio - Hora Fin</th>
+                        <th>Nombre Actividad</th>
+                        <th>Hora Realizada</th>
+                        <th>Estado</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for act in actividades %}
+                    <tr>
+                        <td>{{ act.hora_inicio }} - {{ act.hora_fin }}</td>
+                        <td>{{ act.nombre }}</td>
+                        <td>{{ act.hora_realizada }}</td>
+                        <td>{{ act.estado }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p>No hay actividades para la fecha seleccionada.</p>
+                {% endif %}
+            </section>
+            {% endif %}
         </div>
-    </section>
-    {% endif %}
-</main>
 
+        <!-- Columna derecha -->
+        {% if user_detail %}
+        <div class="columna-derecha">
+            <section class="perfil-contenedor">
+                <img src="{{ url_for('static', filename='img/img_1.png') }}" alt="Foto perfil" class="foto-perfil">
+                <div class="datos-perfil">
+                    <h2>{{ user_detail.nombre_usuario }}</h2>
+                    <hr>
+                </div>
+            </section>
+        </div>
+        {% endif %}
+    </div>
+</main>
 </body>
 </html>
