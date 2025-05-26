@@ -1,46 +1,82 @@
-from fastapi import APIRouter
+# dispositivos/detalle.py
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
-import os, requests
-from dotenv import load_dotenv
+import requests
 from datetime import datetime
 import pytz
+from app.database.db import get_connection  # asegúrate de importar esto
 
 router = APIRouter()
 
-load_dotenv()
-HOME_ASSISTANT_URL = os.getenv("HA_URL")
-TOKEN = os.getenv("HA_TOKEN")
-HEADERS = {
-    "Authorization": f"Bearer {TOKEN}",
-    "Content-Type": "application/json"
-}
 TIMEZONE = pytz.timezone("Europe/Madrid")
 
-@router.get("/detalle")
-def get_dispositivos_detalle():
+def get_url_y_token(id_cliente: int):
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
+            SELECT h.id_hogar_url, h.token
+            FROM hogares h
+            JOIN clientes c ON c.id_hogar_url = h.id_hogar_url
+            WHERE c.id_cliente = :id_cliente
+        """, [id_cliente])
+        row = cursor.fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Cliente no encontrado o sin hogar asignado")
+        return row[0], row[1]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cursor.close()
+        conn.close()
+
+@router.get("/detalle/{id_cliente}")
+def get_dispositivos_detalle(id_cliente: int):
+    # Obtener URL y TOKEN desde la BD
+    HOME_ASSISTANT_URL, TOKEN = get_url_y_token(id_cliente)
+
+    HEADERS = {
+        "Authorization": f"Bearer {TOKEN}",
+        "Content-Type": "application/json"
+    }
+
     url = f"{HOME_ASSISTANT_URL}/api/states"
-    response = requests.get(url, headers=HEADERS)
+    response = requests.get(url, headers=HEADERS, verify=False)
 
     if response.status_code != 200:
         return JSONResponse(
-            status_code=response.status_code,
-            content={"success": False, "message": "Error al obtener sensores.", "detail": response.text}
-        )
+        status_code=response.status_code,
+        content={
+            "success": False,
+            "message": f"Error al obtener sensores desde Home Assistant. Código: {response.status_code}",
+            "response_text": response.text  # para depurar
+        }
+    )
+
+    try:
+        sensores_raw = response.json()
+    except ValueError:
+        return JSONResponse(
+        status_code=500,
+        content={
+            "success": False,
+            "message": "La respuesta no es JSON válido. Revisa la URL, el token o los permisos.",
+            "response_text": response.text  # muestra qué devolvió exactamente el servidor
+        }
+    )
 
     sensores_raw = response.json()
     dispositivos = {}
 
     for sensor in sensores_raw:
         entity_id = sensor.get("entity_id", "")
-        # Filtro
         if not entity_id.startswith(("sensor.", "binary_sensor.", "button.", "update.")):
             continue
 
-        # Obtener parte común para el id de dispositivo: tras punto hasta primer guion bajo o todo si no hay guion bajo
-        id_part = entity_id.split(".", 1)[1]  
-        dispositivo_id = id_part.split("_", 1)[0]  
+        id_part = entity_id.split(".", 1)[1]
+        dispositivo_id = id_part.split("_", 1)[0]
 
-        nombre = dispositivo_id  
+        nombre = dispositivo_id
         friendly = sensor["attributes"].get("friendly_name", entity_id)
         raw_time = sensor.get("last_updated", "")
         unidad = sensor["attributes"].get("unit_of_measurement")
