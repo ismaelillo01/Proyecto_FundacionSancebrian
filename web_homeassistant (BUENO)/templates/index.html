@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Inicio / Perfil</title>
-    <link rel="stylesheet" href="static/css/index1.css">
+    <link rel="stylesheet" href="../static/css/index1.css">
 </head>
 <body>
 
@@ -18,15 +18,15 @@
     </div>
 
     <div class="nav-center">
-        <img src="static/img/img.png" alt="Logo Fundación" class="logo">
+        <img src="../static/img/img.png" alt="Logo Fundación" class="logo">
     </div>
 
     <div class="nav-right">
-        <img src="static/img/img_1.png" alt="Foto perfil">
+        <img src="../static/img/img_1.png" alt="Foto perfil">
         <div class="dropdown">
             <span>Nombre Usuario</span>
             <div class="dropdown-content">
-                <a href="logout.html">Cerrar sesión</a>
+                <a href="login.html">Cerrar sesión</a>
             </div>
         </div>
     </div>
@@ -38,13 +38,15 @@
             <!-- Sección Buscador -->
             <section class="seccion-cuadro">
                 <h2 class="titulo-buscador centrado">Buscador de usuarios</h2>
-                <form class="buscador" method="GET" action="#">
+                <form id="buscadorForm" class="buscador" method="GET" action="#">
                     <input
                             type="text"
+                            id="usuarioInput"
                             name="usuario"
                             placeholder="Escribe el nombre de usuario"
                             list="usuarios"
                             autocomplete="off"
+                            required
                     >
                     <datalist id="usuarios">
                         <option value="usuario1"></option>
@@ -57,6 +59,18 @@
         </div>
     </div>
 </main>
+
+<script>
+    // Al enviar el formulario, redirige a datos_sensor.html pasando el usuario en la URL
+    document.getElementById('buscadorForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // evitar envío normal
+        const usuario = document.getElementById('usuarioInput').value.trim();
+        if (usuario) {
+            // redirigir con query param
+            window.location.href = 'datos_sensor.html?usuario=' + encodeURIComponent(usuario);
+        }
+    });
+</script>
 
 </body>
 </html>

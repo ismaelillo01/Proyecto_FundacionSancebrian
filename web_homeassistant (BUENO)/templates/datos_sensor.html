@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>Datos Sensores</title>
+    <link rel="stylesheet" href="../static/css/datos_sensor.css" />
+</head>
+<body>
+<header class="main-header">
+    <div class="nav-left">
+        <div class="dropdown">
+            <span><h2>Panel principal</h2></span>
+        </div>
+    </div>
+
+    <div class="nav-center">
+        <img src="../static/img/img.png" alt="Logo Fundación" class="logo" />
+    </div>
+
+    <div class="nav-right">
+        <img src="../static/img/img_1.png" alt="Foto perfil" />
+        <div class="dropdown">
+            <span>Nombre Usuario</span>
+            <div class="dropdown-content">
+                <a href="login.html">Cerrar sesión</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="fila-principal">
+    <!-- Columna izquierda -->
+    <div class="columna-izquierda">
+        <!-- Parte fija -->
+        <div class="zona-fija">
+            <section class="seccion buscador-usuarios">
+                <form method="POST" action="#">
+                    <select name="usuario" required>
+                        <option value="" disabled selected>-- Selecciona un usuario --</option>
+                        <option value="usuario1">usuario1</option>
+                        <option value="usuario2">usuario2</option>
+                        <option value="usuario3">usuario3</option>
+                    </select>
+                    <input type="submit" style="display:none" />
+                </form>
+            </section>
+        </div>
+
+        <!-- Parte scrollable -->
+        <div class="scrollable-content">
+            <section class="seccion perfil-principal">
+                <img src="../static/img/img_1.png" alt="Foto perfil" class="foto-perfil" />
+                <div class="datos-principales">
+                    <h3>Juan Pérez</h3>
+                    <p>Apellidos: Pérez García</p>
+                </div>
+            </section>
+
+            <section class="seccion descripcion-usuario">
+                <h3>Descripción</h3>
+                <p>Este usuario es un ejemplo de perfil estático para mostrar el diseño.</p>
+            </section>
+
+            <section class="seccion datos-personales">
+                <h3>Datos personales</h3>
+                <ul>
+                    <li>Edad: 30</li>
+                    <li>Teléfono: 123-456-789</li>
+                    <li>Email: juan.perez@example.com</li>
+                </ul>
+            </section>
+        </div>
+    </div>
+
+    <!-- Columna derecha con tabla -->
+    <div class="columna-derecha">
+        <table class="tabla-sensores">
+            <tbody>
+            <tr><td>Sensor 1</td><td>Sensor 2</td></tr>
+            <tr><td>Sensor 3</td><td>Sensor 4</td></tr>
+            <tr><td>Sensor 5</td><td>Sensor 6</td></tr>
+            <tr><td>Sensor 7</td><td>Sensor 8</td></tr>
+            <tr><td>Sensor 9</td><td>Sensor 10</td></tr>
+            <tr><td>Sensor 11</td><td>Sensor 12</td></tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>
