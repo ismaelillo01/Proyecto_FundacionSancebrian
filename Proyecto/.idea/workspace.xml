@@ -4,21 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="269b1bfa-9b9c-46cb-92c3-7d4691e4a7e3" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/fdc4a85a-004b-4ce1-9791-392c00772241.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/fdc4a85a-004b-4ce1-9791-392c00772241/storage_v2/_src_/schema/main.uQUzAA.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Home/appi.py" beforeDir="false" afterPath="$PROJECT_DIR$/Home/appi.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Home/static/css/base.css" beforeDir="false" afterPath="$PROJECT_DIR$/Home/static/css/base.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Home/static/css/datos_sensor.css" beforeDir="false" afterPath="$PROJECT_DIR$/Home/static/css/datos_sensor.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Home/static/css/index2.css" beforeDir="false" afterPath="$PROJECT_DIR$/Home/static/css/index2.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Home/templates/datos_sensor.html" beforeDir="false" afterPath="$PROJECT_DIR$/Home/templates/datos_sensor.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Home/templates/index1.html" beforeDir="false" afterPath="$PROJECT_DIR$/Home/templates/index1.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Home/templates/index2.html" beforeDir="false" afterPath="$PROJECT_DIR$/Home/templates/index2.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Home/templates/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/Home/templates/login.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Home/templates/register.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Home/usuarios.db" beforeDir="false" afterPath="$PROJECT_DIR$/Home/usuarios.db" afterDir="false" />
-    </list>
+    <list default="true" id="58954091-3032-454a-a4ea-36858cdfe93f" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -27,7 +13,6 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="JavaScript File" />
         <option value="Python Script" />
       </list>
     </option>
@@ -36,73 +21,45 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
   <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 0
+  &quot;associatedIndex&quot;: 3
 }</component>
-  <component name="ProjectId" id="2xMQhiBhKX1iUDj1Va8lYxYuiRV" />
+  <component name="ProjectId" id="2xRWnZCNrMSvl0X3dj2CCGNyaMM" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "JavaScript Debug.index.html.executor": "Run",
     "JavaScript Debug.index1.html.executor": "Run",
     "JavaScript Debug.index2.html.executor": "Run",
-    "JavaScript Debug.index3.html.executor": "Run",
     "JavaScript Debug.login.html.executor": "Run",
-    "JavaScript Debug.register.html.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python.appi.executor": "Run",
-    "Python.crear_db_provisional.executor": "Run",
+    "Python.app.executor": "Run",
+    "Python.crear_db.executor": "Run",
+    "Python.prueba.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "frontend",
-    "last_opened_file_path": "C:/Users/alumno/Proyecto_FundacionSancebrian/Proyecto",
+    "last_opened_file_path": "C:/Users/alumno/Proyecto_FundacionSancebrian/web_homeassistant (BUENO)",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
+    "settings.editor.splitter.proportion": "0.2820774",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\alumno\Proyecto_FundacionSancebrian\Proyecto\Home\static" />
-      <recent name="C:\Users\alumno\Proyecto_FundacionSancebrian\Proyecto\Home\static\css" />
-      <recent name="C:\Users\alumno\Proyecto_FundacionSancebrian\Proyecto\Home\templates" />
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\alumno\Desktop\web_homeassistant\static\img" />
     </key>
-  </component>
-  <component name="RunManager">
-    <configuration name="crear_db_provisional" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Proyecto" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Home" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Home/crear_db_provisional.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Python.crear_db_provisional" />
-      </list>
-    </recent_temporary>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\alumno\Proyecto_FundacionSancebrian\web_homeassistant (BUENO)\templates" />
+      <recent name="C:\Users\alumno\Proyecto_FundacionSancebrian\web_homeassistant (BUENO)" />
+    </key>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -113,16 +70,15 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="269b1bfa-9b9c-46cb-92c3-7d4691e4a7e3" name="Changes" comment="" />
-      <created>1747745583469</created>
+      <changelist id="58954091-3032-454a-a4ea-36858cdfe93f" name="Changes" comment="" />
+      <created>1747901533571</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1747745583469</updated>
-      <workItem from="1747745584823" duration="323000" />
-      <workItem from="1747810872804" duration="3915000" />
-      <workItem from="1747817642612" duration="3864000" />
-      <workItem from="1747822717901" duration="9154000" />
-      <workItem from="1747897470082" duration="3914000" />
+      <updated>1747901533571</updated>
+      <workItem from="1747901534737" duration="1874000" />
+      <workItem from="1747903572039" duration="12770000" />
+      <workItem from="1748243911300" duration="17636000" />
+      <workItem from="1748329332612" duration="15997000" />
     </task>
     <servers />
   </component>
