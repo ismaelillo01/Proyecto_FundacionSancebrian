@@ -1,14 +1,8 @@
-
-.container-row {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-    margin: 20px 0;
-}
 body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
+    background-color: #d3d3d3;
 }
 
 .main-header {
@@ -60,4 +54,133 @@ body {
     height: 40px;
     border-radius: 50%;
     margin-right: 10px;
+}
+
+/* Fila principal con separación */
+.fila-principal {
+    display: flex;
+    width: 100%;
+    box-sizing: border-box;
+    justify-content: space-between;
+    gap: 0.2%;
+    margin-top: 0.2%;
+}
+
+/* Columna izquierda */
+.columna-izquierda {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2%;
+}
+
+/* Columna derecha */
+.columna-derecha {
+    width: 50%;
+    background-color: #ed6809;
+    border: 1.5px solid #a0522d;
+    border-radius: 8px;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+/* Buscador */
+.buscador {
+    display: flex;
+    justify-content: center;
+}
+
+.buscador input {
+    padding: 10px;
+    font-size: 16px;
+    width: 100%;
+    max-width: 300px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.seccion-cuadro {
+    background-color: #ed6809;
+    border: 1.5px solid #a0522d;
+    border-radius: 8px;
+    padding: 1rem;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+/* CENTRADO DEL TEXTO DEL BUSCADOR */
+.titulo-buscador {
+    text-align: center;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+/* Perfil */
+.perfil-contenedor {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    padding: 1rem;
+    border-radius: 8px;
+    background-color: #ed6809;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    width: fit-content;
+    margin-bottom: 1rem;
+}
+
+.foto-perfil {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 1rem;
+}
+
+.datos-perfil h2 {
+    margin: 0;
+    color: white;
+}
+
+.datos-perfil hr {
+    width: 100%;
+    border: none;
+    border-top: 2px solid #000;
+    margin-top: 0.5rem;
+}
+
+/* Tabla sensores */
+.tabla-sensores {
+    width: 100%;
+    border-collapse: collapse;
+    border: 2px solid #000;
+    background-color: #fff;
+}
+
+.tabla-sensores th, .tabla-sensores td {
+    padding: 10px;
+    text-align: center;
+    border: none;
+}
+
+.tabla-sensores thead {
+    background-color: #ccc;
+}
+
+.tabla-sensores tbody tr:nth-child(odd) {
+    background-color: white;
+}
+
+.tabla-sensores tbody tr:nth-child(even) {
+    background-color: #e0e0e0;
+}
+
+/* Plano */
+.plano-casa {
+    margin: 1rem 0;
+    background-color: #f5f5f5;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px dashed #999;
+    text-align: center;
+    font-style: italic;
 }

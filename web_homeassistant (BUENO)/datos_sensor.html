@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>Datos Sensores</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/datos_sensor.css') }}" />
+</head>
+<body>
+<header class="main-header">
+    <div class="nav-left">
+        <div class="dropdown">
+            <span>&gt; Datos sensores</span>
+            <div class="dropdown-content">
+                <a href="{{ url_for('home') }}">Panel principal</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-center">
+        <img src="{{ url_for('static', filename='img/img.png') }}" alt="Logo Fundación" class="logo" />
+    </div>
+
+    <div class="nav-right">
+        <img src="{{ url_for('static', filename='img/img_1.png') }}" alt="Foto perfil" />
+        <div class="dropdown">
+            <span>{{ nombre }}</span>
+            <div class="dropdown-content">
+                <a href="{{ url_for('logout') }}">Cerrar sesión</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="fila-principal" style="flex-direction: column; gap: 1rem; padding: 1rem;">
+    <!-- Buscador -->
+    <section class="seccion-cuadro" style="width: 100%;">
+        <h2 class="titulo-buscador">Buscador de usuarios</h2>
+        <form class="buscador" method="POST" action="{{ url_for('datos_sensor') }}">
+            <select name="usuario" required
+                    style="width: 100%; max-width: 400px; padding: 10px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; margin: 0 auto; display: block;">
+                <option value="" disabled {% if not usuario_seleccionado %}selected{% endif %}>-- Selecciona un usuario --</option>
+                {% for u in usuarios %}
+                <option value="{{ u.nombre_usuario }}" {% if usuario_seleccionado == u.nombre_usuario %}selected{% endif %}>{{ u.nombre_usuario }}</option>
+                {% endfor %}
+            </select>
+            <input type="submit" style="display: none;" />
+        </form>
+    </section>
+
+    <!-- Datos y sensores del usuario seleccionado -->
+    {% if user_info %}
+    <section class="columna-derecha" style="width: 100%; max-width: 900px; margin: 0 auto; background-color: #ed6809; border: 1.5px solid #a0522d; border-radius: 8px; padding: 1rem; box-sizing: border-box;">
+        <div class="perfil-contenedor" style="justify-content: center;">
+            <img src="{{ user_info.foto_perfil }}" alt="Foto perfil" class="foto-perfil" />
+            <div class="datos-perfil">
+                <h2>{{ user_info.nombre }}</h2>
+                <hr />
+            </div>
+        </div>
+
+        <h2 style="text-align: center; margin-top: 1rem;">Datos Sensores</h2>
+        <table class="tabla-sensores" style="margin: 0 auto; max-width: 100%;">
+            <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Estancia</th>
+                <th>Último Dato</th>
+                <th>Fecha/Hora</th>
+                <th>Batería</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for sensor in sensores %}
+            <tr>
+                <td>{{ sensor.nombre }}</td>
+                <td>{{ sensor.estancia }}</td>
+                <td>{{ sensor.ultimo_dato }}</td>
+                <td>{{ sensor.fecha_hora }}</td>
+                <td>{{ sensor.bateria }}</td>
+            </tr>
+            {% endfor %}
+            {% if sensores|length == 0 %}
+            <tr>
+                <td colspan="5" style="text-align:center;">No hay sensores para este usuario.</td>
+            </tr>
+            {% endif %}
+            </tbody>
+        </table>
+    </section>
+    {% endif %}
+</main>
+</body>
+</html>

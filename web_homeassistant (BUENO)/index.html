@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Inicio / Perfil</title>
+    <link rel="stylesheet" href="static/css/index1.css">
+</head>
+<body>
+
+<header class="main-header">
+    <div class="nav-left">
+        <div class="dropdown">
+            <span>&gt; Panel principal</span>
+            <div class="dropdown-content">
+                <a href="datos_sensor.html">Datos sensores</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-center">
+        <img src="static/img/img.png" alt="Logo Fundación" class="logo">
+    </div>
+
+    <div class="nav-right">
+        <img src="static/img/img_1.png" alt="Foto perfil">
+        <div class="dropdown">
+            <span>Nombre Usuario</span>
+            <div class="dropdown-content">
+                <a href="logout.html">Cerrar sesión</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main>
+    <div class="fila-principal">
+        <div class="columna-izquierda">
+            <!-- Sección Buscador -->
+            <section class="seccion-cuadro">
+                <h2 class="titulo-buscador centrado">Buscador de usuarios</h2>
+                <form class="buscador" method="GET" action="#">
+                    <input
+                            type="text"
+                            name="usuario"
+                            placeholder="Escribe el nombre de usuario"
+                            list="usuarios"
+                            autocomplete="off"
+                    >
+                    <datalist id="usuarios">
+                        <option value="usuario1"></option>
+                        <option value="usuario2"></option>
+                        <option value="usuario3"></option>
+                    </datalist>
+                    <input type="submit" style="display:none">
+                </form>
+            </section>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>
