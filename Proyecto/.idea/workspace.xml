@@ -1,21 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="91c5a7c5-c1e5-4b0a-b427-509310816cac" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/prueba.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/web_homeassistant (BUENO).iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/css/base.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/css/datos_sensor.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/css/index1.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/css/login.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/css/perfil.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/img/images.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/img/img.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/img/img_1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/datos_sensor.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/login.html" beforeDir="false" />
+    <list default="true" id="bba4d615-ac1a-4596-8f9c-3b69abe393ab" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/static/img/logo_casa.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Proyecto/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Proyecto/.idea/runConfigurations/prueba.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Proyecto/.idea/web_homeassistant (BUENO).iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Proyecto/static/css/base.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Proyecto/static/css/datos_sensor.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Proyecto/static/css/index1.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Proyecto/static/css/login.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Proyecto/static/css/perfil.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Proyecto/static/img/images.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Proyecto/static/img/img.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Proyecto/static/img/img_1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Proyecto/templates/datos_sensor.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Proyecto/templates/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Proyecto/templates/login.html" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,24 +31,35 @@
   </component>
   <component name="ProjectColorInfo"><![CDATA[{
   "customColor": "",
-  "associatedIndex": 0
+  "associatedIndex": 3
 }]]></component>
-  <component name="ProjectId" id="2xg8ZK2UOH40jhRjqsvpIRXOUC7" />
+  <component name="ProjectId" id="2xg90dsIm37PAgbDR9tjSfjRx0z" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "JavaScript Debug.login.html.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.prueba.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "frontend",
-    "last_opened_file_path": "C:/Users/alumno/Proyecto_FundacionSancebrian/Proyecto",
+    "last_opened_file_path": "C:/Users/alumno/Proyecto_FundacionSancebrian/web_homeassistant (BUENO)/static/img",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\alumno\Proyecto_FundacionSancebrian\web_homeassistant (BUENO)\static\img" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -54,12 +69,12 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="91c5a7c5-c1e5-4b0a-b427-509310816cac" name="Changes" comment="" />
-      <created>1748348411932</created>
+      <changelist id="bba4d615-ac1a-4596-8f9c-3b69abe393ab" name="Changes" comment="" />
+      <created>1748348628017</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1748348411932</updated>
-      <workItem from="1748348413445" duration="213000" />
+      <updated>1748348628017</updated>
+      <workItem from="1748348629192" duration="1064000" />
     </task>
     <servers />
   </component>
