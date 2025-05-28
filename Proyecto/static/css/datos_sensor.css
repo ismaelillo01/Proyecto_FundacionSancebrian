@@ -13,7 +13,8 @@ body {
     align-items: center;
     background-color: #004080;
     color: white;
-    padding: 10px 30px;
+    padding: 15px 30px; /* Aumentado */
+    min-height: 80px;   /* Asegura espacio para logo */
 }
 
 .nav-left, .nav-center, .nav-right {
@@ -49,7 +50,8 @@ body {
 }
 
 .logo {
-    height: 50px;
+    height: 65px;        /* Aumentado */
+    max-height: 100%;    /* No sobresale */
 }
 
 .nav-right img {
@@ -61,7 +63,7 @@ body {
 /* === Estructura Principal === */
 .fila-principal {
     display: flex;
-    height: calc(100vh - 70px);
+    height: calc(100vh - 80px); /* Ajustado al nuevo header */
 }
 
 /* === Columna Izquierda === */
