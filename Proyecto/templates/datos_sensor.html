@@ -6,12 +6,10 @@
     <link rel="stylesheet" href="../static/css/datos_sensor.css" />
 </head>
 <body>
-<header class="main-header">
+<header class="main-header" id="movible-header">
     <div class="nav-left">
         <div class="dropdown">
-            <a href="index.html">
-                <img src="../static/img/logo_casa.png" alt="Logo_Casa">
-            </a>
+            <img src="../static/img/logo_casa.png" alt="Logo_Casa" class="Logo_Casa" />
         </div>
     </div>
 
@@ -35,17 +33,17 @@
     <div class="columna-izquierda">
         <!-- Parte fija -->
         <div class="zona-fija">
-            <section class="seccion buscador-usuarios">
-                <form method="POST" action="#">
-                    <select name="usuario" required>
-                        <option value="" disabled selected>-- Selecciona un usuario --</option>
-                        <option value="usuario1">usuario1</option>
-                        <option value="usuario2">usuario2</option>
-                        <option value="usuario3">usuario3</option>
-                    </select>
+            
+                <form method="POST" action="#" id="form-buscador">
+                    <input list="usuarios" name="usuario" id="input-usuario" placeholder="Escribe o selecciona usuario" autocomplete="off" required />
+                    <datalist id="usuarios">
+                        <option value="usuario1">
+                        <option value="usuario2">
+                        <option value="usuario3">
+                    </datalist>
                     <input type="submit" style="display:none" />
                 </form>
-            </section>
+
         </div>
 
         <!-- Parte scrollable -->
@@ -78,15 +76,125 @@
     <div class="columna-derecha">
         <table class="tabla-sensores">
             <tbody>
-            <tr><td>Sensor 1</td><td>Sensor 2</td></tr>
-            <tr><td>Sensor 3</td><td>Sensor 4</td></tr>
-            <tr><td>Sensor 5</td><td>Sensor 6</td></tr>
-            <tr><td>Sensor 7</td><td>Sensor 8</td></tr>
-            <tr><td>Sensor 9</td><td>Sensor 10</td></tr>
-            <tr><td>Sensor 11</td><td>Sensor 12</td></tr>
+            <tr><td onclick="mostrarModal('Sensor 1')">Sensor 1</td><td onclick="mostrarModal('Sensor 2')">Sensor 2</td></tr>
+            <tr><td onclick="mostrarModal('Sensor 3')">Sensor 3</td><td onclick="mostrarModal('Sensor 4')">Sensor 4</td></tr>
+            <tr><td onclick="mostrarModal('Sensor 5')">Sensor 5</td><td onclick="mostrarModal('Sensor 6')">Sensor 6</td></tr>
+            <tr><td onclick="mostrarModal('Sensor 7')">Sensor 7</td><td onclick="mostrarModal('Sensor 8')">Sensor 8</td></tr>
+            <tr><td onclick="mostrarModal('Sensor 9')">Sensor 9</td><td onclick="mostrarModal('Sensor 10')">Sensor 10</td></tr>
+            <tr><td onclick="mostrarModal('Sensor 11')">Sensor 11</td><td onclick="mostrarModal('Sensor 12')">Sensor 12</td></tr>
             </tbody>
         </table>
     </div>
 </main>
+
+<!-- Modal Inicial (con Subtipos) -->
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <span class="cerrar" onclick="cerrarModal()">×</span>
+        <h2 id="titulo-sensor">Sensor</h2>
+        <ul id="lista-subtipos">
+            <!-- Subtipos generados dinámicamente -->
+        </ul>
+    </div>
+</div>
+
+<!-- Modal Detalle (dos columnas) -->
+<div id="modal-detalle" class="modal">
+    <div class="modal-content">
+        <span class="cerrar" onclick="cerrarModalDetalle()">×</span>
+        <div class="modal-column-left">
+            <h3 id="detalle-sensor-titulo"></h3>
+            <ul id="detalle-sensor-info">
+                <!-- Información del sensor -->
+            </ul>
+        </div>
+        <div class="modal-column-right">
+            <h3>Gráfico Sensor</h3>
+            <div id="grafico-placeholder">[Gráfico Aquí]</div>
+            <div class="fecha-selector">
+                <label for="fecha">Fecha:</label>
+                <input type="date" id="fecha" value="2025-05-28" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JS -->
+<script>
+    function mostrarModal(sensorNombre) {
+        const modal = document.getElementById("modal");
+        const titulo = document.getElementById("titulo-sensor");
+        const lista = document.getElementById("lista-subtipos");
+
+        titulo.textContent = sensorNombre;
+
+        const subtipos = {
+            "Sensor 1": ["Temperatura", "Humedad"],
+            "Sensor 2": ["Presión", "Altitud"],
+            "Sensor 3": ["Luz", "UV"],
+            "Sensor 4": ["Ruido", "Frecuencia"],
+            // Agrega más si deseas
+        };
+
+        lista.innerHTML = "";
+
+        const datos = subtipos[sensorNombre] || ["Subtipo A", "Subtipo B", "Subtipo C"];
+        datos.forEach(subtipo => {
+            const li = document.createElement("li");
+            li.textContent = subtipo;
+            li.onclick = function() {
+                mostrarDetalleSubtipo(sensorNombre, subtipo); // Cuando se hace clic en un subtipo
+            };
+            lista.appendChild(li);
+        });
+
+        modal.style.display = "flex"; // Mostrar modal centrado
+    }
+
+    function mostrarDetalleSubtipo(sensorNombre, subtipo) {
+        const modalDetalle = document.getElementById("modal-detalle");
+        const titulo = document.getElementById("detalle-sensor-titulo");
+        const info = document.getElementById("detalle-sensor-info");
+
+        modalDetalle.style.display = "flex"; // Mostrar el modal con el contenido
+
+        // Actualizar el título
+        titulo.textContent = `${sensorNombre} - ${subtipo}`;
+
+        // Contenido del detalle del sensor
+        info.innerHTML = `
+            <li><strong>Descripción:</strong> Información del sensor para ${subtipo}.</li>
+            <li><strong>Ubicación:</strong> Ejemplo de ubicación</li>
+            <li><strong>Estado:</strong> Activo</li>
+        `;
+    }
+
+    function cerrarModal() {
+        document.getElementById("modal").style.display = "none";
+    }
+
+    function cerrarModalDetalle() {
+        document.getElementById("modal-detalle").style.display = "none";
+    }
+
+    // NUEVO: Formulario que busca usuario cuando se presiona Enter o selecciona y envía
+    document.getElementById('form-buscador').addEventListener('submit', function(e) {
+        e.preventDefault(); // Evitar que recargue la página
+
+        const usuario = document.getElementById('input-usuario').value.trim();
+
+        if (!usuario) {
+            alert('Por favor, escribe o selecciona un usuario válido.');
+            return;
+        }
+
+        // Aquí pon la lógica real para mostrar datos según el usuario
+        alert('Buscando datos del usuario: ' + usuario);
+
+        // Si tuvieras backend, podrías hacer:
+        // this.submit();
+    });
+</script>
+
 </body>
 </html>
