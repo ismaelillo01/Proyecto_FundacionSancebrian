@@ -4,23 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bba4d615-ac1a-4596-8f9c-3b69abe393ab" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/static/img/logo_casa.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Proyecto/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Proyecto/.idea/runConfigurations/prueba.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Proyecto/.idea/web_homeassistant (BUENO).iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Proyecto/static/css/base.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Proyecto/static/css/datos_sensor.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Proyecto/static/css/index1.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Proyecto/static/css/login.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Proyecto/static/css/perfil.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Proyecto/static/img/images.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Proyecto/static/img/img.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Proyecto/static/img/img_1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Proyecto/templates/datos_sensor.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Proyecto/templates/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Proyecto/templates/login.html" beforeDir="false" />
-    </list>
+    <list default="true" id="bba4d615-ac1a-4596-8f9c-3b69abe393ab" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -29,10 +13,10 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 3
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 3
+}</component>
   <component name="ProjectId" id="2xg90dsIm37PAgbDR9tjSfjRx0z" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -46,7 +30,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "frontend",
-    "last_opened_file_path": "C:/Users/alumno/Proyecto_FundacionSancebrian/web_homeassistant (BUENO)/static/img",
+    "last_opened_file_path": "C:/Users/alumno/Proyecto_FundacionSancebrian/Proyecto",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -75,6 +59,7 @@
       <option name="presentableId" value="Default" />
       <updated>1748348628017</updated>
       <workItem from="1748348629192" duration="1064000" />
+      <workItem from="1748350232254" duration="369000" />
     </task>
     <servers />
   </component>
