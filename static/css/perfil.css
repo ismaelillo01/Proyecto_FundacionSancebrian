@@ -1,0 +1,9 @@
+
+.perfil.centrado {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 30px auto;
+    max-width: 600px;
+    text-align: center;
+}
