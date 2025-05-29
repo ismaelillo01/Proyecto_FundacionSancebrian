@@ -3,90 +3,242 @@
 <head>
     <meta charset="UTF-8" />
     <title>Datos Sensores</title>
-    <link rel="stylesheet" href="../static/css/datos_sensor.css" />
+    <link rel="stylesheet" href="{{ url_for('static', path='css/datos_sensor.css') }}" />
+    <link rel="icon" href="{{ url_for('static', path='img/img.png') }}">
 </head>
 <body>
-<header class="main-header">
+<header class="main-header" id="movible-header">
     <div class="nav-left">
-        <div class="dropdown">
-            <a href="index.html">
-                <img src="../static/img/logo_casa.png" alt="Logo_Casa">
-            </a>
-        </div>
+        <a href="{{ url_for('root') }}">
+            <img src="{{ url_for('static', path='img/logo_casa.png') }}" alt="Logo_Casa" class="Logo_Casa" />
+        </a>
     </div>
 
     <div class="nav-center">
-        <img src="../static/img/img.png" alt="Logo Fundación" class="logo" />
+        <img src="{{ url_for('static', path='img/img.png') }}" alt="Logo Fundación" class="logo" />
     </div>
 
     <div class="nav-right">
-        <img src="../static/img/img_1.png" alt="Foto perfil" />
+        <img src="{{ url_for('static', path='img/img_1.png') }}" alt="Foto perfil" />
         <div class="dropdown">
-            <span>Nombre Usuario</span>
+            <span>{{ usuario or "Nombre Usuario" }}</span>
             <div class="dropdown-content">
-                <a href="/logout">Cerrar sesión</a>
+                <a href="{{ url_for('logout') }}">Cerrar sesión</a>
             </div>
         </div>
     </div>
 </header>
 
 <main class="fila-principal">
-    <!-- Columna izquierda -->
     <div class="columna-izquierda">
-        <!-- Parte fija -->
         <div class="zona-fija">
-            <section class="seccion buscador-usuarios">
-                <form method="POST" action="#">
-                    <select name="usuario" required>
-                        <option value="" disabled selected>-- Selecciona un usuario --</option>
-                        <option value="usuario1">usuario1</option>
-                        <option value="usuario2">usuario2</option>
-                        <option value="usuario3">usuario3</option>
-                    </select>
-                    <input type="submit" style="display:none" />
-                </form>
-            </section>
+            <form id="buscadorForm" class="buscador" method="GET" action="#">
+                <input
+                    type="text"
+                    id="usuarioInput"
+                    name="usuario"
+                    placeholder="Escribe el nombre de usuario"
+                    list="usuarios"
+                    autocomplete="off"
+                    required
+                >
+                <datalist id="usuarios"></datalist>
+                <input type="submit" style="display:none">
+                <input type="hidden" id="usuarioId" name="usuario_id">
+            </form>
         </div>
 
-        <!-- Parte scrollable -->
         <div class="scrollable-content">
+            {% if datos %}
             <section class="seccion perfil-principal">
-                <img src="../static/img/img_1.png" alt="Foto perfil" class="foto-perfil" />
+                <img src="{{ url_for('static', path='img/img_1.png') }}" alt="Foto perfil" class="foto-perfil" />
                 <div class="datos-principales">
-                    <h3>Juan Pérez</h3>
-                    <p>Apellidos: Pérez García</p>
+                    <h3>{{ datos.nombre }} {{ datos.apellido1 }}{% if datos.apellido2 %} {{ datos.apellido2 }}{% endif %}</h3>
+                    <p>Edad: 
+    {% if datos.edad is not none %}
+        {{ datos.edad }} años
+    {% else %}
+        No disponible
+    {% endif %}
+                    </p>
+                    <p>DNI: {{ datos.dni }}</p>
+                    <p>Registrado desde: {{ datos.fecha_registro }}</p>
+                    
                 </div>
             </section>
 
-            <section class="seccion descripcion-usuario">
-                <h3>Descripción</h3>
-                <p>Este usuario es un ejemplo de perfil estático para mostrar el diseño.</p>
-            </section>
+<section class="seccion datos-personales">
+    <h3>Datos personales</h3>
+    <ul>
+        <li>Dirección: {{ datos.direccion }}</li>
+        <li>Provincia: {{ datos.provincia }}</li>
+        <li>Código Postal: {{ datos.cp }}</li>
+        <li>Sexo: {{ datos.sexo or "No disponible" }}</li>
+        <li>Fecha de nacimiento:
+            {% if datos.fecha_nacimiento_es %}
+                {{ datos.fecha_nacimiento_es }}
+            {% else %}
+                No disponible
+            {% endif %}
+        </li>
 
-            <section class="seccion datos-personales">
-                <h3>Datos personales</h3>
-                <ul>
-                    <li>Edad: 30</li>
-                    <li>Teléfono: 123-456-789</li>
-                    <li>Email: juan.perez@example.com</li>
-                </ul>
+    </ul>
+</section>
+
+
+            <section class="seccion descripcion-usuario">
+                <h3>Descripción del hogar</h3>
+                <p>{{ datos.descripcion or "Sin descripción disponible" }}</p>
             </section>
+            {% else %}
+            <section class="seccion">
+                <p>No se encontraron datos para el usuario seleccionado.</p>
+            </section>
+            {% endif %}
         </div>
     </div>
 
-    <!-- Columna derecha con tabla -->
     <div class="columna-derecha">
-        <table class="tabla-sensores">
-            <tbody>
-            <tr><td>Sensor 1</td><td>Sensor 2</td></tr>
-            <tr><td>Sensor 3</td><td>Sensor 4</td></tr>
-            <tr><td>Sensor 5</td><td>Sensor 6</td></tr>
-            <tr><td>Sensor 7</td><td>Sensor 8</td></tr>
-            <tr><td>Sensor 9</td><td>Sensor 10</td></tr>
-            <tr><td>Sensor 11</td><td>Sensor 12</td></tr>
-            </tbody>
-        </table>
+        <h2 style="text-align:center;">Dispositivos del cliente</h2>
+       <h2 style="text-align:center;">Zonas de sensores</h2>
+<table id="tabla-zonas" border="1" style="width:100%; border-collapse: collapse; margin-top: 10px;">
+    <thead>
+        <tr>
+            <th>Zona</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Aquí se insertarán las zonas -->
+    </tbody>
+</table>
+
     </div>
 </main>
+
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <span class="cerrar" onclick="cerrarModal()">×</span>
+        <h2 id="titulo-sensor">Sensor</h2>
+        <ul id="lista-subtipos"></ul>
+    </div>
+</div>
+
+<div id="modal-detalle" class="modal">
+    <div class="modal-content">
+        <span class="cerrar" onclick="cerrarModalDetalle()">×</span>
+        <div class="modal-column-left">
+            <h3 id="detalle-sensor-titulo"></h3>
+            <ul id="detalle-sensor-info"></ul>
+        </div>
+        <div class="modal-column-right">
+            <h3>Gráfico Sensor</h3>
+            <div id="grafico-placeholder">[Gráfico Aquí]</div>
+            <div class="fecha-selector">
+                <label for="fecha">Fecha:</label>
+                <input type="date" id="fecha" value="2025-05-28" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+window.addEventListener('DOMContentLoaded', async () => {
+    const datalist = document.getElementById('usuarios');
+    const input = document.getElementById('usuarioInput');
+    const hiddenInput = document.getElementById('usuarioId');
+
+    try {
+        // Carga clientes en el datalist (igual que antes)
+        const response = await fetch('/personas/clientes');
+        const data = await response.json();
+
+        if (data.success) {
+            const nombresUnicos = new Set();
+
+            data.data.forEach(cliente => {
+                const nombreCompleto = `${cliente.nombre} ${cliente.apellido1}` + 
+                    (cliente.apellido2 ? ` ${cliente.apellido2}` : '');
+
+                if (!nombresUnicos.has(nombreCompleto)) {
+                    nombresUnicos.add(nombreCompleto);
+                    const option = document.createElement('option');
+                    option.value = nombreCompleto;
+                    option.dataset.id = cliente.id_cliente;
+                    datalist.appendChild(option);
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Error al cargar clientes:', error);
+    }
+
+    input.addEventListener('input', () => {
+        const selectedOption = [...datalist.options].find(
+            option => option.value === input.value
+        );
+        hiddenInput.value = selectedOption ? selectedOption.dataset.id : '';
+    });
+
+    // Solo cargar zonas (no dispositivos) si hay usuario_id
+    const params = new URLSearchParams(window.location.search);
+    const usuario_id = params.get("usuario_id");
+    if (usuario_id) {
+        try {
+           const response = await fetch(`/dispositivos/zonas/${usuario_id}`);
+
+            const data = await response.json();
+
+            const tbody = document.querySelector("#tabla-zonas tbody");
+            tbody.innerHTML = ""; // limpiar tabla
+
+            if (!data.success) {
+                tbody.innerHTML = `<tr><td style="color:red;">Error: ${data.detail || 'Error al cargar zonas'}</td></tr>`;
+                return;
+            }
+
+            if (data.zonas.length === 0) {
+                tbody.innerHTML = `<tr><td>No se encontraron zonas para este cliente.</td></tr>`;
+                return;
+            }
+
+            data.zonas.forEach(zona => {
+                const tr = document.createElement("tr");
+                const td = document.createElement("td");
+                td.textContent = zona;
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+            });
+
+        } catch (error) {
+            const tbody = document.querySelector("#tabla-zonas tbody");
+            tbody.innerHTML = `<tr><td style="color:red;">Error al cargar zonas.</td></tr>`;
+            console.error(error);
+        }
+    }
+});
+
+// Formulario para redirigir con usuario_id (igual que antes)
+document.getElementById('buscadorForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const id = document.getElementById('usuarioId').value;
+    if (id) {
+        window.location.href = '/datos?usuario_id=' + encodeURIComponent(id);
+    } else {
+        alert("Selecciona un usuario válido de la lista.");
+    }
+});
+
+
+document.getElementById('buscadorForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const id = document.getElementById('usuarioId').value;
+    if (id) {
+        window.location.href = '/datos?usuario_id=' + encodeURIComponent(id);
+    } else {
+        alert("Selecciona un usuario válido de la lista.");
+    }
+});
+</script>
+
 </body>
 </html>

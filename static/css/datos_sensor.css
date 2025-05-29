@@ -13,7 +13,8 @@ body {
     align-items: center;
     background-color: #004080;
     color: white;
-    padding: 10px 30px;
+    padding: 10px 30px;  /* Reducir padding para hacer la cabecera más pequeña */
+    min-height: 60px; /* Reducir altura de la cabecera */
 }
 
 .nav-left, .nav-center, .nav-right {
@@ -42,26 +43,40 @@ body {
 }
 
 .dropdown-content a {
-    padding: 10px;
+    padding: 8px;  /* Reducir padding de los enlaces */
     display: block;
     text-decoration: none;
     color: black;
 }
 
+/* Reducir tamaño del logo */
 .logo {
+    height: 50px;  /* Reducir tamaño del logo */
+    max-height: 100%;
+}
+
+.Logo_Casa{
     height: 50px;
 }
 
+/* Reducir tamaño de la foto de perfil */
 .nav-right img {
-    height: 40px;
+    height: 30px;  /* Reducir el tamaño de la foto de perfil */
     border-radius: 50%;
     margin-right: 10px;
+
+}
+/* Reducir tamaño del texto en la derecha */
+.nav-right span {
+    font-size: 14px; /* Reducir tamaño de la fuente */
+    color: #fff;
+    font-weight: 500;
 }
 
 /* === Estructura Principal === */
 .fila-principal {
     display: flex;
-    height: calc(100vh - 70px);
+    height: calc(100vh - 60px); /* Ajustado al nuevo header más pequeño */
 }
 
 /* === Columna Izquierda === */
@@ -81,12 +96,20 @@ body {
     border-bottom: 2px solid #a0522d;
 }
 
-.buscador-usuarios select {
+.buscador-usuarios select{
     width: 100%;
+    max-width: 300px;
     padding: 10px;
     border-radius: 8px;
     font-size: 16px;
     border: 1px solid #ccc;
+}
+
+#input-usuario {
+    width: 100%;
+    height: 40px;
+    justify-content: center;
+    border-radius: 8px;
 }
 
 /* Zona scrollable */
@@ -116,19 +139,6 @@ body {
     box-sizing: border-box;
 }
 
-.perfil-principal {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.foto-perfil {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
 /* === Columna Derecha === */
 .columna-derecha {
     width: 50%;
@@ -146,4 +156,137 @@ body {
     border: 1px solid #999;
     padding: 20px;
     text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s, text-decoration 0.3s;
+    text-decoration: underline;
+    font-weight: bold;
+    color: #007BFF;
+}
+
+/* Subrayado cuando pasa el ratón por encima */
+.tabla-sensores td:hover {
+    background-color: #f0f0f0;
+    text-decoration: underline;
+}
+
+/* ====== MODAL AJUSTADO Y CENTRADO ====== */
+.modal {
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: none; /* Oculto por defecto */
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: white;
+    width: 90%;
+    max-width: 400px; /* Ajuste el ancho */
+    max-height: 85vh;
+    padding: 25px;
+    border-radius: 10px;
+    overflow-y: auto;
+    text-align: center;
+    position: relative;
+}
+
+.modal-content h2 {
+    margin-bottom: 15px;
+}
+
+.cerrar {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #333;
+}
+
+.cerrar:hover {
+    color: red;
+}
+
+/* === Centrar Subtipos debajo del Nombre del Sensor === */
+#lista-subtipos {
+    margin-top: 20px;
+    padding: 0;
+    list-style-type: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+#lista-subtipos li {
+    font-size: 18px;
+    font-weight: normal;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#lista-subtipos li:hover {
+    background-color: #f0f0f0;
+    text-decoration: underline;
+}
+
+/* === Modal Detalle (dos columnas) - Segunda ventana modal === */
+#modal-detalle .modal-content {
+    display: flex; /* Usamos flex para distribuir las columnas en fila */
+    justify-content: space-between; /* Aseguramos que las columnas se distribuyan */
+    gap: 20px; /* Espacio entre las dos columnas */
+    box-sizing: border-box;
+    width: 100%;
+}
+
+/* Columna Izquierda - No cambia */
+.modal-column-left {
+    flex: 1; /* Hace que la columna ocupe todo el espacio disponible */
+    padding: 10px;
+    box-sizing: border-box;
+    border-right: 2px solid black;
+}
+
+/* Columna Derecha - Alinea el contenido a la derecha */
+.modal-column-right {
+    flex: 1; /* Asegura que esta columna también ocupe el mismo espacio */
+    padding: 10px;
+    box-sizing: border-box;
+    text-align: right; /* Alinea el contenido a la derecha */
+}
+
+/* El gráfico placeholder y el selector de fecha también deben alinearse a la derecha */
+#grafico-placeholder {
+    width: 100%;
+    height: 200px;
+    background-color: #e0e0e0;
+    text-align: center;
+    line-height: 200px;
+    font-size: 16px;
+    color: #333;
+}
+
+.fecha-selector {
+    margin-top: 15px;
+    text-align: right; /* Alinea la fecha a la derecha */
+}
+
+.fecha-selector input {
+    padding: 10px;
+    width: 100%;
+    border-radius: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+}
+
+/* === Modal de Subtipos - Sin cambios === */
+/* Aquí no aplicamos los cambios de columnas */
+#modal .modal-content {
+    display: block; /* En la ventana de subtipos no modificamos el layout */
 }
