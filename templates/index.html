@@ -5,24 +5,32 @@
     <title>Inicio / Perfil</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/index1.css') }}">
     <link rel="icon" href="{{ url_for('static', path='img/img.png') }}">
-
 </head>
 <body>
 
 <header class="main-header">
-    
+
+    <div class="nav-left dropdown">
+        <!-- Icono hamburguesa (3 rayas) -->
+        <button id="menu-toggle" aria-label="Abrir menú" class="hamburger" type="button">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="dropdown-content menu-usuario">
+            <a href="/añadir-usuario">Añadir usuario</a>
+        </div>
+    </div>
 
     <div class="nav-center">
         <img src="{{ url_for('static', path='img/img.png') }}" alt="Logo Fundación" class="logo">
     </div>
 
-    <div class="nav-right">
+    <div class="nav-right dropdown">
         <img src="{{ url_for('static', path='img/img_1.png') }}" alt="Foto perfil">
-        <div class="dropdown">
-            <span>{{ usuario or "Nombre Usuario" }}</span>
-            <div class="dropdown-content">
-                <a href="/logout">Cerrar sesión</a>
-            </div>
+        <span>{{ usuario or "Nombre Usuario" }}</span>
+        <div class="dropdown-content">
+            <a href="/logout">Cerrar sesión</a>
         </div>
     </div>
 </header>
@@ -30,18 +38,17 @@
 <main>
     <div class="fila-principal">
         <div class="columna-izquierda">
-            <!-- Sección Buscador -->
             <section class="seccion-cuadro">
                 <h2 class="titulo-buscador centrado">Buscador de usuarios</h2>
                 <form id="buscadorForm" class="buscador" method="GET" action="#">
                     <input
-                        type="text"
-                        id="usuarioInput"
-                        name="usuario"
-                        placeholder="Escribe el nombre de usuario"
-                        list="usuarios"
-                        autocomplete="off"
-                        required
+                            type="text"
+                            id="usuarioInput"
+                            name="usuario"
+                            placeholder="Escribe el nombre de usuario"
+                            list="usuarios"
+                            autocomplete="off"
+                            required
                     >
                     <datalist id="usuarios"></datalist>
                     <input type="submit" style="display:none">
@@ -53,7 +60,27 @@
 </main>
 
 <script>
-    window.addEventListener('DOMContentLoaded', async () => {
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Manejo menú hamburguesa
+        const menuToggle = document.getElementById('menu-toggle');
+        const dropdownContent = menuToggle.nextElementSibling;
+
+        menuToggle.addEventListener('click', e => {
+            e.stopPropagation();
+            if (dropdownContent.style.display === 'block') {
+                dropdownContent.style.display = 'none';
+            } else {
+                // Cerrar otros menús abiertos
+                document.querySelectorAll('.dropdown-content').forEach(dc => dc.style.display = 'none');
+                dropdownContent.style.display = 'block';
+            }
+        });
+
+        document.addEventListener('click', () => {
+            dropdownContent.style.display = 'none';
+        });
+
+        // Buscador
         const datalist = document.getElementById('usuarios');
         const input = document.getElementById('usuarioInput');
         const hiddenInput = document.getElementById('usuarioId');
@@ -82,15 +109,16 @@
             console.error('Error al cargar clientes:', error);
         }
 
+        // Cuando cambie el input: si coincide con opción datalist, redirigir automáticamente
         input.addEventListener('input', () => {
             const selectedOption = [...datalist.options].find(
-                option => option.value === input.value
+                option => option.value.toLowerCase() === input.value.toLowerCase()
             );
             if (selectedOption) {
                 const id = selectedOption.dataset.id;
                 hiddenInput.value = id;
 
-                // Redirigir automáticamente al seleccionar
+                // Redirigir automáticamente sin esperar submit
                 window.location.href = '/datos?usuario_id=' + encodeURIComponent(id);
             } else {
                 hiddenInput.value = '';
@@ -98,8 +126,6 @@
         });
     });
 </script>
-
-
 
 </body>
 </html>

@@ -1,9 +1,4 @@
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #d3d3d3;
-}
+/* Estilos header y menú */
 
 .main-header {
     display: flex;
@@ -19,31 +14,77 @@ body {
     align-items: center;
 }
 
-.dropdown {
-    position: relative;
+.nav-center {
+    flex: 1;
+    justify-content: center;
 }
 
+/* Icono hamburguesa */
+.hamburger {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 25px;
+    height: 18px;
+    padding: 0;
+    margin: 0;
+}
+
+.hamburger span {
+    display: block;
+    height: 3px;
+    background-color: white;
+    border-radius: 2px;
+}
+
+/* Dropdown container para hamburguesa y usuario */
+.dropdown {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* Dropdown content */
 .dropdown-content {
     display: none;
     position: absolute;
     background-color: white;
     color: black;
     min-width: 150px;
-    box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
-    z-index: 1;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    z-index: 100;
     top: 100%;
     left: 0;
+    border-radius: 4px;
 }
 
-.dropdown:hover .dropdown-content {
+/* Mostrar dropdown al hacer hover (usuario) */
+.nav-right.dropdown:hover .dropdown-content {
     display: block;
 }
 
+/* Estilo enlaces en dropdown */
 .dropdown-content a {
-    padding: 10px;
-    display: block;
+    padding: 10px 15px;
     text-decoration: none;
     color: black;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #f0f0f0;
+}
+
+/* Estilos generales y buscador */
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #d3d3d3;
 }
 
 .logo {
@@ -56,16 +97,14 @@ body {
     margin-right: 10px;
 }
 
-/* Contenedor principal centrado */
 .fila-principal {
     display: flex;
-    justify-content: center; /* Centra horizontalmente */
+    justify-content: center;
     margin-top: 2rem;
     padding: 0 1rem;
     box-sizing: border-box;
 }
 
-/* Elimina la columna izquierda y centra el contenido */
 .columna-izquierda {
     width: 100%;
     max-width: 400px;
@@ -75,7 +114,6 @@ body {
     display: block;
 }
 
-/* Sección tipo cuadro centrada y con texto centrado */
 .seccion-cuadro {
     background-color: #ed6809;
     border: 1.5px solid #a0522d;
@@ -88,7 +126,6 @@ body {
     text-align: center;
 }
 
-/* Buscador centrado */
 .buscador {
     display: flex;
     justify-content: center;
