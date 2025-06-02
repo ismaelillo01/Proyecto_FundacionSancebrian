@@ -9,31 +9,23 @@
 <body>
 
 <header class="main-header">
-
-    <div class="nav-left dropdown">
-        <!-- Icono hamburguesa (3 rayas) -->
-        <button id="menu-toggle" aria-label="Abrir menú" class="hamburger" type="button">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
-        <div class="dropdown-content menu-usuario">
-            <a href="/añadir-usuario">Añadir usuario</a>
+    <div class="nav-left">
+        <div class="main-dropdown-content">
+            <a href="{{ url_for('') }}">Mi portal</a>
         </div>
     </div>
-
     <div class="nav-center">
         <img src="{{ url_for('static', path='img/img.png') }}" alt="Logo Fundación" class="logo">
     </div>
-
     <div class="nav-right dropdown">
         <img src="{{ url_for('static', path='img/img_1.png') }}" alt="Foto perfil">
         <span>{{ usuario or "Nombre Usuario" }}</span>
         <div class="dropdown-content">
-            <a href="/logout">Cerrar sesión</a>
+            <a href="{{ url_for('logout') }}">Cerrar sesión</a>
         </div>
     </div>
 </header>
+
 
 <main>
     <div class="fila-principal">
@@ -61,24 +53,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', async () => {
-        // Manejo menú hamburguesa
-        const menuToggle = document.getElementById('menu-toggle');
-        const dropdownContent = menuToggle.nextElementSibling;
-
-        menuToggle.addEventListener('click', e => {
-            e.stopPropagation();
-            if (dropdownContent.style.display === 'block') {
-                dropdownContent.style.display = 'none';
-            } else {
-                // Cerrar otros menús abiertos
-                document.querySelectorAll('.dropdown-content').forEach(dc => dc.style.display = 'none');
-                dropdownContent.style.display = 'block';
-            }
-        });
-
-        document.addEventListener('click', () => {
-            dropdownContent.style.display = 'none';
-        });
+        // Ya no hay menú hamburguesa, no hace falta JS para eso
 
         // Buscador
         const datalist = document.getElementById('usuarios');

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>MiPortal</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/MiPortal.css') }}">
+</head>
+<body>
+<header class="main-header" id="movible-header">
+    <div class="nav-left">
+        <a href="{{ url_for('root') }}">
+            <img src="{{ url_for('static', path='img/logo_casa.png') }}" alt="Logo_Casa" class="Logo_Casa" />
+        </a>
+    </div>
+
+    <div class="nav-center">
+        <img src="{{ url_for('static', path='img/img.png') }}" alt="Logo Fundación" class="logo" />
+    </div>
+
+    <div class="nav-right">
+        <img src="{{ url_for('static', path='img/img_1.png') }}" alt="Foto perfil" />
+        <div class="dropdown">
+            <span>{{ usuario or "Nombre Usuario" }}</span>
+            <div class="dropdown-content">
+                <a href="{{ url_for('logout') }}">Cerrar sesión</a>
+            </div>
+        </div>
+    </div>
+</header>
+<main>
+
+
+</main>
+</body>
+</html>
