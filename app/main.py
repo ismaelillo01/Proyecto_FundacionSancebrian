@@ -69,22 +69,32 @@ async def home(request: Request, auth=Depends(require_login)):
     return templates.TemplateResponse("index.html", {"request": request, "usuario": usuario})
 
 # Login
-@app.get("/login", response_class=HTMLResponse)
-async def login_get(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
+@app.get("/home", response_class=HTMLResponse)
+async def home(request: Request, auth=Depends(require_login)):
+    usuario = request.cookies.get("usuario", "")
+    return templates.TemplateResponse("index.html", {"request": request, "usuario": usuario})
+
+
+from fastapi.responses import PlainTextResponse
 
 @app.post("/login", response_class=HTMLResponse)
 async def login_post(request: Request, usuario: str = Form(...), password: str = Form(...)):
-    if verificar_usuario(usuario, password):
-        response = RedirectResponse(url="/", status_code=302)
-        response.set_cookie(key="usuario", value=usuario)
-        return response
-    else:
-        return templates.TemplateResponse("login.html", {
-            "request": request,
-            "error": "Nombre de usuario o contraseña incorrectos"
-        })
-    
+    try:
+        if verificar_usuario(usuario, password):
+            response = RedirectResponse(url="/home", status_code=302)
+            response.set_cookie(key="usuario", value=usuario)
+            return response
+        else:
+            return templates.TemplateResponse("login.html", {
+                "request": request,
+                "error": "Nombre de usuario o contraseña incorrectos"
+            })
+    except Exception as e:
+        # Mostrar error como texto plano para debug
+        return PlainTextResponse(str(e), status_code=500)
+
+
+
 @app.get("/datos", response_class=HTMLResponse, name="datos_sensor")
 async def datos(request: Request, usuario_id: int = Query(...), auth=Depends(require_login)):
     from app.persons.clientes import get_cliente_detalle
@@ -143,3 +153,8 @@ def logout():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
+
+@app.get("/miportal", response_class=HTMLResponse, name="miportal")
+async def mi_portal(request: Request, auth=Depends(require_login)):
+    usuario = request.cookies.get("usuario", "")
+    return templates.TemplateResponse("MiPortal.html", {"request": request, "usuario": usuario})

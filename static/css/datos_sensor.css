@@ -50,16 +50,15 @@ body {
 }
 
 .logo {
-    height: 50px;
-    max-height: 100%;
+    height: 300px;
 }
 
 .Logo_Casa {
-    height: 50px;
+    height: 25px;
 }
 
 .nav-right img {
-    height: 30px;
+    height: 50px;
     border-radius: 50%;
     margin-right: 10px;
 }

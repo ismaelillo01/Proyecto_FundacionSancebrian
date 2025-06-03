@@ -20,19 +20,16 @@
 }
 
 /* Texto "Mi Portal" en nav-left */
-.main-dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: white;
-    color: black;
-    min-width: 150px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    z-index: 100;
-    top: 100%;
-    left: 0;
-    border-radius: 4px;
-}
 
+.nav-left a.nav-link {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 10px;
+}
+.nav-left a.nav-link:hover {
+    text-decoration: underline;
+}
 
 /* Dropdown usuario (derecha) */
 
@@ -55,6 +52,10 @@
     top: 100%;
     left: 0;
     border-radius: 4px;
+}
+
+.nav-left.dropdown:hover .dropdown-content {
+    display: block;
 }
 
 /* Mostrar dropdown al hacer hover (usuario) */

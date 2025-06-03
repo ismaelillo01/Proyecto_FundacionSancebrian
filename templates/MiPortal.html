@@ -6,22 +6,22 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>MiPortal</title>
-    <link rel="stylesheet" href="{{ url_for('static', path='css/MiPortal.css') }}">
+    <link rel="stylesheet" href="../static/css/MiPortal.css">
 </head>
 <body>
 <header class="main-header" id="movible-header">
     <div class="nav-left">
         <a href="{{ url_for('root') }}">
-            <img src="{{ url_for('static', path='img/logo_casa.png') }}" alt="Logo_Casa" class="Logo_Casa" />
+            <img src="../static/img/logo_casa.png" alt="Logo_Casa" class="Logo_Casa" />
         </a>
     </div>
 
     <div class="nav-center">
-        <img src="{{ url_for('static', path='img/img.png') }}" alt="Logo Fundación" class="logo" />
+        <img src="../static/img/img.png" alt="Logo Fundación" class="logo" />
     </div>
 
     <div class="nav-right">
-        <img src="{{ url_for('static', path='img/img_1.png') }}" alt="Foto perfil" />
+        <img src="../static/img/img_1.png" alt="Foto perfil" />
         <div class="dropdown">
             <span>{{ usuario or "Nombre Usuario" }}</span>
             <div class="dropdown-content">
@@ -31,8 +31,84 @@
     </div>
 </header>
 <main>
+    <!-- Columna principal (menú) -->
+    <aside id="menu-principal">
+        <nav>
+            <button class="menu-btn" data-section="trabajador">Administrar trabajador</button>
+            <button class="menu-btn" data-section="clientes">Administrar clientes</button>
+        </nav>
+    </aside>
 
+    <!-- Columna secundaria -->
+    <div id="columna-secundaria"></div>
 
+    <!-- Contenido general -->
+    <section id="contenido-principal"></section>
 </main>
+
+<script>
+    const secundaria = document.getElementById('columna-secundaria');
+    const contenidoPrincipal = document.getElementById('contenido-principal');
+
+    const opcionesSecundarias = {
+        trabajador: `
+                <div class="subopcion" data-subtipo="gestor">Gestor</div>
+                <div class="subopcion" data-subtipo="cuidador">Cuidador</div>
+        `,
+        clientes: `
+                <div class="subopcion" data-subtipo="cliente">Clientes</div>
+        `
+    };
+
+    const accionesContenido = {
+        gestor: `
+            <h2>Administrar trabajador - Gestor</h2>
+            <ul>
+                <li>Añadir gestor</li>
+                <li>Eliminar gestor</li>
+                <li>Modificar gestor</li>
+                <li>Horario</li>
+            </ul>
+        `,
+        cuidador: `
+            <h2>Administrar trabajador - Cuidador</h2>
+            <ul>
+                <li>Añadir cuidador</li>
+                <li>Eliminar cuidador</li>
+                <li>Modificar cuidador</li>
+                <li>Horario</li>
+            </ul>
+        `,
+        cliente: `
+            <h2>Administrar clientes</h2>
+            <ul>
+                <li>Añadir cliente</li>
+                <li>Eliminar cliente</li>
+                <li>Modificar cliente</li>
+            </ul>
+        `
+    };
+
+    document.querySelectorAll('.menu-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const section = btn.dataset.section;
+            secundaria.innerHTML = opcionesSecundarias[section];
+            secundaria.style.display = 'block';
+            contenidoPrincipal.innerHTML = ''; // Limpia el contenido principal
+            activarSubopciones();
+        });
+    });
+
+    function activarSubopciones() {
+        document.querySelectorAll('.subopcion').forEach(item => {
+            item.addEventListener('click', () => {
+                const subtipo = item.dataset.subtipo;
+                contenidoPrincipal.innerHTML = accionesContenido[subtipo];
+            });
+        });
+    }
+</script>
+
+
 </body>
 </html>
