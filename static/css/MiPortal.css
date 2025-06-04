@@ -72,7 +72,7 @@ body {
 
 main {
     display: flex;
-    height: calc(100vh - 80px); /* Ajusta si tu header tiene otra altura */
+    height: calc(100vh - 60px); /* Ajustado al min-height del header */
     position: relative;
     box-sizing: border-box;
 }
@@ -83,6 +83,8 @@ main {
     background-color: #f0f0f0;
     padding: 20px;
     box-sizing: border-box;
+    height: 100%;      /* Estira al 100% de main */
+    overflow-y: auto;  /* Añade scroll si el contenido es alto */
 }
 
 /* Botones del menú */
@@ -96,9 +98,8 @@ main {
     font-size: 16px;
     transition: background-color 0.2s;
     width: 100%;
-    margin-bottom: 15px; /* <-- añade espacio entre botones */
+    margin-bottom: 15px; /* espacio entre botones */
 }
-
 
 .menu-btn:hover {
     background-color: #e0e0e0;
@@ -112,6 +113,8 @@ main {
     display: none;
     box-sizing: border-box;
     margin-right: 15px; /* separación a la derecha */
+    height: 100%;      /* Estira al 100% de main */
+    overflow-y: auto;  /* Añade scroll si el contenido es alto */
 }
 
 /* Subopciones estilo */
@@ -127,7 +130,6 @@ main {
 .subopcion:hover {
     background-color: #dcdcdc;
 }
-
 
 /* Contenido principal */
 #contenido-principal ul {
@@ -151,3 +153,133 @@ main {
     background-color: #e0e0e0;
 }
 
+.required {
+    color: red;
+    margin-left: 4px;
+}
+
+form.formulario {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+    max-width: 700px;
+    align-items: center;
+    text-align: center;
+    margin-top: 80px;
+    margin-bottom: 115px;
+    margin-left: 200px;
+    margin-right: 200px;
+}
+
+form.formulario input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+form.formulario button {
+    padding: 6px;
+    background-color: #004080;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+form.formulario button:hover {
+    background-color: #003366;
+}
+
+.gestor-layout {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.opciones-gestor {
+    min-width: 200px;
+    flex-shrink: 0;
+}
+
+#formulario-gestor-container {
+    flex-grow: 1;
+    min-width: 500px;
+    max-width: 100%;
+    text-align: center;
+    align-items: center;
+}
+
+.formulario-dos-columnas {
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    max-width: 700px;
+    display: flex; /* flex-row por defecto */
+    gap: 20px;
+    box-sizing: border-box;
+    flex-wrap: wrap; /* por si no cabe en ancho */
+    text-align: center;
+    margin: 50px;
+}
+
+.campo-obligatorio-texto {
+    width: 100%; /* ocupa toda la fila */
+    font-size: 14px;
+    color: black;
+    font-style: italic;
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.campo-obligatorio-texto span {
+    color: red;
+    font-weight: bold;
+}
+
+.columna {
+    flex: 1 1 45%;
+    display: flex;
+    flex-direction: column;
+}
+
+.formulario-dos-columnas label {
+    margin: 8px;
+    font-weight: 600;
+    color: #333;
+}
+
+.formulario-dos-columnas input,
+.formulario-dos-columnas select,
+.formulario-dos-columnas textarea {
+    width: 100%;
+    padding: 6px 12px;
+    margin: auto;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+.formulario-dos-columnas button {
+    padding: 6px 0;
+    background-color: #004080;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 16px;
+    max-width: 500px; /* más ancho */
+    margin: auto;
+    display: block;
+}
+
+.formulario-dos-columnas button:hover {
+    background-color: #003060;
+}
