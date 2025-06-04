@@ -98,7 +98,7 @@ def get_dispositivos_detalle(id_cliente: int):
             "device_class": device_class,
             "last_updated": last_updated,
             "entity_id": entity_id,
-            "zona": zona  # 👈 ZONA AÑADIDA
+            "zona": zona  
         }
 
         if dispositivo_id not in dispositivos:

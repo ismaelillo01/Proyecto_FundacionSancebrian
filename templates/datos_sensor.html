@@ -89,10 +89,29 @@
     <div class="columna-derecha">
         <h2 style="text-align:center;">Zonas de sensores</h2>
         <table id="tabla-zonas" class="tabla-sensores">
-            <tbody>
-            <th></th>
-            <th></th>
-            </tbody>
+<tbody>
+    {% for zona in zonas %}
+        <tr>
+            <td colspan="2" class="titulo-zona" style="font-weight:bold; background:#eee; padding: 5px;">
+                {{ zona|capitalize }}
+            </td>
+        </tr>
+        {% for dispositivo in dispositivos %}
+            {% for parametro in dispositivo.parametros %}
+                {% if parametro.zona == zona %}
+                <tr>
+                    <td>{{ parametro.nombre }}</td>
+                    <td>
+                        {{ parametro.valor }}
+                        {% if parametro.unidad %} {{ parametro.unidad }}{% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+    {% endfor %}
+</tbody>
+
         </table>
     </div>
 </main>
@@ -235,60 +254,57 @@
         document.getElementById("modal").style.display = "none";
     }
 
-    async function abrirModalDetalle(sensorNombre, subtipo) {
-        const modalDetalle = document.getElementById("modal-detalle");
-        const tituloDetalle = document.getElementById("detalle-sensor-titulo");
-        const infoDetalle = document.getElementById("detalle-sensor-info");
+async function abrirModalDetalle(sensorNombre) {
+    const modalDetalle = document.getElementById("modal-detalle");
+    const tituloDetalle = document.getElementById("detalle-sensor-titulo");
+    const infoDetalle = document.getElementById("detalle-sensor-info");
 
-        tituloDetalle.textContent = sensorNombre + (subtipo ? " - " + subtipo : "");
-        infoDetalle.innerHTML = ""; // limpiar contenido
+    tituloDetalle.textContent = sensorNombre;
+    infoDetalle.innerHTML = ""; 
 
-        try {
-            // Llamada al API para obtener detalles reales
-            const url = `/dispositivos/detalle?sensor=${encodeURIComponent(sensorNombre)}&subtipo=${encodeURIComponent(subtipo)}`;
-            const response = await fetch(url);
-            const data = await response.json();
+    const params = new URLSearchParams(window.location.search);
+    const usuario_id = params.get("usuario_id");
 
-            if (data.success && data.detalles && data.detalles.length > 0) {
-                data.detalles.forEach(detalle => {
+    try {
+        const response = await fetch(`/dispositivos/detalle/${encodeURIComponent(usuario_id)}`);
+        const data = await response.json();
+
+        if (data.success && data.detalles) {
+            const detallesSensor = data.detalles.filter(detalle => detalle.nombre === sensorNombre);
+            
+            if (detallesSensor.length > 0) {
+                detallesSensor.forEach(detalle => {
                     const li = document.createElement("li");
-                    // Ajusta esto según la estructura de detalle que devuelva tu backend
-                    li.textContent = `${detalle.nombre}: ${detalle.valor}`;
+                    li.textContent = `${detalle.nombre}: ${detalle.valor} ${detalle.unidad || ''}`;
                     infoDetalle.appendChild(li);
                 });
             } else {
-                const li = document.createElement("li");
-                li.textContent = "No hay detalles disponibles para este sensor y subtipo.";
-                infoDetalle.appendChild(li);
+                infoDetalle.innerHTML = "<li>No hay detalles disponibles para este sensor.</li>";
             }
-        } catch (error) {
-            const li = document.createElement("li");
-            li.textContent = "Error al cargar detalles.";
-            infoDetalle.appendChild(li);
-            console.error("Error al obtener detalles:", error);
+        } else {
+            infoDetalle.innerHTML = "<li>No se encontraron datos del sensor.</li>";
         }
-
-        modalDetalle.style.display = "flex";
+    } catch (error) {
+        infoDetalle.innerHTML = "<li>Error al cargar detalles.</li>";
+        console.error("Error al obtener detalles:", error);
     }
+
+    modalDetalle.style.display = "flex";
+}
+
 
     function cerrarModalDetalle() {
         document.getElementById("modal-detalle").style.display = "none";
     }
 
-    document.getElementById("tabla-zonas").addEventListener("click", async function (event) {
-        const celda = event.target;
-        if (celda.tagName === "TD" && celda.textContent.trim()) {
-            const nombreSensor = celda.textContent.trim();
-            try {
-                const response = await fetch(`/dispositivos/subtipos?sensor=${encodeURIComponent(nombreSensor)}`);
-                const data = await response.json();
-                abrirModal(nombreSensor, data.success && Array.isArray(data.subtipos) ? data.subtipos : []);
-            } catch (error) {
-                console.error("Error al obtener subtipos:", error);
-                abrirModal(nombreSensor, []);
-            }
-        }
-    });
+document.getElementById("tabla-zonas").addEventListener("click", function (event) {
+    const celda = event.target;
+    if (celda.tagName === "TD" && celda.textContent.trim()) {
+        const nombreSensor = celda.textContent.trim();
+        abrirModalDetalle(nombreSensor);
+    }
+});
+
 
 </script>
 </body>
