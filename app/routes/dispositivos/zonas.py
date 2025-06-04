@@ -11,11 +11,11 @@ def get_url_y_token(id_cliente: int):
     try:
         print(f"Buscando hogar y token para id_cliente = {id_cliente}")
         cursor.execute("""
-            SELECT h.id_hogar_url, h.token
+            SELECT h.url, h.token
             FROM hogares h
-            JOIN clientes c ON c.id_hogar_url = h.id_hogar_url
-            WHERE c.id_cliente = :id_cliente
-        """, {"id_cliente": id_cliente})  # 👈 Corrección aquí
+            JOIN clientes c ON c.id_hogar = h.id_hogar
+            WHERE c.id_cliente = %s
+        """, (id_cliente,))
         row = cursor.fetchone()
         print(f"Resultado de la consulta: {row}")
         if not row:
@@ -58,7 +58,6 @@ def get_zonas(id_cliente: int):
                 zonas.add(partes[1].lower())
         except:
             continue
-        
 
     return {
         "success": True,

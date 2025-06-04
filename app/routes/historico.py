@@ -5,9 +5,6 @@ from app.database.db import get_connection
 from app.services.ha_api import get_sensor_history
 from datetime import datetime, timedelta, timezone
 import pytz
-from fastapi import Request
-from pydantic import BaseModel
-from typing import List, Dict, Any
 
 router = APIRouter()
 
@@ -16,11 +13,11 @@ def get_url_y_token(id_cliente: int):
     cursor = conn.cursor()
     try:
         cursor.execute("""
-            SELECT h.id_hogar_url, h.token
+            SELECT h.url, h.token
             FROM hogares h
-            JOIN clientes c ON c.id_hogar_url = h.id_hogar_url
-            WHERE c.id_cliente = :id_cliente
-        """, [id_cliente])
+            JOIN clientes c ON c.id_hogar = h.id_hogar
+            WHERE c.id_cliente = %s
+        """, (id_cliente,))
         row = cursor.fetchone()
         if not row:
             raise HTTPException(status_code=404, detail="Cliente no encontrado o sin hogar asignado")
@@ -68,7 +65,6 @@ def sensor_historico(
                         valor = float(valor)
                     except ValueError:
                         valor = None
-
 
                     datapoints.append([valor, timestamp_ms])
                 except Exception:

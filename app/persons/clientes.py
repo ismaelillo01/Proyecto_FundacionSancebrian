@@ -10,12 +10,16 @@ def get_cliente_detalle(id_cliente: int):
     try:
         cursor.execute("""
             SELECT 
-                c.nombre, c.apellido1, c.apellido2, c.dni, c.fecha_registro,
-                h.direccion, h.cp, c.descripcion, h.provincia, c.fecha_nacimiento, c.sexo
-            FROM clientes c
-            LEFT JOIN hogares h ON c.id_hogar_url = h.id_hogar_url
-            WHERE c.id_cliente = :1
-        """, [id_cliente])
+                dc.nombre, dc.apellido1, dc.apellido2, dc.dni, dc.fecha_registro,
+                h.direccion, h.codigo_postal, h.provincia,
+                dc.descripcion, dc.fecha_nacimiento,
+                h.token, h.url,
+                dc.telefono_contacto, dc.telefono_familiar, dc.sexo
+            FROM datos_clientes dc
+            JOIN clientes c ON dc.id_cliente = c.id_cliente
+            JOIN hogares h ON c.id_hogar = h.id_hogar
+            WHERE c.id_cliente = %s
+        """, (id_cliente,))
 
         row = cursor.fetchone()
 
@@ -29,11 +33,15 @@ def get_cliente_detalle(id_cliente: int):
                     "dni": row[3],
                     "fecha_registro": row[4],
                     "direccion": row[5],
-                    "cp": row[6],
-                    "descripcion": row[7],
-                    "provincia": row[8],
+                    "codigo_postal": row[6],
+                    "provincia": row[7],
+                    "descripcion": row[8],
                     "fecha_nacimiento": row[9],
-                    "sexo": row[10]
+                    "token": row[10],
+                    "url": row[11],
+                    "telefono_contacto": row[12],
+                    "telefono_familiar": row[13],
+                    "sexo": row[14]
                 }
             }
         else:

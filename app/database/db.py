@@ -1,4 +1,4 @@
-import oracledb
+import mariadb
 import os
 from dotenv import load_dotenv
 
@@ -8,15 +8,19 @@ load_dotenv()
 USER = os.getenv("DB_USER")
 PASSWORD = os.getenv("DB_PASS")
 HOST = os.getenv("DB_HOST")
-PORT = os.getenv("DB_PORT")
-SERVICE_NAME = os.getenv("DB_SERVICE")
-
-# Construcción del DSN (identificador de servicio)
-dsn = f"{HOST}:{PORT}/{SERVICE_NAME}"
+PORT = int(os.getenv("DB_PORT"))  
+DATABASE = os.getenv("DB_NAME")   
 
 def get_connection():
-    return oracledb.connect(
-        user=USER,
-        password=PASSWORD,
-        dsn=dsn
-    )
+    try:
+        conn = mariadb.connect(
+            user=USER,
+            password=PASSWORD,
+            host=HOST,
+            port=PORT,
+            database=DATABASE
+        )
+        return conn
+    except mariadb.Error as e:
+        print(f"Error al conectar con la base de datos: {e}")
+        return None

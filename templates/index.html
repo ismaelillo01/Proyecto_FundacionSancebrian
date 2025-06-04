@@ -5,43 +5,41 @@
     <title>Inicio / Perfil</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/index1.css') }}">
     <link rel="icon" href="{{ url_for('static', path='img/img.png') }}">
-
 </head>
 <body>
 
 <header class="main-header">
-    
+    <div class="nav-left">
+        <a href="{{ url_for('miportal') }}" class="nav-link">Mi portal</a>
+    </div>
 
     <div class="nav-center">
         <img src="{{ url_for('static', path='img/img.png') }}" alt="Logo Fundación" class="logo">
     </div>
-
-    <div class="nav-right">
+    <div class="nav-right dropdown">
         <img src="{{ url_for('static', path='img/img_1.png') }}" alt="Foto perfil">
-        <div class="dropdown">
-            <span>{{ usuario or "Nombre Usuario" }}</span>
-            <div class="dropdown-content">
-                <a href="/logout">Cerrar sesión</a>
-            </div>
+        <span>{{ usuario or "Nombre Usuario" }}</span>
+        <div class="dropdown-content">
+            <a href="{{ url_for('logout') }}">Cerrar sesión</a>
         </div>
     </div>
 </header>
 
+
 <main>
     <div class="fila-principal">
         <div class="columna-izquierda">
-            <!-- Sección Buscador -->
             <section class="seccion-cuadro">
                 <h2 class="titulo-buscador centrado">Buscador de usuarios</h2>
                 <form id="buscadorForm" class="buscador" method="GET" action="#">
                     <input
-                        type="text"
-                        id="usuarioInput"
-                        name="usuario"
-                        placeholder="Escribe el nombre de usuario"
-                        list="usuarios"
-                        autocomplete="off"
-                        required
+                            type="text"
+                            id="usuarioInput"
+                            name="usuario"
+                            placeholder="Escribe el nombre de usuario"
+                            list="usuarios"
+                            autocomplete="off"
+                            required
                     >
                     <datalist id="usuarios"></datalist>
                     <input type="submit" style="display:none">
@@ -53,54 +51,55 @@
 </main>
 
 <script>
-window.addEventListener('DOMContentLoaded', async () => {
-    const datalist = document.getElementById('usuarios');
-    const input = document.getElementById('usuarioInput');
-    const hiddenInput = document.getElementById('usuarioId');
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Ya no hay menú hamburguesa, no hace falta JS para eso
 
-    try {
-        const response = await fetch('/personas/clientes');
-        const data = await response.json();
+        // Buscador
+        const datalist = document.getElementById('usuarios');
+        const input = document.getElementById('usuarioInput');
+        const hiddenInput = document.getElementById('usuarioId');
 
-        if (data.success) {
-            const nombresUnicos = new Set();
+        try {
+            const response = await fetch('/personas/clientes');
+            const data = await response.json();
 
-            data.data.forEach(cliente => {
-                const nombreCompleto = `${cliente.nombre} ${cliente.apellido1}` + 
-                    (cliente.apellido2 ? ` ${cliente.apellido2}` : '');
+            if (data.success) {
+                const nombresUnicos = new Set();
 
-                if (!nombresUnicos.has(nombreCompleto)) {
-                    nombresUnicos.add(nombreCompleto);
-                    const option = document.createElement('option');
-                    option.value = nombreCompleto;
-                    option.dataset.id = cliente.id_cliente;
-                    datalist.appendChild(option);
-                }
-            });
+                data.data.forEach(cliente => {
+                    const nombreCompleto = `${cliente.nombre} ${cliente.apellido1}` +
+                        (cliente.apellido2 ? ` ${cliente.apellido2}` : '');
+
+                    if (!nombresUnicos.has(nombreCompleto)) {
+                        nombresUnicos.add(nombreCompleto);
+                        const option = document.createElement('option');
+                        option.value = nombreCompleto;
+                        option.dataset.id = cliente.id_cliente;
+                        datalist.appendChild(option);
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error al cargar clientes:', error);
         }
-    } catch (error) {
-        console.error('Error al cargar clientes:', error);
-    }
 
-    input.addEventListener('input', () => {
-        const selectedOption = [...datalist.options].find(
-            option => option.value === input.value
-        );
-        hiddenInput.value = selectedOption ? selectedOption.dataset.id : '';
+        // Cuando cambie el input: si coincide con opción datalist, redirigir automáticamente
+        input.addEventListener('input', () => {
+            const selectedOption = [...datalist.options].find(
+                option => option.value.toLowerCase() === input.value.toLowerCase()
+            );
+            if (selectedOption) {
+                const id = selectedOption.dataset.id;
+                hiddenInput.value = id;
+
+                // Redirigir automáticamente sin esperar submit
+                window.location.href = '/datos?usuario_id=' + encodeURIComponent(id);
+            } else {
+                hiddenInput.value = '';
+            }
+        });
     });
-});
-
-document.getElementById('buscadorForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const id = document.getElementById('usuarioId').value;
-    if (id) {
-        window.location.href = '/datos?usuario_id=' + encodeURIComponent(id);
-    } else {
-        alert("Selecciona un usuario válido de la lista.");
-    }
-});
 </script>
-
 
 </body>
 </html>

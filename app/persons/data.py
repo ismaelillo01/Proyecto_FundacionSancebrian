@@ -9,8 +9,9 @@ def get_clientes():
     cursor = conn.cursor()
     try:
         cursor.execute("""
-            SELECT id_cliente, nombre, apellido1, apellido2
-            FROM clientes
+            SELECT c.id_cliente, dc.nombre, dc.apellido1, dc.apellido2
+            FROM clientes c
+            JOIN datos_clientes dc ON c.id_cliente = dc.id_cliente
         """)
         rows = cursor.fetchall()
         clientes = []
@@ -28,17 +29,18 @@ def get_clientes():
         cursor.close()
         conn.close()
 
+
 @router.get("/clientes/{id_cliente}/hogar")
 def get_hogar_info(id_cliente: int):
     conn = get_connection()
     cursor = conn.cursor()
     try:
         cursor.execute("""
-            SELECT h.id_hogar_url, h.token
+            SELECT h.url, h.token
             FROM hogares h
-            JOIN clientes c ON c.id_hogar_url = h.id_hogar_url
-            WHERE c.id_cliente = :id_cliente
-        """, [id_cliente])
+            JOIN clientes c ON c.id_hogar = h.id_hogar
+            WHERE c.id_cliente = %s
+        """, (id_cliente,))
         row = cursor.fetchone()
         if not row:
             raise HTTPException(status_code=404, detail="Cliente no encontrado o sin hogar asignado")

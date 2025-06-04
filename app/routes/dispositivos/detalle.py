@@ -1,10 +1,9 @@
-# dispositivos/detalle.py
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 import requests
 from datetime import datetime
 import pytz
-from app.database.db import get_connection  # asegúrate de importar esto
+from app.database.db import get_connection
 
 router = APIRouter()
 
@@ -15,11 +14,11 @@ def get_url_y_token(id_cliente: int):
     cursor = conn.cursor()
     try:
         cursor.execute("""
-            SELECT h.id_hogar_url, h.token
+            SELECT h.url, h.token
             FROM hogares h
-            JOIN clientes c ON c.id_hogar_url = h.id_hogar_url
-            WHERE c.id_cliente = :id_cliente
-        """, [id_cliente])
+            JOIN clientes c ON c.id_hogar = h.id_hogar
+            WHERE c.id_cliente = %s
+        """, (id_cliente,))
         row = cursor.fetchone()
         if not row:
             raise HTTPException(status_code=404, detail="Cliente no encontrado o sin hogar asignado")
@@ -32,7 +31,6 @@ def get_url_y_token(id_cliente: int):
 
 @router.get("/detalle/{id_cliente}")
 def get_dispositivos_detalle(id_cliente: int):
-    # Obtener URL y TOKEN desde la BD
     HOME_ASSISTANT_URL, TOKEN = get_url_y_token(id_cliente)
 
     HEADERS = {
@@ -45,27 +43,26 @@ def get_dispositivos_detalle(id_cliente: int):
 
     if response.status_code != 200:
         return JSONResponse(
-        status_code=response.status_code,
-        content={
-            "success": False,
-            "message": f"Error al obtener sensores desde Home Assistant. Código: {response.status_code}",
-            "response_text": response.text  # para depurar
-        }
-    )
+            status_code=response.status_code,
+            content={
+                "success": False,
+                "message": f"Error al obtener sensores desde Home Assistant. Código: {response.status_code}",
+                "response_text": response.text
+            }
+        )
 
     try:
         sensores_raw = response.json()
     except ValueError:
         return JSONResponse(
-        status_code=500,
-        content={
-            "success": False,
-            "message": "La respuesta no es JSON válido. Revisa la URL, el token o los permisos.",
-            "response_text": response.text  # muestra qué devolvió exactamente el servidor
-        }
-    )
+            status_code=500,
+            content={
+                "success": False,
+                "message": "La respuesta no es JSON válido. Revisa la URL, el token o los permisos.",
+                "response_text": response.text
+            }
+        )
 
-    sensores_raw = response.json()
     dispositivos = {}
 
     for sensor in sensores_raw:

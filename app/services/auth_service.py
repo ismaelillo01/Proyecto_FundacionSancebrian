@@ -5,9 +5,9 @@ def verificar_usuario(usuario: str, password: str) -> bool:
     cursor = conn.cursor()
     try:
         cursor.execute("""
-            SELECT COUNT(*) FROM usuarios
-            WHERE nombre_usuario = :usuario AND contraseña = :password
-        """, {"usuario": usuario, "password": password})
+            SELECT COUNT(*) FROM trabajadores
+            WHERE nombre_usuario = %s AND contraseña = %s
+        """, (usuario, password))
         result = cursor.fetchone()
         return result and result[0] > 0
     finally:
