@@ -71,7 +71,11 @@ def get_dispositivos_detalle(id_cliente: int):
             continue
 
         id_part = entity_id.split(".", 1)[1]
-        dispositivo_id = id_part.split("_", 1)[0]
+        partes = id_part.split("_", 2)
+        dispositivo_id = partes[0]
+
+        # ➕ Extraer la zona si existe como segunda parte del ID
+        zona = partes[1].lower() if len(partes) >= 2 else None
 
         nombre = dispositivo_id
         friendly = sensor["attributes"].get("friendly_name", entity_id)
@@ -93,7 +97,8 @@ def get_dispositivos_detalle(id_cliente: int):
             "unidad": unidad,
             "device_class": device_class,
             "last_updated": last_updated,
-            "entity_id": entity_id
+            "entity_id": entity_id,
+            "zona": zona  # 👈 ZONA AÑADIDA
         }
 
         if dispositivo_id not in dispositivos:

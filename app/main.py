@@ -68,10 +68,7 @@ async def home(request: Request, auth=Depends(require_login)):
     return templates.TemplateResponse("index.html", {"request": request, "usuario": usuario})
 
 # Login
-@app.get("/home", response_class=HTMLResponse)
-async def home(request: Request, auth=Depends(require_login)):
-    usuario = request.cookies.get("usuario", "")
-    return templates.TemplateResponse("index.html", {"request": request, "usuario": usuario})
+
 
 
 from fastapi.responses import PlainTextResponse
@@ -91,6 +88,12 @@ async def login_post(request: Request, usuario: str = Form(...), password: str =
     except Exception as e:
         # Mostrar error como texto plano para debug
         return PlainTextResponse(str(e), status_code=500)
+
+@app.get("/login", response_class=HTMLResponse)
+async def login_get(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request})
+
+
 
 
 

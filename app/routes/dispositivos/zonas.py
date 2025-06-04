@@ -46,16 +46,25 @@ def get_zonas(id_cliente: int):
         raise HTTPException(status_code=500, detail=f"Error al obtener sensores: {str(e)}")
 
     zonas = set()
+    zonas_excluidas = {
+        "update", "backup", "editor", "estado", "media", "ssh",
+        "web", "code", "last", "next", "explorer", "device", "hacs",
+        "alexa", "onedrive", "sun", "weather", "rack", "this",
+        "s", "s918b", "sede" 
+    }
 
     for sensor in sensores:
         entity_id = sensor.get("entity_id", "")
-        if not entity_id.startswith(("sensor.", "binary_sensor.", "button.", "update.")):
+        if not entity_id.startswith(("sensor.", "binary_sensor.")):
             continue
 
         try:
-            partes = entity_id.split(".")[1].split("_")
+            entidad = entity_id.split(".")[1]
+            partes = entidad.split("_")
             if len(partes) >= 2:
-                zonas.add(partes[1].lower())
+                zona = partes[1].lower()
+                if zona not in zonas_excluidas:
+                    zonas.add(zona)
         except:
             continue
 
