@@ -1,3 +1,24 @@
+@media (max-width: 600px) {
+    .main-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .nav-center {
+        justify-content: flex-start;
+    }
+
+    .nav-left a.nav-link {
+        padding: 5px;
+    }
+
+    /* Ajusta tamaño de imagen */
+    .nav-right img {
+        height: 30px;
+    }
+}
+
+
 /* === Estilo General === */
 body {
     font-family: Arial, sans-serif;
@@ -282,4 +303,52 @@ form.formulario button:hover {
 
 .formulario-dos-columnas button:hover {
     background-color: #003060;
+}
+
+.confirm-box {
+    margin-top: 15px;
+    padding: 15px;
+    border: 1px solid #ccc;
+    background-color: #f8f8f8;
+    border-radius: 5px;
+    max-width: 400px;
+}
+
+.confirm-box p {
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.botones-confirmacion {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btn-cancelar,
+.btn-confirmar {
+    padding: 7px 15px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.btn-cancelar {
+    background-color: #bbb;
+    color: #fff;
+}
+
+.btn-cancelar:hover {
+    background-color: #999;
+}
+
+.btn-confirmar {
+    background-color: #d9534f;
+    color: #fff;
+}
+
+.btn-confirmar:hover {
+    background-color: #c9302c;
 }

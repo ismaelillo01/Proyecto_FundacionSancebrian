@@ -5,6 +5,7 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>MiPortal</title>
     <link rel="stylesheet" href="../static/css/MiPortal.css">
 </head>
@@ -54,67 +55,67 @@
 
     const opcionesSecundarias = {
         trabajador: `
-            <div class="subopcion" data-subtipo="gestor">Gestor</div>
-            <div class="subopcion" data-subtipo="cuidador">Cuidador</div>
-        `,
+        <div class="subopcion" data-subtipo="gestor">Gestor</div>
+        <div class="subopcion" data-subtipo="cuidador">Cuidador</div>
+    `,
         clientes: `
-            <div class="subopcion" data-subtipo="cliente">Clientes</div>
-        `,
+        <div class="subopcion" data-subtipo="cliente">Clientes</div>
+    `,
         hogares: `
-            <div class="subopcion" data-subtipo="hogares">Hogares</div>
-        `
+        <div class="subopcion" data-subtipo="hogares">Hogares</div>
+    `
     };
 
     const accionesContenido = {
         gestor: `
-            <div class="gestor-layout">
-                <div class="opciones-gestor">
-                    <ul>
-                        <li id="btn-anadir-gestor">Añadir gestor</li>
-                        <li>Eliminar gestor</li>
-                        <li>Modificar gestor</li>
-                    </ul>
-                </div>
-                <div id="formulario-gestor-container"></div>
+        <div class="gestor-layout">
+            <div class="opciones-gestor">
+                <ul>
+                    <li id="btn-anadir-gestor">Añadir gestor</li>
+                    <li id="btn-eliminar-gestor-opcion">Eliminar gestor</li>
+                    <li>Modificar gestor</li>
+                </ul>
             </div>
-        `,
+            <div id="formulario-gestor-container"></div>
+        </div>
+    `,
         cuidador: `
-            <div class="gestor-layout">
-                <div class="opciones-gestor">
-                    <ul>
-                        <li id="btn-anadir-cuidador">Añadir cuidador</li>
-                        <li>Eliminar cuidador</li>
-                        <li>Modificar cuidador</li>
-                        <li>Horario</li>
-                    </ul>
-                </div>
-                <div id="formulario-gestor-container"></div>
+        <div class="gestor-layout">
+            <div class="opciones-gestor">
+                <ul>
+                    <li id="btn-anadir-cuidador">Añadir cuidador</li>
+                    <li>Eliminar cuidador</li>
+                    <li>Modificar cuidador</li>
+                    <li>Horario</li>
+                </ul>
             </div>
-        `,
+            <div id="formulario-gestor-container"></div>
+        </div>
+    `,
         cliente: `
-            <div class="gestor-layout">
-                <div class="opciones-gestor">
-                    <ul>
-                        <li id="btn-anadir-cliente">Añadir cliente</li>
-                        <li>Eliminar cliente</li>
-                        <li>Modificar cliente</li>
-                    </ul>
-                </div>
-                <div id="formulario-gestor-container"></div>
+        <div class="gestor-layout">
+            <div class="opciones-gestor">
+                <ul>
+                    <li id="btn-anadir-cliente">Añadir cliente</li>
+                    <li>Eliminar cliente</li>
+                    <li>Modificar cliente</li>
+                </ul>
             </div>
-        `,
+            <div id="formulario-gestor-container"></div>
+        </div>
+    `,
         hogares: `
-            <div class="gestor-layout">
-                <div class="opciones-gestor">
-                    <ul>
-                        <li id="btn-anadir-hogar">Añadir hogares</li>
-                        <li>Eliminar hogares</li>
-                        <li>Modificar hogares</li>
-                    </ul>
-                </div>
-                <div id="formulario-gestor-container"></div>
+        <div class="gestor-layout">
+            <div class="opciones-gestor">
+                <ul>
+                    <li id="btn-anadir-hogar">Añadir hogares</li>
+                    <li>Eliminar hogares</li>
+                    <li>Modificar hogares</li>
+                </ul>
             </div>
-        `
+            <div id="formulario-gestor-container"></div>
+        </div>
+    `
     };
 
     document.querySelectorAll('.menu-btn').forEach(btn => {
@@ -154,26 +155,82 @@
             opcion.addEventListener('click', () => {
                 if (opcion.id === 'btn-anadir-gestor') {
                     formularioContenedor.innerHTML = `
-                        <form class="formulario">
-                            <div class="campo-obligatorio-texto"><span>*</span> Campo obligatorio</div>
-                            <label>Nombre <span style="color: red">*</span>
-                                <input type="text" required>
-                            </label>
-                            <label>Primer apellido <span style="color: red">*</span>
-                                <input type="text" required>
-                            </label>
-                            <label>Segundo apellido <span style="color: red">*</span>
-                                <input type="text" required>
-                            </label>
-                            <label>Nombre de usuario <span style="color: red">*</span>
-                                <input type="text" required>
-                            </label>
-                            <label>Contraseña <span style="color: red">*</span>
-                                <input type="password" required>
-                            </label>
-                            <button type="submit">Guardar</button>
-                        </form>
-                    `;
+                    <form class="formulario">
+                        <div class="campo-obligatorio-texto"><span>*</span> Campo obligatorio</div>
+                        <label>Nombre <span style="color: red">*</span>
+                            <input type="text" required>
+                        </label>
+                        <label>Primer apellido <span style="color: red">*</span>
+                            <input type="text" required>
+                        </label>
+                        <label>Segundo apellido <span style="color: red">*</span>
+                            <input type="text" required>
+                        </label>
+                        <label>Nombre de usuario <span style="color: red">*</span>
+                            <input type="text" required>
+                        </label>
+                        <label>Contraseña <span style="color: red">*</span>
+                            <input type="password" required>
+                        </label>
+                        <button type="submit">Guardar</button>
+                    </form>
+                `;
+                } else if (opcion.id === 'btn-eliminar-gestor-opcion') {
+                    formularioContenedor.innerHTML = `
+                    <div style="text-align: center; margin-top: 20px;">
+                        <label for="gestor-seleccionado" style="display: block; font-weight: bold; margin-bottom: 10px;">
+                            Selecciona gestor a eliminar:
+                        </label>
+                        <input list="gestores" id="gestor-seleccionado" name="gestor-seleccionado" placeholder="Escribe o selecciona un gestor"
+                               style="width: 60%; padding: 8px; margin: 0 auto 15px auto; display: block; font-size: 16px;" />
+                        <datalist id="gestores">
+                            ${listaGestores.map(gestor => `<option value="${gestor}">`).join('')}
+                        </datalist>
+                        <button id="btn-eliminar-gestor" style="padding: 10px 20px; font-size: 16px; cursor: pointer; margin-bottom: 15px;">
+                            Eliminar
+                        </button>
+
+                        <div id="confirmacion-eliminar" class="confirm-box" style="display:none; max-width: 400px; margin: 0 auto;">
+                            <p id="mensaje-confirmacion"></p>
+                            <div class="botones-confirmacion">
+                                <button id="cancelar-eliminar" class="btn-cancelar">Cancelar</button>
+                                <button id="confirmar-eliminar" class="btn-confirmar">Aceptar</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                    const btnEliminar = document.getElementById('btn-eliminar-gestor');
+                    const confirmBox = document.getElementById('confirmacion-eliminar');
+                    const mensajeConfirmacion = document.getElementById('mensaje-confirmacion');
+                    const btnCancelar = document.getElementById('cancelar-eliminar');
+                    const btnConfirmar = document.getElementById('confirmar-eliminar');
+                    const inputGestor = document.getElementById('gestor-seleccionado');
+
+                    btnEliminar.addEventListener('click', () => {
+                        const gestorSeleccionado = inputGestor.value.trim();
+
+                        if (!listaGestores.includes(gestorSeleccionado)) {
+                            alert('Por favor, selecciona un gestor válido de la lista.');
+                            return;
+                        }
+
+                        mensajeConfirmacion.textContent = `¿Estás seguro que quieres eliminar al gestor "${gestorSeleccionado}"?`;
+                        confirmBox.style.display = 'block';
+                    });
+
+                    btnCancelar.addEventListener('click', () => {
+                        confirmBox.style.display = 'none';
+                    });
+
+                    btnConfirmar.addEventListener('click', () => {
+                        const gestorSeleccionado = inputGestor.value.trim();
+                        // Aquí iría la lógica para eliminar el gestor
+                        alert(`Gestor "${gestorSeleccionado}" eliminado.`);
+                        confirmBox.style.display = 'none';
+                        inputGestor.value = '';
+                    });
+
                 } else {
                     formularioContenedor.innerHTML = "";
                 }
@@ -189,29 +246,29 @@
             opcion.addEventListener('click', () => {
                 if (opcion.id === 'btn-anadir-cuidador') {
                     formularioContenedor.innerHTML = `
-                        <form class="formulario">
-                            <div class="campo-obligatorio-texto"><span>*</span> Campo obligatorio</div>
-                            <label>Nombre <span style="color: red">*</span>
-                                <input type="text" required>
-                            </label>
-                            <label>Primer apellido <span style="color: red">*</span>
-                                <input type="text" required>
-                            </label>
-                            <label>Segundo apellido <span style="color: red">*</span>
-                                <input type="text" required>
-                            </label>
-                            <label>Nombre de usuario <span style="color: red">*</span>
-                                <input type="text" required>
-                            </label>
-                            <label>Contraseña <span style="color: red">*</span>
-                                <input type="password" required>
-                            </label>
-                            <label>Teléfono <span style="color: red">*</span>
-                                <input type="tel" required>
-                            </label>
-                            <button type="submit">Guardar</button>
-                        </form>
-                    `;
+                    <form class="formulario">
+                        <div class="campo-obligatorio-texto"><span>*</span> Campo obligatorio</div>
+                        <label>Nombre <span style="color: red">*</span>
+                            <input type="text" required>
+                        </label>
+                        <label>Primer apellido <span style="color: red">*</span>
+                            <input type="text" required>
+                        </label>
+                        <label>Segundo apellido <span style="color: red">*</span>
+                            <input type="text" required>
+                        </label>
+                        <label>Nombre de usuario <span style="color: red">*</span>
+                            <input type="text" required>
+                        </label>
+                        <label>Contraseña <span style="color: red">*</span>
+                            <input type="password" required>
+                        </label>
+                        <label>Teléfono <span style="color: red">*</span>
+                            <input type="tel" required>
+                        </label>
+                        <button type="submit">Guardar</button>
+                    </form>
+                `;
                 } else {
                     formularioContenedor.innerHTML = "";
                 }
@@ -273,7 +330,7 @@
     </div>
     <button type="submit">Guardar</button>
 </form>
-                    `;
+                `;
                 } else {
                     formularioContenedor.innerHTML = "";
                 }
@@ -308,13 +365,14 @@
     </label>
     <button type="submit">Guardar</button>
 </form>
-                    `;
+                `;
                 } else {
                     formularioContenedor.innerHTML = "";
                 }
             });
         });
     }
+
 </script>
 </body>
 </html>
