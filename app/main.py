@@ -107,7 +107,7 @@ async def datos(request: Request, usuario_id: int = Query(...), auth=Depends(req
         if datos_usuario.get("fecha_nacimiento"):
             fecha_nac = datos_usuario["fecha_nacimiento"]
             hoy = datetime.utcnow().date()
-            edad = (hoy - fecha_nac.date()).days // 365
+            edad = (hoy - fecha_nac).days // 365
             datos_usuario["edad"] = edad
 
             # 🗓️ Formatear fecha en español

@@ -54,16 +54,25 @@
                 </div>
             </section>
 
-            <section class="seccion datos-personales">
-                <h3>Datos personales</h3>
-                <ul>
-                    <li>Dirección: {{ datos.direccion }}</li>
-                    <li>Provincia: {{ datos.provincia }}</li>
-                    <li>Código Postal: {{ datos.cp }}</li>
-                    <li>Sexo: {{ datos.sexo or "No disponible" }}</li>
-                    <li>Fecha de nacimiento: {% if datos.fecha_nacimiento_es %} {{ datos.fecha_nacimiento_es }} {% else %} No disponible {% endif %}</li>
-                </ul>
-            </section>
+<section class="seccion datos-personales">
+    <h3>Datos personales</h3>
+    <ul>
+        <li>Dirección: {{ datos.direccion }}</li>
+        <li>Provincia: {{ datos.provincia }}</li>
+        <li>Código Postal: {{ datos.cp }}</li>
+        <li>Sexo: {{ datos.sexo or "No disponible" }}</li>
+        <li>Fecha de nacimiento:
+            {% if datos.fecha_nacimiento_es %}
+                {{ datos.fecha_nacimiento_es }}
+            {% else %}
+                No disponible
+            {% endif %}
+        </li>
+        <li>Teléfono de contacto: {{ datos.telefono_contacto or "No disponible" }}</li>
+        <li>Teléfono familiar: {{ datos.telefono_familiar or "No disponible" }}</li>
+    </ul>
+</section>
+
 
             <section class="seccion descripcion-usuario">
                 <h3>Descripción del hogar</h3>
