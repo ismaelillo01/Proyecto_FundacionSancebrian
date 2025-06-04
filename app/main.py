@@ -12,14 +12,12 @@ from app.routes import sensors, historico
 from app.routes.dispositivos import detalle
 from app.persons import clientes, data
 from fastapi.responses import RedirectResponse
-from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.routes.dispositivos import zonas
 from datetime import datetime
 from babel.dates import format_date
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
-
+from app.routes import alexa
 
 
 
@@ -56,6 +54,7 @@ app.include_router(historico.router, prefix="/historico", tags=["Historico"])
 app.include_router(detalle.router, prefix="/dispositivos", tags=["Dispositivos"])
 app.include_router(clientes.router, prefix="/personas", tags=["Clientes"])
 app.include_router(zonas.router, prefix="/dispositivos", tags=["Zonas"])
+app.include_router(alexa.router)
 
 # Rutas protegidas
 @app.get("/", response_class=HTMLResponse)
@@ -119,15 +118,6 @@ async def datos(request: Request, usuario_id: int = Query(...), auth=Depends(req
         "datos": datos_usuario
     })
 
-
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # o ["*"] si quieres probar rápido
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 
 # Logout
