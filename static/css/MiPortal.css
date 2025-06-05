@@ -18,7 +18,6 @@
     }
 }
 
-
 /* === Estilo General === */
 body {
     font-family: Arial, sans-serif;
@@ -76,7 +75,10 @@ body {
 }
 
 .Logo_Casa {
-    height: 50px;
+    height: 50px;       /* Tamaño base razonable */
+    max-height: 60px;   /* Límite superior */
+    width: auto;        /* Mantiene proporciones */
+    object-fit: contain;
 }
 
 .nav-right img {
@@ -179,6 +181,7 @@ main {
     margin-left: 4px;
 }
 
+/* FORMULARIO GENERAL */
 form.formulario {
     display: flex;
     flex-direction: column;
@@ -215,6 +218,7 @@ form.formulario button:hover {
     background-color: #003366;
 }
 
+/* LAYOUT DE GESTOR */
 .gestor-layout {
     display: flex;
     gap: 30px;
@@ -235,18 +239,19 @@ form.formulario button:hover {
     align-items: center;
 }
 
+/* FORMULARIO DOS COLUMNAS */
 .formulario-dos-columnas {
     background-color: white;
-    padding: 15px;
+    padding: 15px 30px;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     max-width: 700px;
-    display: flex; /* flex-row por defecto */
-    gap: 20px;
+    display: flex;
+    gap: 30px;
     box-sizing: border-box;
-    flex-wrap: wrap; /* por si no cabe en ancho */
-    text-align: center;
-    margin: 50px;
+    flex-wrap: wrap;
+    text-align: left;
+    margin: 50px auto;
 }
 
 .campo-obligatorio-texto {
@@ -269,26 +274,32 @@ form.formulario button:hover {
     flex-direction: column;
 }
 
+/* Etiquetas y campos dentro del formulario dos columnas */
 .formulario-dos-columnas label {
-    margin: 8px;
+    margin: 8px 0;
     font-weight: 600;
     color: #333;
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
 }
 
 .formulario-dos-columnas input,
 .formulario-dos-columnas select,
 .formulario-dos-columnas textarea {
     width: 100%;
-    padding: 6px 12px;
-    margin: auto;
+    padding: 8px 12px;
+    margin-top: 6px;
     border-radius: 4px;
     border: 1px solid #ccc;
     box-sizing: border-box;
     font-size: 14px;
+    font-family: Arial, sans-serif;
+    resize: vertical;
 }
 
 .formulario-dos-columnas button {
-    padding: 6px 0;
+    padding: 10px 20px;
     background-color: #004080;
     color: white;
     border: none;
@@ -296,8 +307,8 @@ form.formulario button:hover {
     cursor: pointer;
     font-weight: 600;
     font-size: 16px;
-    max-width: 500px; /* más ancho */
-    margin: auto;
+    max-width: 200px;
+    margin: 20px auto 0 auto;
     display: block;
 }
 
@@ -305,6 +316,7 @@ form.formulario button:hover {
     background-color: #003060;
 }
 
+/* Confirmación */
 .confirm-box {
     margin-top: 15px;
     padding: 15px;
@@ -326,7 +338,8 @@ form.formulario button:hover {
 }
 
 .btn-cancelar,
-.btn-confirmar {
+.btn-confirmar,
+.btn-modificar{
     padding: 7px 15px;
     border: none;
     border-radius: 3px;
@@ -351,4 +364,69 @@ form.formulario button:hover {
 
 .btn-confirmar:hover {
     background-color: #c9302c;
+}
+
+.modificar-container {
+    max-width: 600px;
+    margin: 30px auto;
+    background: #fff;
+    padding: 25px 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.modificar-campo {
+    margin-bottom: 20px;
+    background: #f5f7fa;
+    padding: 15px 20px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.3s ease;
+}
+
+.modificar-campo label {
+    font-weight: 600;
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 8px;
+    user-select: none;
+}
+
+.modificar-campo input {
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    color: #222;
+    outline: none;
+    padding: 6px 0;
+    border-bottom: 1.5px solid transparent;
+    transition: border-color 0.3s ease;
+}
+
+.modificar-campo input:focus {
+    border-color: #4CAF50;
+}
+
+.modificar-campo input::placeholder {
+    color: #999;
+}
+
+.boton-guardar {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 14px 0;
+    width: 100%;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+}
+
+.boton-guardar:hover {
+    background-color: #3e8e41;
 }
