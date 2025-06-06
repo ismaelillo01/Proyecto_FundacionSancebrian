@@ -63,17 +63,21 @@ def sensor_historico(
                     fecha_local = fecha_utc.astimezone(zona_local)
                     timestamp_ms = int(fecha_local.timestamp() * 1000)
 
-                    valor = estado["state"].replace(",", ".")
-                    try:
-                        valor = float(valor)
-                    except ValueError:
-                        valor = None
+                    estado_bruto = estado["state"]
+                    valor_numerico = None
 
-                    if valor is not None:
+                    # Intentamos convertir a número si es posible
+                    try:
+                        valor_numerico = float(estado_bruto.replace(",", "."))
+                    except (ValueError, AttributeError):
+                        valor_numerico = 1.0 if estado_bruto.lower() in ["on", "true", "detected"] else 0.0 if estado_bruto.lower() in ["off", "false", "clear"] else None
+
+                    if valor_numerico is not None:
                         datos.append({
                             "timestamp": timestamp_ms,
-                            "valor": valor
+                            "valor": valor_numerico
                         })
+
                 except Exception:
                     continue
 

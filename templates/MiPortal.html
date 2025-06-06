@@ -1,27 +1,24 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>MiPortal</title>
-    <link rel="stylesheet" href="../static/css/MiPortal.css">
+    <meta charset="UTF-8" />
+    <title>Administrar Sistema</title>
+    <link rel="stylesheet" href="../static/css/MiPortal.css" />
 </head>
 <body>
 <header class="main-header" id="movible-header">
     <div class="nav-left">
         <a href="{{ url_for('root') }}">
-            <img src="../static/img/logo_casa.png" alt="Logo_Casa" class="Logo_Casa" />
+            <img src="{{ url_for('static', path='img/logo_casa.png') }}" alt="Logo_Casa" class="Logo_Casa" />
         </a>
     </div>
 
     <div class="nav-center">
-        <img src="../static/img/img.png" alt="Logo Fundación" class="logo" />
+        <img src="{{ url_for('static', path='img/img.png') }}" alt="Logo Fundación" class="logo" />
     </div>
 
     <div class="nav-right">
-        <img src="../static/img/img_1.png" alt="Foto perfil" />
+        <img src="{{ url_for('static', path='img/img_1.png') }}" alt="Foto perfil" />
         <div class="dropdown">
             <span>{{ usuario or "Nombre Usuario" }}</span>
             <div class="dropdown-content">
@@ -31,290 +28,227 @@
     </div>
 </header>
 <main>
-    <!-- Columna principal (menú) -->
-    <aside id="menu-principal">
-        <nav>
-            <button class="menu-btn" data-section="trabajador">Administrar trabajador</button>
-            <button class="menu-btn" data-section="clientes">Administrar clientes</button>
-            <button class="menu-btn" data-section="hogares">Administrar hogares</button>
-        </nav>
-    </aside>
+    <!-- Columna izquierda -->
+    <div id="columna-izquierda">
+        <div class="menu-item" data-menu="trabajadores">Administrar Trabajadores</div>
+        <div class="menu-item" data-menu="clientes">Administrar Clientes</div>
+        <div class="menu-item" data-menu="hogares">Administrar Hogares</div>
+    </div>
 
     <!-- Columna secundaria -->
     <div id="columna-secundaria"></div>
 
-    <!-- Contenido general -->
-    <section id="contenido-principal"></section>
+    <!-- Columna terciaria -->
+    <div id="columna-terciaria"></div>
 </main>
 <script>
-    const secundaria = document.getElementById('columna-secundaria');
-    const contenidoPrincipal = document.getElementById('contenido-principal');
+    const menuItems = document.querySelectorAll('#columna-izquierda .menu-item');
+    const columnaSecundaria = document.getElementById('columna-secundaria');
+    const columnaTerciaria = document.getElementById('columna-terciaria');
 
-    const listaGestores = ['Juan Pérez', 'María López', 'Carlos Sánchez', 'Ana Gómez'];
+    let seleccionPrincipal = null;
+    let seleccionSecundaria = null;
 
-    const opcionesSecundarias = {
-        trabajador: `
-            <div class="subopcion" data-subtipo="gestor">Gestor</div>
-            <div class="subopcion" data-subtipo="cuidador">Cuidador</div>
-        `,
-        clientes: `
-            <div class="subopcion" data-subtipo="cliente">Clientes</div>
-        `,
-        hogares: `
-            <div class="subopcion" data-subtipo="hogares">Hogares</div>
-        `
-    };
+    // Limpia y oculta columnas
+    function limpiarSecundaria() {
+        columnaSecundaria.innerHTML = '';
+        columnaSecundaria.style.display = 'none';
+        limpiarTerciaria();
+    }
+    function limpiarTerciaria() {
+        columnaTerciaria.innerHTML = '';
+        columnaTerciaria.style.display = 'none';
+        seleccionSecundaria = null;
+    }
 
-    const accionesContenido = {
-        gestor: `
-            <div class="gestor-layout">
-                <div class="opciones-gestor">
-                    <ul>
-                        <li id="btn-anadir-gestor">Añadir gestor</li>
-                        <li>Eliminar gestor</li>
-                        <li>Modificar gestor</li>
-                    </ul>
-                </div>
-                <div id="formulario-gestor-container"></div>
-            </div>
-        `,
-        cuidador: `
-            <div class="gestor-layout">
-                <div class="opciones-gestor">
-                    <ul>
-                        <li id="btn-anadir-cuidador">Añadir cuidador</li>
-                        <li>Eliminar cuidador</li>
-                        <li>Modificar cuidador</li>
-                        <li>Horario</li>
-                    </ul>
-                </div>
-                <div id="formulario-gestor-container"></div>
-            </div>
-        `,
-        cliente: `
-            <div class="gestor-layout">
-                <div class="opciones-gestor">
-                    <ul>
-                        <li id="btn-anadir-cliente">Añadir cliente</li>
-                        <li>Eliminar cliente</li>
-                        <li>Modificar cliente</li>
-                    </ul>
-                </div>
-                <div id="formulario-gestor-container"></div>
-            </div>
-        `,
-        hogares: `
-            <div class="gestor-layout">
-                <div class="opciones-gestor">
-                    <ul>
-                        <li id="btn-anadir-hogar">Añadir hogares</li>
-                        <li>Eliminar hogares</li>
-                        <li>Modificar hogares</li>
-                    </ul>
-                </div>
-                <div id="formulario-gestor-container"></div>
-            </div>
-        `
-    };
+    // Genera contenido columna secundaria según opción principal
+    function cargarSecundaria(opcion) {
+        columnaSecundaria.style.display = 'block';
+        columnaTerciaria.style.display = 'none';
+        columnaTerciaria.innerHTML = '';
 
-    document.querySelectorAll('.menu-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const section = btn.dataset.section;
-            secundaria.innerHTML = opcionesSecundarias[section];
-            secundaria.style.display = 'block';
-            contenidoPrincipal.innerHTML = '';
-            activarSubopciones();
+        let html = '';
+        if (opcion === 'trabajadores') {
+            html = `
+          <div class="menu-item" data-submenu="gestores">Gestores</div>
+          <div class="menu-item" data-submenu="cuidadores">Cuidadores</div>
+        `;
+        } else if (opcion === 'clientes') {
+            html = `<div class="menu-item" data-submenu="clientes">Clientes</div>`;
+        } else if (opcion === 'hogares') {
+            html = `<div class="menu-item" data-submenu="hogares">Hogares</div>`;
+        }
+        columnaSecundaria.innerHTML = html;
+
+        // Añadir eventos a submenú
+        const submenuItems = columnaSecundaria.querySelectorAll('.menu-item');
+        submenuItems.forEach(item => {
+            item.addEventListener('click', () => {
+                submenuItems.forEach(i => i.classList.remove('activo'));
+                item.classList.add('activo');
+                seleccionSecundaria = item.getAttribute('data-submenu');
+                cargarTerciaria(seleccionSecundaria);
+            });
+        });
+    }
+
+    // Genera contenido columna terciaria según submenú seleccionado
+    function cargarTerciaria(submenu) {
+        columnaTerciaria.style.display = 'block';
+        columnaTerciaria.innerHTML = '';
+
+        let botones = [];
+        if(submenu === 'gestores') {
+            botones = ['Añadir Gestor', 'Eliminar Gestor', 'Modificar Gestor'];
+        } else if(submenu === 'cuidadores') {
+            botones = ['Añadir Cuidador', 'Eliminar Cuidador', 'Modificar Cuidador', 'Horario Cuidador'];
+        } else if(submenu === 'clientes') {
+            botones = ['Añadir Cliente', 'Eliminar Cliente', 'Modificar Cliente'];
+        } else if(submenu === 'hogares') {
+            botones = ['Añadir Hogar', 'Eliminar Hogar', 'Modificar Hogar'];
+        }
+
+        botones.forEach(botonTexto => {
+            const btn = document.createElement('button');
+            btn.textContent = botonTexto;
+            btn.className = 'boton-accion';
+            btn.dataset.accion = botonTexto.toLowerCase().replace(/\s/g, '-');
+            btn.addEventListener('click', () => manejarAccion(botonTexto, submenu));
+            columnaTerciaria.appendChild(btn);
+        });
+    }
+
+    // Función para mostrar formularios de añadir y modificar (igual que antes) bajo el botón correspondiente
+    function manejarAccion(textoBoton, submenu) {
+        // Primero quitamos cualquier formulario abierto
+        const btns = columnaTerciaria.querySelectorAll('button.boton-accion');
+        btns.forEach(b => {
+            if(b.nextSibling) {
+                b.nextSibling.remove();
+            }
+        });
+
+        if(textoBoton.startsWith('Añadir')) {
+            mostrarFormulario('añadir', submenu);
+        } else if(textoBoton.startsWith('Modificar')) {
+            mostrarFormulario('modificar', submenu);
+        } else if(textoBoton === 'Horario Cuidador') {
+            mostrarFormularioHorario();
+        } else if(textoBoton.startsWith('Eliminar')) {
+            alert(`Función de eliminar para ${submenu} (simulada)`);
+        }
+    }
+
+    function mostrarFormulario(tipo, submenu) {
+        // tipo: 'añadir' o 'modificar'
+        // submenu: gestores, cuidadores, clientes, hogares
+
+        let titulo = '';
+        if(tipo === 'añadir') titulo = `Añadir ${capitalizar(submenu)}`;
+        else if(tipo === 'modificar') titulo = `Modificar ${capitalizar(submenu)}`;
+
+        // Campos comunes
+        let formHTML = `
+        <form>
+          <h4>${titulo}</h4>
+          <label>Nombre: <input type="text" name="nombre" required></label>
+          <label>Primer Apellido: <input type="text" name="primerApellido" required></label>
+          <label>Segundo Apellido: <input type="text" name="segundoApellido"></label>
+          <label>Usuario: <input type="text" name="usuario" required></label>
+          <label>Teléfono: <input type="tel" name="telefono"></label>
+          <button type="submit">${tipo === 'añadir' ? 'Añadir' : 'Modificar'}</button>
+        </form>
+      `;
+
+        // En clientes y hogares puede ser diferente, pero dejamos igual para simplicidad
+        // En cuidadores, para añadir o modificar es igual que gestores
+
+        // Añadimos formulario justo debajo del botón clicado
+        // Para eso necesitamos el botón clicado, lo pasamos con closure o buscamos el último botón activo.
+
+        // Vamos a insertar el formulario debajo del botón clicado:
+        // Buscamos el botón que tiene el foco
+        const btns = columnaTerciaria.querySelectorAll('button.boton-accion');
+        let btnActivo = null;
+        btns.forEach(b => {
+            if(document.activeElement === b) {
+                btnActivo = b;
+            }
+        });
+
+        // Si no detectamos focus, insertamos al final (fallback)
+        if(!btnActivo) btnActivo = btns[0];
+
+        // Crear contenedor div para el formulario
+        const contenedorForm = document.createElement('div');
+        contenedorForm.innerHTML = formHTML;
+
+        // Añadimos listener submit para simular acción
+        const form = contenedorForm.querySelector('form');
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            alert(`${titulo} realizado (simulado)`);
+            contenedorForm.remove();
+        });
+
+        btnActivo.insertAdjacentElement('afterend', contenedorForm);
+    }
+
+    function mostrarFormularioHorario() {
+        // Similar a otros, pero con campos de horario
+        // Insertamos debajo del botón "Horario Cuidador"
+        const btns = columnaTerciaria.querySelectorAll('button.boton-accion');
+        let btnHorario = null;
+        btns.forEach(b => {
+            if(b.textContent === 'Horario Cuidador') btnHorario = b;
+        });
+        if(!btnHorario) return;
+
+        // Quitar formularios abiertos
+        btns.forEach(b => { if(b.nextSibling) b.nextSibling.remove(); });
+
+        const formHTML = `
+        <form>
+          <h4>Horario Cuidador</h4>
+          <label>Día: <input type="text" name="dia" placeholder="Ej: Lunes" required></label>
+          <label>Hora inicio: <input type="time" name="horaInicio" required></label>
+          <label>Hora fin: <input type="time" name="horaFin" required></label>
+          <button type="submit">Guardar Horario</button>
+        </form>
+      `;
+
+        const contenedorForm = document.createElement('div');
+        contenedorForm.innerHTML = formHTML;
+
+        const form = contenedorForm.querySelector('form');
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            alert('Horario guardado (simulado)');
+            contenedorForm.remove();
+        });
+
+        btnHorario.insertAdjacentElement('afterend', contenedorForm);
+    }
+
+    // Capitaliza primera letra
+    function capitalizar(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    // Eventos principal menú
+    menuItems.forEach(item => {
+        item.addEventListener('click', () => {
+            // Marcar activo
+            menuItems.forEach(i => i.classList.remove('activo'));
+            item.classList.add('activo');
+
+            seleccionPrincipal = item.getAttribute('data-menu');
+            limpiarSecundaria();
+            limpiarTerciaria();
+
+            cargarSecundaria(seleccionPrincipal);
         });
     });
-
-    function activarSubopciones() {
-        document.querySelectorAll('.subopcion').forEach(item => {
-            item.addEventListener('click', () => {
-                const subtipo = item.dataset.subtipo;
-                contenidoPrincipal.innerHTML = accionesContenido[subtipo];
-
-                if (subtipo === 'cuidador') {
-                    activarOpcionesCuidador();
-                } else if (subtipo === 'gestor') {
-                    activarOpcionesGestor();
-                } else if (subtipo === 'cliente') {
-                    activarOpcionesCliente();
-                } else if (subtipo === 'hogares') {
-                    activarOpcionesHogar();
-                }
-            });
-        });
-    }
-
-    function activarOpcionesGestor() {
-        const listaOpciones = document.querySelectorAll('.opciones-gestor li');
-        const formularioContenedor = document.getElementById('formulario-gestor-container');
-
-        listaOpciones.forEach(opcion => {
-            opcion.addEventListener('click', () => {
-                if (opcion.id === 'btn-anadir-gestor') {
-                    formularioContenedor.innerHTML = `
-                        <form class="formulario">
-                            <div class="campo-obligatorio-texto"><span>*</span> Campo obligatorio</div>
-                            <label>Nombre <span style="color: red">*</span>
-                                <input type="text" required>
-                            </label>
-                            <label>Primer apellido <span style="color: red">*</span>
-                                <input type="text" required>
-                            </label>
-                            <label>Segundo apellido <span style="color: red">*</span>
-                                <input type="text" required>
-                            </label>
-                            <label>Nombre de usuario <span style="color: red">*</span>
-                                <input type="text" required>
-                            </label>
-                            <label>Contraseña <span style="color: red">*</span>
-                                <input type="password" required>
-                            </label>
-                            <button type="submit">Guardar</button>
-                        </form>
-                    `;
-                } else {
-                    formularioContenedor.innerHTML = "";
-                }
-            });
-        });
-    }
-
-    function activarOpcionesCuidador() {
-        const listaOpciones = document.querySelectorAll('.opciones-gestor li');
-        const formularioContenedor = document.getElementById('formulario-gestor-container');
-
-        listaOpciones.forEach(opcion => {
-            opcion.addEventListener('click', () => {
-                if (opcion.id === 'btn-anadir-cuidador') {
-                    formularioContenedor.innerHTML = `
-                        <form class="formulario">
-                            <div class="campo-obligatorio-texto"><span>*</span> Campo obligatorio</div>
-                            <label>Nombre <span style="color: red">*</span>
-                                <input type="text" required>
-                            </label>
-                            <label>Primer apellido <span style="color: red">*</span>
-                                <input type="text" required>
-                            </label>
-                            <label>Segundo apellido <span style="color: red">*</span>
-                                <input type="text" required>
-                            </label>
-                            <label>Nombre de usuario <span style="color: red">*</span>
-                                <input type="text" required>
-                            </label>
-                            <label>Contraseña <span style="color: red">*</span>
-                                <input type="password" required>
-                            </label>
-                            <label>Teléfono <span style="color: red">*</span>
-                                <input type="tel" required>
-                            </label>
-                            <button type="submit">Guardar</button>
-                        </form>
-                    `;
-                } else {
-                    formularioContenedor.innerHTML = "";
-                }
-            });
-        });
-    }
-
-    function activarOpcionesCliente() {
-        const listaOpciones = document.querySelectorAll('.opciones-gestor li');
-        const formularioContenedor = document.getElementById('formulario-gestor-container');
-
-        listaOpciones.forEach(opcion => {
-            opcion.addEventListener('click', () => {
-                if (opcion.id === 'btn-anadir-cliente') {
-                    formularioContenedor.innerHTML = `
-<form class="formulario-dos-columnas">
-    <div class="campo-obligatorio-texto"><span>*</span> Campo obligatorio</div>
-    <div class="columna">
-        <label>Gestor <span style="color: red">*</span>
-            <input list="gestores" name="gestor" required>
-            <datalist id="gestores">
-                ${listaGestores.map(gestor => `<option value="${gestor}">`).join('')}
-            </datalist>
-        </label>
-        <label>Nombre <span style="color: red">*</span>
-            <input type="text" required>
-        </label>
-        <label>Primer apellido <span style="color: red">*</span>
-            <input type="text" required>
-        </label>
-        <label>Segundo apellido <span style="color: red">*</span>
-            <input type="text" required>
-        </label>
-        <label>DNI <span style="color: red">*</span>
-            <input type="text" required>
-        </label>
-        <label>Sexo <span style="color: red">*</span>
-            <select required>
-                <option value="" disabled selected>Selecciona</option>
-                <option value="masculino">Masculino</option>
-                <option value="femenino">Femenino</option>
-                <option value="otro">Otro</option>
-            </select>
-        </label>
-        <label>Fecha de nacimiento <span style="color: red">*</span>
-            <input type="date" required>
-        </label>
-    </div>
-    <div class="columna">
-        <label>Teléfono personal <span style="color: red">*</span>
-            <input type="tel" required>
-        </label>
-        <label>Teléfono familiar <span style="color: red">*</span>
-            <input type="tel" required>
-        </label>
-        <label>Descripción <span style="color: red">*</span>
-            <textarea rows="3" required></textarea>
-        </label>
-    </div>
-    <button type="submit">Guardar</button>
-</form>
-                    `;
-                } else {
-                    formularioContenedor.innerHTML = "";
-                }
-            });
-        });
-    }
-
-    function activarOpcionesHogar() {
-        const listaOpciones = document.querySelectorAll('.opciones-gestor li');
-        const formularioContenedor = document.getElementById('formulario-gestor-container');
-
-        listaOpciones.forEach(opcion => {
-            opcion.addEventListener('click', () => {
-                if (opcion.id === 'btn-anadir-hogar') {
-                    formularioContenedor.innerHTML = `
-<form class="formulario">
-    <div class="campo-obligatorio-texto"><span>*</span> Campo obligatorio</div>
-    <label>Dirección <span style="color: red">*</span>
-        <input type="text" required>
-    </label>
-    <label>Código Postal <span style="color: red">*</span>
-        <input type="text" required>
-    </label>
-    <label>Provincia <span style="color: red">*</span>
-        <input type="text" required>
-    </label>
-    <label>URL Home Assistant <span style="color: red">*</span>
-        <input type="url" required>
-    </label>
-    <label>Token Home Assistant <span style="color: red">*</span>
-        <input type="text" required>
-    </label>
-    <button type="submit">Guardar</button>
-</form>
-                    `;
-                } else {
-                    formularioContenedor.innerHTML = "";
-                }
-            });
-        });
-    }
 </script>
 </body>
 </html>
