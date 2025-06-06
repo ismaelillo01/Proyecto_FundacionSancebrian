@@ -36,29 +36,32 @@ def sensor_historico(
     zona: str = Query("Europe/Madrid")
 ):
     """
-    Devuelve historial del sensor de un cliente en formato compatible con Grafana.
+    Devuelve el historial del sensor de un cliente como lista de objetos con timestamp y valor.
     """
     try:
         zona_local = pytz.timezone(zona)
 
-        # Obtener intervalo de fechas en UTC
-        fecha_inicio_local = datetime.strptime(fecha, "%Y-%m-%d").replace(tzinfo=zona_local)
+        # Intervalo en UTC
+        fecha_base = datetime.strptime(fecha, "%Y-%m-%d")
+        fecha_inicio_local = zona_local.localize(datetime.combine(fecha_base.date(), datetime.min.time()))
         fecha_fin_local = fecha_inicio_local + timedelta(days=1)
         fecha_inicio_utc = fecha_inicio_local.astimezone(timezone.utc)
         fecha_fin_utc = fecha_fin_local.astimezone(timezone.utc)
 
-        # Obtener url y token desde la base de datos
+        # URL y token
         url, token = get_url_y_token(id_cliente)
 
-        # Obtener histórico desde Home Assistant
+        # Llamada al API de Home Assistant
         historico = get_sensor_history(sensor, start=fecha_inicio_utc, end=fecha_fin_utc, url=url, token=token)
 
-        datapoints = []
+        datos = []
         if historico and isinstance(historico, list) and len(historico) > 0:
             for estado in historico[0]:
                 try:
-                    fecha_utc = datetime.fromisoformat(estado["last_changed"].replace("Z", "+00:00")).astimezone(timezone.utc)
-                    timestamp_ms = int(fecha_utc.timestamp() * 1000)
+                    # Convertir fecha del sensor (en UTC) a zona local
+                    fecha_utc = datetime.fromisoformat(estado["last_changed"].replace("Z", "+00:00"))
+                    fecha_local = fecha_utc.astimezone(zona_local)
+                    timestamp_ms = int(fecha_local.timestamp() * 1000)
 
                     valor = estado["state"].replace(",", ".")
                     try:
@@ -66,17 +69,19 @@ def sensor_historico(
                     except ValueError:
                         valor = None
 
-                    datapoints.append([valor, timestamp_ms])
+                    if valor is not None:
+                        datos.append({
+                            "timestamp": timestamp_ms,
+                            "valor": valor
+                        })
                 except Exception:
                     continue
 
-        datapoints.sort(key=lambda x: x[1])
-        return [
-            {
-                "target": sensor,
-                "datapoints": datapoints
-            }
-        ]
+        datos.sort(key=lambda x: x["timestamp"])
+        return {
+            "sensor": sensor,
+            "datos": datos
+        }
 
     except Exception as e:
         return JSONResponse(status_code=500, content={

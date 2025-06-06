@@ -5,6 +5,48 @@
     <title>Datos Sensores</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/datos_sensor.css') }}" />
     <link rel="icon" href="{{ url_for('static', path='img/img.png') }}">
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+    <style>
+  #grafico-placeholder {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #fdfdfd;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+  }
+
+  #grafico-placeholder canvas {
+    width: 100% !important;
+    height: 500px !important;
+  }
+
+  #grafico-placeholder p {
+    text-align: center;
+    font-size: 1.1em;
+    color: #666;
+    margin-top: 20px;
+  }
+
+  #grafico-placeholder:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  }
+
+  h2, #detalle-sensor-titulo {
+    text-align: center;
+    color: #333;
+    margin-bottom: 10px;
+    font-size: 1.6em;
+  }
+
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f0f2f5;
+    padding: 20px;
+  }
+</style>
+
 </head>
 <body>
 <header class="main-header" id="movible-header">
@@ -90,46 +132,40 @@
         <h2 style="text-align:center;">Zonas de sensores</h2>
         <table id="tabla-zonas" class="tabla-sensores">
 <tbody>
-    {% for zona in zonas %}
-        <tr>
-            <td colspan="2" class="titulo-zona" style="font-weight:bold; background:#eee; padding: 5px;">
-                {{ zona|capitalize }}
-            </td>
-        </tr>
-        {% for dispositivo in dispositivos %}
-            {% for parametro in dispositivo.parametros %}
-                {% if parametro.zona == zona %}
-                <tr>
-                    <td>{{ parametro.nombre }}</td>
-                    <td>
-                        {{ parametro.valor }}
-                        {% if parametro.unidad %} {{ parametro.unidad }}{% endif %}
-                    </td>
-                </tr>
-                {% endif %}
-            {% endfor %}
+{% for zona in zonas %}
+    <tr>
+        <td colspan="2" class="titulo-zona" 
+            style="font-weight:bold; background:#eee; padding:5px; cursor:pointer;"
+            data-nombre-zona="{{ zona }}">
+            {{ zona|capitalize }}
+        </td>
+    </tr>
+    {% for dispositivo in dispositivos %}
+        {% for parametro in dispositivo.parametros %}
+            {% if parametro.zona == zona %}
+            <tr>
+                <td>{{ parametro.nombre }}</td>
+                <td>{{ parametro.valor }} {% if parametro.unidad %}{{ parametro.unidad }}{% endif %}</td>
+            </tr>
+            {% endif %}
         {% endfor %}
     {% endfor %}
+{% endfor %}
 </tbody>
+
 
         </table>
     </div>
 </main>
 
-<div id="modal" class="modal">
-    <div class="modal-content">
-        <span class="cerrar" onclick="cerrarModal()">×</span>
-        <h2 id="titulo-sensor">Sensor</h2>
-        <ul id="lista-subtipos"></ul>
-    </div>
-</div>
 
 <div id="modal-detalle" class="modal">
     <div class="modal-content">
         <span class="cerrar" onclick="cerrarModalDetalle()">×</span>
         <div class="modal-column-left">
             <h3 id="detalle-sensor-titulo"></h3>
-            <ul id="detalle-sensor-info"></ul>
+            <ul id="detalle-sensor-info" class="lista-sensores"></ul>
+
         </div>
         <div class="modal-column-right">
             <h3>Gráfico Sensor</h3>
@@ -142,170 +178,285 @@
     </div>
 </div>
 
+
 <script>
-    window.addEventListener('DOMContentLoaded', async () => {
-        const datalist = document.getElementById('usuarios');
-        const input = document.getElementById('usuarioInput');
-        const hiddenInput = document.getElementById('usuarioId');
+let graficoSensor = null;
+let ultimoSensorId = null;
+let ultimoClienteId = null;
 
-        try {
-            const response = await fetch('/personas/clientes');
-            const data = await response.json();
-            if (data.success) {
-                const nombresUnicos = new Set();
-                data.data.forEach(cliente => {
-                    const nombreCompleto = `${cliente.nombre} ${cliente.apellido1}` + (cliente.apellido2 ? ` ${cliente.apellido2}` : '');
-                    if (!nombresUnicos.has(nombreCompleto)) {
-                        nombresUnicos.add(nombreCompleto);
-                        const option = document.createElement('option');
-                        option.value = nombreCompleto;
-                        option.dataset.id = cliente.id_cliente;
-                        datalist.appendChild(option);
+// Función para cerrar modal
+function cerrarModalDetalle() {
+    document.getElementById("modal-detalle").style.display = "none";
+}
+
+// Función para extraer nombre lógico del sensor
+function extraerNombreSensor(sensorIdCompleto) {
+    const partes = sensorIdCompleto.split(".");
+    if (partes.length > 1) {
+        const subpartes = partes[1].split("_");
+        return subpartes[0];
+    }
+    return sensorIdCompleto;
+}
+
+function pintarGrafico(nombreSensor, datos) {
+    document.getElementById("grafico-placeholder").innerHTML = '<canvas id="myChart" style="width:100%;max-width:600px"></canvas>';
+    const ctx = document.getElementById("myChart").getContext("2d");
+
+    const labels = datos.map(p => {
+        const fecha = new Date(Number(p.timestamp));
+        return fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    });
+
+    const valores = datos.map(p => p.valor);
+
+    if (graficoSensor) {
+        graficoSensor.destroy();
+    }
+
+    graficoSensor = new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: labels,
+            datasets: [{
+                label: nombreSensor,
+                fill: false,
+                lineTension: 0,
+                backgroundColor: "rgba(0,0,255,1.0)",
+                borderColor: "rgba(0,0,255,0.4)",
+                data: valores
+            }]
+        },
+        options: {
+            legend: { display: false },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        min: Math.min(...valores) - 1,
+                        max: Math.max(...valores) + 1
                     }
-                });
+                }]
             }
+        }
+    });
+}
+
+
+
+
+// Función para recargar el gráfico con la fecha actual
+async function recargarGrafico() {
+    if (!ultimoSensorId || !ultimoClienteId) return;
+    const fecha = document.getElementById("fecha").value;
+    const zona = "Europe/Madrid";
+
+    try {
+        const res = await fetch(`/historico/sensor/historico?id_cliente=${ultimoClienteId}&sensor=${ultimoSensorId}&fecha=${fecha}&zona=${zona}`);
+        const result = await res.json();
+
+        console.log("Datos recibidos del backend:", result);
+
+        if (result.datos && result.datos.length > 0) {
+            pintarGrafico(result.sensor, result.datos);
+        } else {
+            document.getElementById("grafico-placeholder").innerHTML = "<p>No hay datos disponibles.</p>";
+        }
+    } catch (err) {
+        console.error("Error al recargar gráfico:", err);
+        document.getElementById("grafico-placeholder").innerHTML = "<p>Error al cargar datos del sensor.</p>";
+    }
+}
+
+
+window.addEventListener('DOMContentLoaded', async () => {
+    const datalist = document.getElementById('usuarios');
+    const input = document.getElementById('usuarioInput');
+    const hiddenInput = document.getElementById('usuarioId');
+
+    try {
+        const response = await fetch('/personas/clientes');
+        const data = await response.json();
+        if (data.success) {
+            const nombresUnicos = new Set();
+            data.data.forEach(cliente => {
+                const nombreCompleto = `${cliente.nombre} ${cliente.apellido1}` + (cliente.apellido2 ? ` ${cliente.apellido2}` : '');
+                if (!nombresUnicos.has(nombreCompleto)) {
+                    nombresUnicos.add(nombreCompleto);
+                    const option = document.createElement('option');
+                    option.value = nombreCompleto;
+                    option.dataset.id = cliente.id_cliente;
+                    datalist.appendChild(option);
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Error al cargar clientes:', error);
+    }
+
+    input.addEventListener('input', () => {
+        const selectedOption = [...datalist.options].find(option => option.value === input.value);
+        hiddenInput.value = selectedOption ? selectedOption.dataset.id : '';
+        if (hiddenInput.value) {
+            window.location.href = '/datos?usuario_id=' + encodeURIComponent(hiddenInput.value);
+        }
+    });
+
+    const params = new URLSearchParams(window.location.search);
+    const usuario_id = params.get("usuario_id");
+
+    if (usuario_id) {
+        try {
+            const response = await fetch(`/dispositivos/zonas/${usuario_id}`);
+            const data = await response.json();
+            const tbody = document.querySelector("#tabla-zonas tbody");
+            tbody.innerHTML = "";
+
+            if (!data.success) {
+                tbody.innerHTML = `<tr><td colspan="2" style="color:red;">Error: ${data.detail || 'Error al cargar zonas'}</td></tr>`;
+                return;
+            }
+
+            if (data.zonas.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="2">No se encontraron zonas para este cliente.</td></tr>`;
+                return;
+            }
+
+            data.zonas.forEach(zona => {
+                const tr = document.createElement("tr");
+                const td = document.createElement("td");
+                td.colSpan = 2;
+                td.textContent = zona;
+                td.className = "titulo-zona";
+                td.dataset.nombreZona = zona;
+                td.style.fontWeight = "bold";
+                td.style.background = "#eee";
+                td.style.padding = "5px";
+                td.style.cursor = "pointer";
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+            });
+
         } catch (error) {
-            console.error('Error al cargar clientes:', error);
+            const tbody = document.querySelector("#tabla-zonas tbody");
+            tbody.innerHTML = `<tr><td colspan="2" style="color:red;">Error al cargar zonas.</td></tr>`;
+            console.error(error);
         }
-
-        input.addEventListener('input', () => {
-            const selectedOption = [...datalist.options].find(option => option.value === input.value);
-            hiddenInput.value = selectedOption ? selectedOption.dataset.id : '';
-            if (hiddenInput.value) {
-                window.location.href = '/datos?usuario_id=' + encodeURIComponent(hiddenInput.value);
-            }
-        });
-
-        const params = new URLSearchParams(window.location.search);
-        const usuario_id = params.get("usuario_id");
-        if (usuario_id) {
-            try {
-                const response = await fetch(`/dispositivos/zonas/${usuario_id}`);
-                const data = await response.json();
-                const tbody = document.querySelector("#tabla-zonas tbody");
-                tbody.innerHTML = "";
-                if (!data.success) {
-                    tbody.innerHTML = `<tr><td colspan="2" style="color:red;">Error: ${data.detail || 'Error al cargar zonas'}</td></tr>`;
-                    return;
-                }
-                if (data.zonas.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="2">No se encontraron zonas para este cliente.</td></tr>`;
-                    return;
-                }
-                for (let i = 0; i < data.zonas.length; i += 2) {
-                    const tr = document.createElement("tr");
-                    [0, 1].forEach(j => {
-                        const td = document.createElement("td");
-                        td.textContent = data.zonas[i + j] || '';
-                        td.className = "celda-zona";
-                        tr.appendChild(td);
-                    });
-                    tbody.appendChild(tr);
-                }
-            } catch (error) {
-                const tbody = document.querySelector("#tabla-zonas tbody");
-                tbody.innerHTML = `<tr><td colspan="2" style="color:red;">Error al cargar zonas.</td></tr>`;
-                console.error(error);
-            }
-        }
-    });
-
-    document.getElementById('buscadorForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const id = document.getElementById('usuarioId').value;
-        if (id) {
-            window.location.href = '/datos?usuario_id=' + encodeURIComponent(id);
-        } else {
-            alert("Selecciona un usuario válido de la lista.");
-        }
-    });
-
-    function abrirModal(nombreSensor, subtipos) {
-        const modal = document.getElementById("modal");
-        const titulo = document.getElementById("titulo-sensor");
-        const lista = document.getElementById("lista-subtipos");
-        titulo.textContent = nombreSensor;
-        lista.innerHTML = "";
-        if (subtipos.length === 0) {
-            const li = document.createElement("li");
-            li.textContent = "No hay subtipos disponibles.";
-            li.style.cursor = "pointer";
-            li.style.fontStyle = "italic";
-            li.addEventListener('click', () => {
-                cerrarModal();
-                abrirModalDetalle(nombreSensor, "");
-            });
-            lista.appendChild(li);
-        } else {
-            subtipos.forEach(sub => {
-                const li = document.createElement("li");
-                li.textContent = sub;
-                li.addEventListener('click', () => {
-                    cerrarModal();
-                    abrirModalDetalle(nombreSensor, sub);
-                });
-                lista.appendChild(li);
-            });
-        }
-        modal.style.display = "flex";
     }
 
-    function cerrarModal() {
-        document.getElementById("modal").style.display = "none";
-    }
+    // Evento para seleccionar fecha → recarga gráfico si ya hay uno mostrado
+    document.getElementById("fecha").addEventListener("change", () => {
+        recargarGrafico();
+    });
+});
 
-async function abrirModalDetalle(sensorNombre) {
+document.getElementById('buscadorForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const id = document.getElementById('usuarioId').value;
+    if (id) {
+        window.location.href = '/datos?usuario_id=' + encodeURIComponent(id);
+    } else {
+        alert("Selecciona un usuario válido de la lista.");
+    }
+});
+
+document.getElementById("tabla-zonas").addEventListener("click", async function (event) {
+    const celdaZona = event.target.closest(".titulo-zona");
+    if (!celdaZona) return;
+
+    const nombreZona = celdaZona.dataset.nombreZona.toLowerCase();
     const modalDetalle = document.getElementById("modal-detalle");
     const tituloDetalle = document.getElementById("detalle-sensor-titulo");
     const infoDetalle = document.getElementById("detalle-sensor-info");
 
-    tituloDetalle.textContent = sensorNombre;
-    infoDetalle.innerHTML = ""; 
+    tituloDetalle.textContent = nombreZona.charAt(0).toUpperCase() + nombreZona.slice(1);
+    infoDetalle.innerHTML = "";
 
-    const params = new URLSearchParams(window.location.search);
-    const usuario_id = params.get("usuario_id");
+    const usuario_id = new URLSearchParams(window.location.search).get("usuario_id");
 
     try {
         const response = await fetch(`/dispositivos/detalle/${encodeURIComponent(usuario_id)}`);
         const data = await response.json();
 
-        if (data.success && data.detalles) {
-            const detallesSensor = data.detalles.filter(detalle => detalle.nombre === sensorNombre);
-            
-            if (detallesSensor.length > 0) {
-                detallesSensor.forEach(detalle => {
+        if (data && Array.isArray(data.data)) {
+            const sensoresFiltrados = [];
+
+            data.data.forEach(dispositivo => {
+                dispositivo.parametros.forEach(parametro => {
+                    if (parametro.zona?.toLowerCase() === nombreZona) {
+                        sensoresFiltrados.push(parametro);
+                    }
+                });
+            });
+
+            if (sensoresFiltrados.length > 0) {
+                sensoresFiltrados.forEach(sensor => {
                     const li = document.createElement("li");
-                    li.textContent = `${detalle.nombre}: ${detalle.valor} ${detalle.unidad || ''}`;
+
+                    const esBinario = sensor.entity_id?.startsWith("binary_sensor");
+                    let valorTexto = esBinario
+                        ? (sensor.valor === "on" ? "ON" : "OFF")
+                        : (sensor.valor !== undefined
+                            ? `${sensor.valor}${sensor.unidad ? ` ${sensor.unidad}` : ''}`
+                            : "Sin valor");
+
+                    const bateria = sensoresFiltrados.find(s =>
+                        s.device_class === "battery" &&
+                        extraerNombreSensor(s.entity_id) === extraerNombreSensor(sensor.entity_id)
+                    );
+                    const bateriaTexto = bateria ? `🔋 ${bateria.valor}%` : "";
+
+                    li.textContent = `${sensor.nombre || "Sensor sin nombre"}: ${valorTexto} ${bateriaTexto}`;
+                    li.dataset.entityId = sensor.entity_id;
+                    li.classList.add("sensor-clickable");
                     infoDetalle.appendChild(li);
                 });
+
+                document.querySelectorAll(".sensor-clickable").forEach(el => {
+                    el.addEventListener("click", async () => {
+                        const entityId = el.dataset.entityId;
+                        const fecha = document.getElementById("fecha").value;
+                        const zona = "Europe/Madrid";
+
+                        ultimoSensorId = entityId;
+                        ultimoClienteId = usuario_id;
+
+                        try {
+                            const response = await fetch(`/historico/sensor/historico?id_cliente=${usuario_id}&sensor=${entityId}&fecha=${fecha}&zona=${zona}`);
+                            const result = await response.json();
+
+                            if (result.datos && result.datos.length > 0) {
+                                pintarGrafico(result.sensor, result.datos);
+                            } else {
+                                document.getElementById("grafico-placeholder").innerHTML = "<p>No hay datos disponibles.</p>";
+                            }
+                        } catch (error) {
+                            console.error("Error al cargar el gráfico:", error);
+                            document.getElementById("grafico-placeholder").innerHTML = "<p>Error al cargar datos del sensor.</p>";
+                        }
+                    });
+                });
             } else {
-                infoDetalle.innerHTML = "<li>No hay detalles disponibles para este sensor.</li>";
+                infoDetalle.innerHTML = "<li>No hay sensores disponibles en esta zona.</li>";
             }
+
         } else {
-            infoDetalle.innerHTML = "<li>No se encontraron datos del sensor.</li>";
+            infoDetalle.innerHTML = "<li>No se encontraron datos válidos del dispositivo.</li>";
         }
+
     } catch (error) {
         infoDetalle.innerHTML = "<li>Error al cargar detalles.</li>";
         console.error("Error al obtener detalles:", error);
     }
 
     modalDetalle.style.display = "flex";
-}
-
-
-    function cerrarModalDetalle() {
-        document.getElementById("modal-detalle").style.display = "none";
-    }
-
-document.getElementById("tabla-zonas").addEventListener("click", function (event) {
-    const celda = event.target;
-    if (celda.tagName === "TD" && celda.textContent.trim()) {
-        const nombreSensor = celda.textContent.trim();
-        abrirModalDetalle(nombreSensor);
-    }
 });
-
-
 </script>
+
+
+
+
+
 </body>
 </html>
+
+
