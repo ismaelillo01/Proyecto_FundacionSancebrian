@@ -120,7 +120,7 @@
             <ul id="detalle-sensor-info" class="lista-sensores"></ul>
         </div>
         <div class="modal-column-right">
-            <h3>Gráfico Sensor</h3>
+            <h3 id="titulo-grafico-sensor">Gráfico Sensor</h3>
             <div id="grafico-placeholder">[Gráfico Aquí]</div>
             <div class="fecha-selector">
                 <label for="fecha">Fecha:</label>
@@ -151,7 +151,7 @@
     }
 
     function pintarGrafico(nombreSensor, datos) {
-        document.getElementById("grafico-placeholder").innerHTML = '<canvas id="myChart" style="width:100%;max-width:600px"></canvas>';
+        document.getElementById("grafico-placeholder").innerHTML = '<canvas id="myChart" style="width:100%;height: 100%"></canvas>';
         const ctx = document.getElementById("myChart").getContext("2d");
 
         const labels = datos.map(p => {
@@ -205,6 +205,7 @@
             console.log("Datos recibidos del backend:", result);
 
             if (result.datos && result.datos.length > 0) {
+                document.getElementById("titulo-grafico-sensor").textContent = `Gráfico Sensor: "${result.sensor}"`;
                 pintarGrafico(result.sensor, result.datos);
             } else {
                 document.getElementById("grafico-placeholder").innerHTML = "<p>No hay datos disponibles.</p>";

@@ -286,3 +286,18 @@ main {
         display: block !important;
     }
 }
+
+.form-dos-columnas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.form-dos-columnas label {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-dos-columnas textarea {
+    grid-column: span 2;
+}

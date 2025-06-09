@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <title>Administrar Sistema</title>
     <link rel="stylesheet" href="../static/css/MiPortal.css" />
+    <link rel="stylesheet" href="../static/css/formulario_admin.css" />
 </head>
 <body>
 <header class="main-header" id="movible-header">
@@ -12,11 +13,9 @@
             <img src="{{ url_for('static', path='img/logo_casa.png') }}" alt="Logo_Casa" class="Logo_Casa" />
         </a>
     </div>
-
     <div class="nav-center">
         <img src="{{ url_for('static', path='img/img.png') }}" alt="Logo Fundación" class="logo" />
     </div>
-
     <div class="nav-right">
         <img src="{{ url_for('static', path='img/img_1.png') }}" alt="Foto perfil" />
         <div class="dropdown">
@@ -28,51 +27,44 @@
     </div>
 </header>
 <main>
-    <!-- Columna izquierda -->
     <div id="columna-izquierda">
         <div class="menu-item" data-menu="trabajadores">Administrar Trabajadores</div>
         <div class="menu-item" data-menu="clientes">Administrar Clientes</div>
         <div class="menu-item" data-menu="hogares">Administrar Hogares</div>
     </div>
-
-    <!-- Columna secundaria -->
     <div id="columna-secundaria"></div>
-
-    <!-- Columna terciaria -->
-    <div id="columna-terciaria"></div>
+    <div id="columna-terciaria">
+        <div id="botones-terciarios"></div>
+        <div id="formulario-contenedor"></div>
+    </div>
 </main>
 <script>
     const menuItems = document.querySelectorAll('#columna-izquierda .menu-item');
     const columnaSecundaria = document.getElementById('columna-secundaria');
     const columnaTerciaria = document.getElementById('columna-terciaria');
+    const botonesTerciarios = document.getElementById('botones-terciarios');
+    const contenedorFormulario = document.getElementById('formulario-contenedor');
 
-    let seleccionPrincipal = null;
-    let seleccionSecundaria = null;
-
-    // Limpia y oculta columnas
     function limpiarSecundaria() {
         columnaSecundaria.innerHTML = '';
         columnaSecundaria.style.display = 'none';
         limpiarTerciaria();
     }
     function limpiarTerciaria() {
-        columnaTerciaria.innerHTML = '';
+        botonesTerciarios.innerHTML = '';
+        contenedorFormulario.innerHTML = '';
         columnaTerciaria.style.display = 'none';
-        seleccionSecundaria = null;
     }
 
-    // Genera contenido columna secundaria según opción principal
     function cargarSecundaria(opcion) {
         columnaSecundaria.style.display = 'block';
         columnaTerciaria.style.display = 'none';
-        columnaTerciaria.innerHTML = '';
 
         let html = '';
         if (opcion === 'trabajadores') {
             html = `
-          <div class="menu-item" data-submenu="gestores">Gestores</div>
-          <div class="menu-item" data-submenu="cuidadores">Cuidadores</div>
-        `;
+                <div class="menu-item" data-submenu="gestores">Gestores</div>
+                <div class="menu-item" data-submenu="cuidadores">Cuidadores</div>`;
         } else if (opcion === 'clientes') {
             html = `<div class="menu-item" data-submenu="clientes">Clientes</div>`;
         } else if (opcion === 'hogares') {
@@ -80,22 +72,21 @@
         }
         columnaSecundaria.innerHTML = html;
 
-        // Añadir eventos a submenú
         const submenuItems = columnaSecundaria.querySelectorAll('.menu-item');
         submenuItems.forEach(item => {
             item.addEventListener('click', () => {
                 submenuItems.forEach(i => i.classList.remove('activo'));
                 item.classList.add('activo');
-                seleccionSecundaria = item.getAttribute('data-submenu');
-                cargarTerciaria(seleccionSecundaria);
+                const submenu = item.getAttribute('data-submenu');
+                cargarTerciaria(submenu);
             });
         });
     }
 
-    // Genera contenido columna terciaria según submenú seleccionado
     function cargarTerciaria(submenu) {
         columnaTerciaria.style.display = 'block';
-        columnaTerciaria.innerHTML = '';
+        botonesTerciarios.innerHTML = '';
+        contenedorFormulario.innerHTML = '';
 
         let botones = [];
         if(submenu === 'gestores') {
@@ -114,139 +105,185 @@
             btn.className = 'boton-accion';
             btn.dataset.accion = botonTexto.toLowerCase().replace(/\s/g, '-');
             btn.addEventListener('click', () => manejarAccion(botonTexto, submenu));
-            columnaTerciaria.appendChild(btn);
+            botonesTerciarios.appendChild(btn);
         });
     }
 
-    // Función para mostrar formularios de añadir y modificar (igual que antes) bajo el botón correspondiente
     function manejarAccion(textoBoton, submenu) {
-        // Primero quitamos cualquier formulario abierto
-        const btns = columnaTerciaria.querySelectorAll('button.boton-accion');
-        btns.forEach(b => {
-            if(b.nextSibling) {
-                b.nextSibling.remove();
-            }
-        });
+        contenedorFormulario.innerHTML = '';
 
         if(textoBoton.startsWith('Añadir')) {
-            mostrarFormulario('añadir', submenu);
-        } else if(textoBoton.startsWith('Modificar')) {
-            mostrarFormulario('modificar', submenu);
+            mostrarFormulario(textoBoton, submenu);
         } else if(textoBoton === 'Horario Cuidador') {
             mostrarFormularioHorario();
-        } else if(textoBoton.startsWith('Eliminar')) {
-            alert(`Función de eliminar para ${submenu} (simulada)`);
         }
     }
 
-    function mostrarFormulario(tipo, submenu) {
-        // tipo: 'añadir' o 'modificar'
-        // submenu: gestores, cuidadores, clientes, hogares
+    function mostrarFormulario(textoBoton, submenu) {
+        let formHTML = '';
+        let formClass = '';
 
-        let titulo = '';
-        if(tipo === 'añadir') titulo = `Añadir ${capitalizar(submenu)}`;
-        else if(tipo === 'modificar') titulo = `Modificar ${capitalizar(submenu)}`;
+        if (submenu === 'gestores') {
+            formHTML = `
+                <form>
+                    <h4>${textoBoton}</h4>
+                    <label>Nombre: <input type="text" name="nombre" required></label>
+                    <label>Primer Apellido: <input type="text" name="primerApellido" required></label>
+                    <label>Segundo Apellido: <input type="text" name="segundoApellido"></label>
+                    <label>Usuario: <input type="text" name="usuario" required></label>
+                    <label>Contraseña: <input type="password" name="password" required></label>
+                    <button type="submit">${textoBoton}</button>
+                </form>`;
+        } else if (submenu === 'cuidadores') {
+            formHTML = `
+                <form>
+                    <h4>${textoBoton}</h4>
+                    <label>Nombre: <input type="text" name="nombre" required></label>
+                    <label>Primer Apellido: <input type="text" name="primerApellido" required></label>
+                    <label>Segundo Apellido: <input type="text" name="segundoApellido"></label>
+                    <label>Usuario: <input type="text" name="usuario" required></label>
+                    <label>Contraseña: <input type="password" name="password" required></label>
+                    <label>Teléfono: <input type="tel" name="telefono"></label>
+                    <button type="submit">${textoBoton}</button>
+                </form>`;
+        } else if (submenu === 'clientes') {
+            formClass = 'form-dos-columnas';
+            formHTML = `
+                <form class="${formClass}">
+                    <h4>${textoBoton}</h4>
+                    <label>Gestor:
+                        <select name="gestor">
+                            <option value="">Seleccione un gestor</option>
+                        </select>
+                    </label>
+                    <label>Nombre: <input type="text" name="nombre" required></label>
+                    <label>Primer Apellido: <input type="text" name="primerApellido" required></label>
+                    <label>Segundo Apellido: <input type="text" name="segundoApellido"></label>
+                    <label>DNI: <input type="text" name="dni" required></label>
+                    <label>Sexo: <input type="text" name="sexo"></label>
+                    <label>Fecha Nacimiento: <input type="date" name="fechaNacimiento"></label>
+                    <label>Teléfono personal: <input type="tel" name="telefonoPersonal"></label>
+                    <label>Teléfono familiar: <input type="tel" name="telefonoFamiliar"></label>
+                    <label>Hogar: <input type="text" name="hogar"></label>
+                    <label>Descripción: <textarea name="descripcion"></textarea></label>
+                    <button type="submit">${textoBoton}</button>
+                </form>`;
+        } else if (submenu === 'hogares') {
+            formHTML = `
+                <form>
+                    <h4>${textoBoton}</h4>
+                    <label>Dirección: <input type="text" name="direccion" required></label>
+                    <label>Código Postal: <input type="text" name="cp" required></label>
+                    <label>Provincia: <input type="text" name="provincia" required></label>
+                    <label>URL: <input type="url" name="url"></label>
+                    <label>Token: <input type="text" name="token"></label>
+                    <button type="submit">${textoBoton}</button>
+                </form>`;
+        }
+        // Bloque para "Modificar" elementos
+        if (textoBoton.startsWith('Modificar')) {
+            const entidad = submenu;
+            const listaEjemplo = [
+                { id: 1, nombre: "Juan", apellido1: "Pérez", apellido2: "López", usuario: "juanp", telefono: "600123456", dni: "12345678A", direccion: "Calle Mayor", cp: "34001", provincia: "Palencia" },
+                { id: 2, nombre: "Ana", apellido1: "García", apellido2: "Martínez", usuario: "anagm", telefono: "600987654", dni: "87654321B", direccion: "Avenida Libertad", cp: "28001", provincia: "Madrid" }
+            ];
 
-        // Campos comunes
-        let formHTML = `
-        <form>
-          <h4>${titulo}</h4>
-          <label>Nombre: <input type="text" name="nombre" required></label>
-          <label>Primer Apellido: <input type="text" name="primerApellido" required></label>
-          <label>Segundo Apellido: <input type="text" name="segundoApellido"></label>
-          <label>Usuario: <input type="text" name="usuario" required></label>
-          <label>Teléfono: <input type="tel" name="telefono"></label>
-          <button type="submit">${tipo === 'añadir' ? 'Añadir' : 'Modificar'}</button>
-        </form>
-      `;
+            const contenedorBusqueda = document.createElement('div');
+            contenedorBusqueda.classList.add('contenedor-busqueda');
 
-        // En clientes y hogares puede ser diferente, pero dejamos igual para simplicidad
-        // En cuidadores, para añadir o modificar es igual que gestores
+            const selectHTML = `
+                <label>Seleccionar ${entidad.slice(0, -1)}:
+                    <select id="selector-${entidad}">
+                        <option value="">Seleccione...</option>
+                        ${listaEjemplo.map(item => `<option value="${item.id}">${item.nombre} ${item.apellido1}</option>`).join('')}
+                    </select>
+                </label>
+                <div id="datos-${entidad}" class="datos-modificables"></div>
+            `;
+            contenedorBusqueda.innerHTML = selectHTML;
+            contenedorFormulario.appendChild(contenedorBusqueda);
 
-        // Añadimos formulario justo debajo del botón clicado
-        // Para eso necesitamos el botón clicado, lo pasamos con closure o buscamos el último botón activo.
+            const selector = contenedorBusqueda.querySelector(`#selector-${entidad}`);
+            const contenedorDatos = contenedorBusqueda.querySelector(`#datos-${entidad}`);
 
-        // Vamos a insertar el formulario debajo del botón clicado:
-        // Buscamos el botón que tiene el foco
-        const btns = columnaTerciaria.querySelectorAll('button.boton-accion');
-        let btnActivo = null;
-        btns.forEach(b => {
-            if(document.activeElement === b) {
-                btnActivo = b;
-            }
-        });
+            selector.addEventListener('change', () => {
+                contenedorDatos.innerHTML = '';
+                const seleccionado = listaEjemplo.find(item => item.id == selector.value);
+                if (!seleccionado) return;
 
-        // Si no detectamos focus, insertamos al final (fallback)
-        if(!btnActivo) btnActivo = btns[0];
+                Object.entries(seleccionado).forEach(([clave, valor]) => {
+                    if (clave === 'id') return;
+                    const campo = document.createElement('div');
+                    campo.classList.add('campo-modificable');
+                    campo.innerHTML = `
+                        <label>${clave.charAt(0).toUpperCase() + clave.slice(1)}:</label>
+                        <span class="valor-campo" contenteditable="false">${valor}</span>
+                        <button class="editar-campo" title="Editar">&#9998;</button>
+                    `;
+                    const btnEditar = campo.querySelector('.editar-campo');
+                    const spanValor = campo.querySelector('.valor-campo');
 
-        // Crear contenedor div para el formulario
+                    btnEditar.addEventListener('click', () => {
+                        const enEdicion = spanValor.getAttribute('contenteditable') === 'true';
+                        if (enEdicion) {
+                            spanValor.setAttribute('contenteditable', 'false');
+                            btnEditar.innerHTML = '&#9998;';
+                            alert(`Nuevo valor de "${clave}": ${spanValor.textContent} (simulado)`); // aquí iría tu llamada a back
+                        } else {
+                            spanValor.setAttribute('contenteditable', 'true');
+                            spanValor.focus();
+                            btnEditar.innerHTML = '&#10004;';
+                        }
+                    });
+
+                    contenedorDatos.appendChild(campo);
+                });
+            });
+        }
+
         const contenedorForm = document.createElement('div');
         contenedorForm.innerHTML = formHTML;
 
-        // Añadimos listener submit para simular acción
         const form = contenedorForm.querySelector('form');
         form.addEventListener('submit', e => {
             e.preventDefault();
-            alert(`${titulo} realizado (simulado)`);
-            contenedorForm.remove();
+            alert(`${textoBoton} realizado (simulado)`);
+            contenedorFormulario.innerHTML = '';
         });
 
-        btnActivo.insertAdjacentElement('afterend', contenedorForm);
+        contenedorFormulario.appendChild(contenedorForm);
     }
 
     function mostrarFormularioHorario() {
-        // Similar a otros, pero con campos de horario
-        // Insertamos debajo del botón "Horario Cuidador"
-        const btns = columnaTerciaria.querySelectorAll('button.boton-accion');
-        let btnHorario = null;
-        btns.forEach(b => {
-            if(b.textContent === 'Horario Cuidador') btnHorario = b;
-        });
-        if(!btnHorario) return;
-
-        // Quitar formularios abiertos
-        btns.forEach(b => { if(b.nextSibling) b.nextSibling.remove(); });
-
         const formHTML = `
-        <form>
-          <h4>Horario Cuidador</h4>
-          <label>Día: <input type="text" name="dia" placeholder="Ej: Lunes" required></label>
-          <label>Hora inicio: <input type="time" name="horaInicio" required></label>
-          <label>Hora fin: <input type="time" name="horaFin" required></label>
-          <button type="submit">Guardar Horario</button>
-        </form>
-      `;
+            <form>
+                <h4>Horario Cuidador</h4>
+                <label>Día: <input type="text" name="dia" placeholder="Ej: Lunes" required></label>
+                <label>Hora inicio: <input type="time" name="horaInicio" required></label>
+                <label>Hora fin: <input type="time" name="horaFin" required></label>
+                <button type="submit">Guardar Horario</button>
+            </form>`;
 
-        const contenedorForm = document.createElement('div');
-        contenedorForm.innerHTML = formHTML;
+        const formDiv = document.createElement('div');
+        formDiv.innerHTML = formHTML;
 
-        const form = contenedorForm.querySelector('form');
+        const form = formDiv.querySelector('form');
         form.addEventListener('submit', e => {
             e.preventDefault();
             alert('Horario guardado (simulado)');
-            contenedorForm.remove();
+            contenedorFormulario.innerHTML = '';
         });
 
-        btnHorario.insertAdjacentElement('afterend', contenedorForm);
+        contenedorFormulario.appendChild(formDiv);
     }
 
-    // Capitaliza primera letra
-    function capitalizar(str) {
-        return str.charAt(0).toUpperCase() + str.slice(1);
-    }
-
-    // Eventos principal menú
     menuItems.forEach(item => {
         item.addEventListener('click', () => {
-            // Marcar activo
             menuItems.forEach(i => i.classList.remove('activo'));
             item.classList.add('activo');
-
-            seleccionPrincipal = item.getAttribute('data-menu');
             limpiarSecundaria();
             limpiarTerciaria();
-
-            cargarSecundaria(seleccionPrincipal);
+            cargarSecundaria(item.getAttribute('data-menu'));
         });
     });
 </script>
