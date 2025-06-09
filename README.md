@@ -14,7 +14,9 @@ CREATE TABLE trabajadores (
   apellido1 VARCHAR(100) NOT NULL,
   apellido2 VARCHAR(100),
   CONSTRAINT pk1_trabajadores PRIMARY KEY (id_trabajador),
-  CONSTRAINT uq1_trabajadores_nombre_usuario UNIQUE (nombre_usuario)
+  CONSTRAINT uq1_trabajadores_nombre_usuario UNIQUE (nombre_usuario),
+  CONSTRAINT chk_nombre_no_espacio CHECK (TRIM(nombre_usuario) <> ''),
+  CONSTRAINT chk_contraseña CHECK (TRIM(contraseña) <> '')
 );
 
 CREATE TABLE gestores (
@@ -28,6 +30,7 @@ CREATE TABLE cuidadores (
   id_cuidador INT NOT NULL,
   telefono VARCHAR(20) NOT NULL,
   CONSTRAINT pk1_cuidadores PRIMARY KEY (id_cuidador),
+  CONSTRAINT chk_telefono CHECK (telefono REGEXP '^[0-9]{9,15}$'),
   CONSTRAINT fk1_cuidadores_trabajadores FOREIGN KEY (id_cuidador) REFERENCES trabajadores(id_trabajador)
     ON DELETE CASCADE
 );
@@ -36,18 +39,10 @@ CREATE TABLE hogares (
   id_hogar INT NOT NULL,
   url VARCHAR(255) NOT NULL,
   token VARCHAR(255) NOT NULL,
-  codigo_postal CHAR(5) NOT NULL,
+  codigo_postal CHAR(5) ,
+  provincia VARCHAR(100) ,
   direccion VARCHAR(255) NOT NULL,
   CONSTRAINT pk1_hogares PRIMARY KEY (id_hogar)
-);
-
-CREATE TABLE clientes (
-  id_cliente INT NOT NULL,
-  id_hogar INT NOT NULL,
-  id_gestor INT NOT NULL,
-  CONSTRAINT pk1_clientes PRIMARY KEY (id_cliente),
-  CONSTRAINT fk1_clientes_hogares FOREIGN KEY (id_hogar) REFERENCES hogares(id_hogar),
-  CONSTRAINT fk2_clientes_gestores FOREIGN KEY (id_gestor) REFERENCES gestores(id_gestor)
 );
 
 CREATE TABLE datos_clientes (
@@ -57,12 +52,26 @@ CREATE TABLE datos_clientes (
   apellido2 VARCHAR(100),
   dni VARCHAR(9) UNIQUE,
   sexo VARCHAR(20),
+  descripcion VARCHAR(500),
+  fecha_nacimiento DATE,
   telefono_contacto VARCHAR(20),
   telefono_familiar VARCHAR(20),
   fecha_registro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  email VARCHAR(255),
   CONSTRAINT pk1_datos_clientes PRIMARY KEY (id_cliente),
-  CONSTRAINT fk1_datos_clientes_clientes FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente)
-    ON DELETE CASCADE
+  CONSTRAINT chk_email_valid CHECK (email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
+  CONSTRAINT chk_telefono_contacto CHECK (telefono_contacto REGEXP '^[0-9]{9,15}$'),
+  CONSTRAINT chk_telefono_familiar CHECK (telefono_familiar REGEXP '^[0-9]{9,15}$')
+);
+
+CREATE TABLE clientes (
+  id_cliente INT NOT NULL,
+  id_hogar INT NOT NULL,
+  id_gestor INT NOT NULL,
+  CONSTRAINT pk1_clientes PRIMARY KEY (id_cliente),
+  CONSTRAINT fk1_clientes_datos_clientes FOREIGN KEY (id_cliente) REFERENCES datos_clientes(id_cliente),
+  CONSTRAINT fk2_clientes_hogares FOREIGN KEY (id_hogar) REFERENCES hogares(id_hogar),
+  CONSTRAINT fk3_clientes_gestores FOREIGN KEY (id_gestor) REFERENCES gestores(id_gestor)
 );
 
 CREATE TABLE horarios (
@@ -79,4 +88,6 @@ CREATE TABLE horarios (
   CONSTRAINT fk1_horarios_cuidadores FOREIGN KEY (id_cuidador) REFERENCES cuidadores(id_cuidador),
   CONSTRAINT fk2_horarios_cliente FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente)
 );
+
+
 
