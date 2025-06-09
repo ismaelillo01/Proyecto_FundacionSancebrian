@@ -1,27 +1,23 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>MiPortal</title>
-    <link rel="stylesheet" href="../static/css/MiPortal.css">
+    <meta charset="UTF-8" />
+    <title>Administrar Sistema</title>
+    <link rel="stylesheet" href="../static/css/MiPortal.css" />
+    <link rel="stylesheet" href="../static/css/formulario_admin.css" />
 </head>
 <body>
 <header class="main-header" id="movible-header">
     <div class="nav-left">
         <a href="{{ url_for('root') }}">
-            <img src="../static/img/logo_casa.png" alt="Logo_Casa" class="Logo_Casa" />
+            <img src="{{ url_for('static', path='img/logo_casa.png') }}" alt="Logo_Casa" class="Logo_Casa" />
         </a>
     </div>
-
     <div class="nav-center">
-        <img src="../static/img/img.png" alt="Logo Fundación" class="logo" />
+        <img src="{{ url_for('static', path='img/img.png') }}" alt="Logo Fundación" class="logo" />
     </div>
-
     <div class="nav-right">
-        <img src="../static/img/img_1.png" alt="Foto perfil" />
+        <img src="{{ url_for('static', path='img/img_1.png') }}" alt="Foto perfil" />
         <div class="dropdown">
             <span>{{ usuario or "Nombre Usuario" }}</span>
             <div class="dropdown-content">
@@ -31,290 +27,265 @@
     </div>
 </header>
 <main>
-    <!-- Columna principal (menú) -->
-    <aside id="menu-principal">
-        <nav>
-            <button class="menu-btn" data-section="trabajador">Administrar trabajador</button>
-            <button class="menu-btn" data-section="clientes">Administrar clientes</button>
-            <button class="menu-btn" data-section="hogares">Administrar hogares</button>
-        </nav>
-    </aside>
-
-    <!-- Columna secundaria -->
+    <div id="columna-izquierda">
+        <div class="menu-item" data-menu="trabajadores">Administrar Trabajadores</div>
+        <div class="menu-item" data-menu="clientes">Administrar Clientes</div>
+        <div class="menu-item" data-menu="hogares">Administrar Hogares</div>
+    </div>
     <div id="columna-secundaria"></div>
-
-    <!-- Contenido general -->
-    <section id="contenido-principal"></section>
+    <div id="columna-terciaria">
+        <div id="botones-terciarios"></div>
+        <div id="formulario-contenedor"></div>
+    </div>
 </main>
 <script>
-    const secundaria = document.getElementById('columna-secundaria');
-    const contenidoPrincipal = document.getElementById('contenido-principal');
+    const menuItems = document.querySelectorAll('#columna-izquierda .menu-item');
+    const columnaSecundaria = document.getElementById('columna-secundaria');
+    const columnaTerciaria = document.getElementById('columna-terciaria');
+    const botonesTerciarios = document.getElementById('botones-terciarios');
+    const contenedorFormulario = document.getElementById('formulario-contenedor');
 
-    const listaGestores = ['Juan Pérez', 'María López', 'Carlos Sánchez', 'Ana Gómez'];
+    function limpiarSecundaria() {
+        columnaSecundaria.innerHTML = '';
+        columnaSecundaria.style.display = 'none';
+        limpiarTerciaria();
+    }
+    function limpiarTerciaria() {
+        botonesTerciarios.innerHTML = '';
+        contenedorFormulario.innerHTML = '';
+        columnaTerciaria.style.display = 'none';
+    }
 
-    const opcionesSecundarias = {
-        trabajador: `
-            <div class="subopcion" data-subtipo="gestor">Gestor</div>
-            <div class="subopcion" data-subtipo="cuidador">Cuidador</div>
-        `,
-        clientes: `
-            <div class="subopcion" data-subtipo="cliente">Clientes</div>
-        `,
-        hogares: `
-            <div class="subopcion" data-subtipo="hogares">Hogares</div>
-        `
-    };
+    function cargarSecundaria(opcion) {
+        columnaSecundaria.style.display = 'block';
+        columnaTerciaria.style.display = 'none';
 
-    const accionesContenido = {
-        gestor: `
-            <div class="gestor-layout">
-                <div class="opciones-gestor">
-                    <ul>
-                        <li id="btn-anadir-gestor">Añadir gestor</li>
-                        <li>Eliminar gestor</li>
-                        <li>Modificar gestor</li>
-                    </ul>
-                </div>
-                <div id="formulario-gestor-container"></div>
-            </div>
-        `,
-        cuidador: `
-            <div class="gestor-layout">
-                <div class="opciones-gestor">
-                    <ul>
-                        <li id="btn-anadir-cuidador">Añadir cuidador</li>
-                        <li>Eliminar cuidador</li>
-                        <li>Modificar cuidador</li>
-                        <li>Horario</li>
-                    </ul>
-                </div>
-                <div id="formulario-gestor-container"></div>
-            </div>
-        `,
-        cliente: `
-            <div class="gestor-layout">
-                <div class="opciones-gestor">
-                    <ul>
-                        <li id="btn-anadir-cliente">Añadir cliente</li>
-                        <li>Eliminar cliente</li>
-                        <li>Modificar cliente</li>
-                    </ul>
-                </div>
-                <div id="formulario-gestor-container"></div>
-            </div>
-        `,
-        hogares: `
-            <div class="gestor-layout">
-                <div class="opciones-gestor">
-                    <ul>
-                        <li id="btn-anadir-hogar">Añadir hogares</li>
-                        <li>Eliminar hogares</li>
-                        <li>Modificar hogares</li>
-                    </ul>
-                </div>
-                <div id="formulario-gestor-container"></div>
-            </div>
-        `
-    };
+        let html = '';
+        if (opcion === 'trabajadores') {
+            html = `
+                <div class="menu-item" data-submenu="gestores">Gestores</div>
+                <div class="menu-item" data-submenu="cuidadores">Cuidadores</div>`;
+        } else if (opcion === 'clientes') {
+            html = `<div class="menu-item" data-submenu="clientes">Clientes</div>`;
+        } else if (opcion === 'hogares') {
+            html = `<div class="menu-item" data-submenu="hogares">Hogares</div>`;
+        }
+        columnaSecundaria.innerHTML = html;
 
-    document.querySelectorAll('.menu-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const section = btn.dataset.section;
-            secundaria.innerHTML = opcionesSecundarias[section];
-            secundaria.style.display = 'block';
-            contenidoPrincipal.innerHTML = '';
-            activarSubopciones();
+        const submenuItems = columnaSecundaria.querySelectorAll('.menu-item');
+        submenuItems.forEach(item => {
+            item.addEventListener('click', () => {
+                submenuItems.forEach(i => i.classList.remove('activo'));
+                item.classList.add('activo');
+                const submenu = item.getAttribute('data-submenu');
+                cargarTerciaria(submenu);
+            });
+        });
+    }
+
+    function cargarTerciaria(submenu) {
+        columnaTerciaria.style.display = 'block';
+        botonesTerciarios.innerHTML = '';
+        contenedorFormulario.innerHTML = '';
+
+        let botones = [];
+        if(submenu === 'gestores') {
+            botones = ['Añadir Gestor', 'Eliminar Gestor', 'Modificar Gestor'];
+        } else if(submenu === 'cuidadores') {
+            botones = ['Añadir Cuidador', 'Eliminar Cuidador', 'Modificar Cuidador', 'Horario Cuidador'];
+        } else if(submenu === 'clientes') {
+            botones = ['Añadir Cliente', 'Eliminar Cliente', 'Modificar Cliente'];
+        } else if(submenu === 'hogares') {
+            botones = ['Añadir Hogar', 'Eliminar Hogar', 'Modificar Hogar'];
+        }
+
+        botones.forEach(botonTexto => {
+            const btn = document.createElement('button');
+            btn.textContent = botonTexto;
+            btn.className = 'boton-accion';
+            btn.dataset.accion = botonTexto.toLowerCase().replace(/\s/g, '-');
+            btn.addEventListener('click', () => manejarAccion(botonTexto, submenu));
+            botonesTerciarios.appendChild(btn);
+        });
+    }
+
+    function manejarAccion(textoBoton, submenu) {
+        contenedorFormulario.innerHTML = '';
+
+        if(textoBoton.startsWith('Añadir')) {
+            mostrarFormulario(textoBoton, submenu);
+        } else if(textoBoton === 'Horario Cuidador') {
+            mostrarFormularioHorario();
+        }
+    }
+
+    function mostrarFormulario(textoBoton, submenu) {
+        let formHTML = '';
+        let formClass = '';
+
+        if (submenu === 'gestores') {
+            formHTML = `
+                <form>
+                    <h4>${textoBoton}</h4>
+                    <label>Nombre: <input type="text" name="nombre" required></label>
+                    <label>Primer Apellido: <input type="text" name="primerApellido" required></label>
+                    <label>Segundo Apellido: <input type="text" name="segundoApellido"></label>
+                    <label>Usuario: <input type="text" name="usuario" required></label>
+                    <label>Contraseña: <input type="password" name="password" required></label>
+                    <button type="submit">${textoBoton}</button>
+                </form>`;
+        } else if (submenu === 'cuidadores') {
+            formHTML = `
+                <form>
+                    <h4>${textoBoton}</h4>
+                    <label>Nombre: <input type="text" name="nombre" required></label>
+                    <label>Primer Apellido: <input type="text" name="primerApellido" required></label>
+                    <label>Segundo Apellido: <input type="text" name="segundoApellido"></label>
+                    <label>Usuario: <input type="text" name="usuario" required></label>
+                    <label>Contraseña: <input type="password" name="password" required></label>
+                    <label>Teléfono: <input type="tel" name="telefono"></label>
+                    <button type="submit">${textoBoton}</button>
+                </form>`;
+        } else if (submenu === 'clientes') {
+            formClass = 'form-dos-columnas';
+            formHTML = `
+                <form class="${formClass}">
+                    <h4>${textoBoton}</h4>
+                    <label>Gestor:
+                        <select name="gestor">
+                            <option value="">Seleccione un gestor</option>
+                        </select>
+                    </label>
+                    <label>Nombre: <input type="text" name="nombre" required></label>
+                    <label>Primer Apellido: <input type="text" name="primerApellido" required></label>
+                    <label>Segundo Apellido: <input type="text" name="segundoApellido"></label>
+                    <label>DNI: <input type="text" name="dni" required></label>
+                    <label>Sexo: <input type="text" name="sexo"></label>
+                    <label>Fecha Nacimiento: <input type="date" name="fechaNacimiento"></label>
+                    <label>Teléfono personal: <input type="tel" name="telefonoPersonal"></label>
+                    <label>Teléfono familiar: <input type="tel" name="telefonoFamiliar"></label>
+                    <label>Hogar: <input type="text" name="hogar"></label>
+                    <label>Descripción: <textarea name="descripcion"></textarea></label>
+                    <button type="submit">${textoBoton}</button>
+                </form>`;
+        } else if (submenu === 'hogares') {
+            formHTML = `
+                <form>
+                    <h4>${textoBoton}</h4>
+                    <label>Dirección: <input type="text" name="direccion" required></label>
+                    <label>Código Postal: <input type="text" name="cp" required></label>
+                    <label>Provincia: <input type="text" name="provincia" required></label>
+                    <label>URL: <input type="url" name="url"></label>
+                    <label>Token: <input type="text" name="token"></label>
+                    <button type="submit">${textoBoton}</button>
+                </form>`;
+        }
+        // Bloque para "Modificar" elementos
+        if (textoBoton.startsWith('Modificar')) {
+            const entidad = submenu;
+            const listaEjemplo = [
+                { id: 1, nombre: "Juan", apellido1: "Pérez", apellido2: "López", usuario: "juanp", telefono: "600123456", dni: "12345678A", direccion: "Calle Mayor", cp: "34001", provincia: "Palencia" },
+                { id: 2, nombre: "Ana", apellido1: "García", apellido2: "Martínez", usuario: "anagm", telefono: "600987654", dni: "87654321B", direccion: "Avenida Libertad", cp: "28001", provincia: "Madrid" }
+            ];
+
+            const contenedorBusqueda = document.createElement('div');
+            contenedorBusqueda.classList.add('contenedor-busqueda');
+
+            const selectHTML = `
+                <label>Seleccionar ${entidad.slice(0, -1)}:
+                    <select id="selector-${entidad}">
+                        <option value="">Seleccione...</option>
+                        ${listaEjemplo.map(item => `<option value="${item.id}">${item.nombre} ${item.apellido1}</option>`).join('')}
+                    </select>
+                </label>
+                <div id="datos-${entidad}" class="datos-modificables"></div>
+            `;
+            contenedorBusqueda.innerHTML = selectHTML;
+            contenedorFormulario.appendChild(contenedorBusqueda);
+
+            const selector = contenedorBusqueda.querySelector(`#selector-${entidad}`);
+            const contenedorDatos = contenedorBusqueda.querySelector(`#datos-${entidad}`);
+
+            selector.addEventListener('change', () => {
+                contenedorDatos.innerHTML = '';
+                const seleccionado = listaEjemplo.find(item => item.id == selector.value);
+                if (!seleccionado) return;
+
+                Object.entries(seleccionado).forEach(([clave, valor]) => {
+                    if (clave === 'id') return;
+                    const campo = document.createElement('div');
+                    campo.classList.add('campo-modificable');
+                    campo.innerHTML = `
+                        <label>${clave.charAt(0).toUpperCase() + clave.slice(1)}:</label>
+                        <span class="valor-campo" contenteditable="false">${valor}</span>
+                        <button class="editar-campo" title="Editar">&#9998;</button>
+                    `;
+                    const btnEditar = campo.querySelector('.editar-campo');
+                    const spanValor = campo.querySelector('.valor-campo');
+
+                    btnEditar.addEventListener('click', () => {
+                        const enEdicion = spanValor.getAttribute('contenteditable') === 'true';
+                        if (enEdicion) {
+                            spanValor.setAttribute('contenteditable', 'false');
+                            btnEditar.innerHTML = '&#9998;';
+                            alert(`Nuevo valor de "${clave}": ${spanValor.textContent} (simulado)`); // aquí iría tu llamada a back
+                        } else {
+                            spanValor.setAttribute('contenteditable', 'true');
+                            spanValor.focus();
+                            btnEditar.innerHTML = '&#10004;';
+                        }
+                    });
+
+                    contenedorDatos.appendChild(campo);
+                });
+            });
+        }
+
+        const contenedorForm = document.createElement('div');
+        contenedorForm.innerHTML = formHTML;
+
+        const form = contenedorForm.querySelector('form');
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            alert(`${textoBoton} realizado (simulado)`);
+            contenedorFormulario.innerHTML = '';
+        });
+
+        contenedorFormulario.appendChild(contenedorForm);
+    }
+
+    function mostrarFormularioHorario() {
+        const formHTML = `
+            <form>
+                <h4>Horario Cuidador</h4>
+                <label>Día: <input type="text" name="dia" placeholder="Ej: Lunes" required></label>
+                <label>Hora inicio: <input type="time" name="horaInicio" required></label>
+                <label>Hora fin: <input type="time" name="horaFin" required></label>
+                <button type="submit">Guardar Horario</button>
+            </form>`;
+
+        const formDiv = document.createElement('div');
+        formDiv.innerHTML = formHTML;
+
+        const form = formDiv.querySelector('form');
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            alert('Horario guardado (simulado)');
+            contenedorFormulario.innerHTML = '';
+        });
+
+        contenedorFormulario.appendChild(formDiv);
+    }
+
+    menuItems.forEach(item => {
+        item.addEventListener('click', () => {
+            menuItems.forEach(i => i.classList.remove('activo'));
+            item.classList.add('activo');
+            limpiarSecundaria();
+            limpiarTerciaria();
+            cargarSecundaria(item.getAttribute('data-menu'));
         });
     });
-
-    function activarSubopciones() {
-        document.querySelectorAll('.subopcion').forEach(item => {
-            item.addEventListener('click', () => {
-                const subtipo = item.dataset.subtipo;
-                contenidoPrincipal.innerHTML = accionesContenido[subtipo];
-
-                if (subtipo === 'cuidador') {
-                    activarOpcionesCuidador();
-                } else if (subtipo === 'gestor') {
-                    activarOpcionesGestor();
-                } else if (subtipo === 'cliente') {
-                    activarOpcionesCliente();
-                } else if (subtipo === 'hogares') {
-                    activarOpcionesHogar();
-                }
-            });
-        });
-    }
-
-    function activarOpcionesGestor() {
-        const listaOpciones = document.querySelectorAll('.opciones-gestor li');
-        const formularioContenedor = document.getElementById('formulario-gestor-container');
-
-        listaOpciones.forEach(opcion => {
-            opcion.addEventListener('click', () => {
-                if (opcion.id === 'btn-anadir-gestor') {
-                    formularioContenedor.innerHTML = `
-                        <form class="formulario">
-                            <div class="campo-obligatorio-texto"><span>*</span> Campo obligatorio</div>
-                            <label>Nombre <span style="color: red">*</span>
-                                <input type="text" required>
-                            </label>
-                            <label>Primer apellido <span style="color: red">*</span>
-                                <input type="text" required>
-                            </label>
-                            <label>Segundo apellido <span style="color: red">*</span>
-                                <input type="text" required>
-                            </label>
-                            <label>Nombre de usuario <span style="color: red">*</span>
-                                <input type="text" required>
-                            </label>
-                            <label>Contraseña <span style="color: red">*</span>
-                                <input type="password" required>
-                            </label>
-                            <button type="submit">Guardar</button>
-                        </form>
-                    `;
-                } else {
-                    formularioContenedor.innerHTML = "";
-                }
-            });
-        });
-    }
-
-    function activarOpcionesCuidador() {
-        const listaOpciones = document.querySelectorAll('.opciones-gestor li');
-        const formularioContenedor = document.getElementById('formulario-gestor-container');
-
-        listaOpciones.forEach(opcion => {
-            opcion.addEventListener('click', () => {
-                if (opcion.id === 'btn-anadir-cuidador') {
-                    formularioContenedor.innerHTML = `
-                        <form class="formulario">
-                            <div class="campo-obligatorio-texto"><span>*</span> Campo obligatorio</div>
-                            <label>Nombre <span style="color: red">*</span>
-                                <input type="text" required>
-                            </label>
-                            <label>Primer apellido <span style="color: red">*</span>
-                                <input type="text" required>
-                            </label>
-                            <label>Segundo apellido <span style="color: red">*</span>
-                                <input type="text" required>
-                            </label>
-                            <label>Nombre de usuario <span style="color: red">*</span>
-                                <input type="text" required>
-                            </label>
-                            <label>Contraseña <span style="color: red">*</span>
-                                <input type="password" required>
-                            </label>
-                            <label>Teléfono <span style="color: red">*</span>
-                                <input type="tel" required>
-                            </label>
-                            <button type="submit">Guardar</button>
-                        </form>
-                    `;
-                } else {
-                    formularioContenedor.innerHTML = "";
-                }
-            });
-        });
-    }
-
-    function activarOpcionesCliente() {
-        const listaOpciones = document.querySelectorAll('.opciones-gestor li');
-        const formularioContenedor = document.getElementById('formulario-gestor-container');
-
-        listaOpciones.forEach(opcion => {
-            opcion.addEventListener('click', () => {
-                if (opcion.id === 'btn-anadir-cliente') {
-                    formularioContenedor.innerHTML = `
-<form class="formulario-dos-columnas">
-    <div class="campo-obligatorio-texto"><span>*</span> Campo obligatorio</div>
-    <div class="columna">
-        <label>Gestor <span style="color: red">*</span>
-            <input list="gestores" name="gestor" required>
-            <datalist id="gestores">
-                ${listaGestores.map(gestor => `<option value="${gestor}">`).join('')}
-            </datalist>
-        </label>
-        <label>Nombre <span style="color: red">*</span>
-            <input type="text" required>
-        </label>
-        <label>Primer apellido <span style="color: red">*</span>
-            <input type="text" required>
-        </label>
-        <label>Segundo apellido <span style="color: red">*</span>
-            <input type="text" required>
-        </label>
-        <label>DNI <span style="color: red">*</span>
-            <input type="text" required>
-        </label>
-        <label>Sexo <span style="color: red">*</span>
-            <select required>
-                <option value="" disabled selected>Selecciona</option>
-                <option value="masculino">Masculino</option>
-                <option value="femenino">Femenino</option>
-                <option value="otro">Otro</option>
-            </select>
-        </label>
-        <label>Fecha de nacimiento <span style="color: red">*</span>
-            <input type="date" required>
-        </label>
-    </div>
-    <div class="columna">
-        <label>Teléfono personal <span style="color: red">*</span>
-            <input type="tel" required>
-        </label>
-        <label>Teléfono familiar <span style="color: red">*</span>
-            <input type="tel" required>
-        </label>
-        <label>Descripción <span style="color: red">*</span>
-            <textarea rows="3" required></textarea>
-        </label>
-    </div>
-    <button type="submit">Guardar</button>
-</form>
-                    `;
-                } else {
-                    formularioContenedor.innerHTML = "";
-                }
-            });
-        });
-    }
-
-    function activarOpcionesHogar() {
-        const listaOpciones = document.querySelectorAll('.opciones-gestor li');
-        const formularioContenedor = document.getElementById('formulario-gestor-container');
-
-        listaOpciones.forEach(opcion => {
-            opcion.addEventListener('click', () => {
-                if (opcion.id === 'btn-anadir-hogar') {
-                    formularioContenedor.innerHTML = `
-<form class="formulario">
-    <div class="campo-obligatorio-texto"><span>*</span> Campo obligatorio</div>
-    <label>Dirección <span style="color: red">*</span>
-        <input type="text" required>
-    </label>
-    <label>Código Postal <span style="color: red">*</span>
-        <input type="text" required>
-    </label>
-    <label>Provincia <span style="color: red">*</span>
-        <input type="text" required>
-    </label>
-    <label>URL Home Assistant <span style="color: red">*</span>
-        <input type="url" required>
-    </label>
-    <label>Token Home Assistant <span style="color: red">*</span>
-        <input type="text" required>
-    </label>
-    <button type="submit">Guardar</button>
-</form>
-                    `;
-                } else {
-                    formularioContenedor.innerHTML = "";
-                }
-            });
-        });
-    }
 </script>
 </body>
 </html>

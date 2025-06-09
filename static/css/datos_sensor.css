@@ -1,9 +1,22 @@
-/* === Estilo General === */
-body {
-    font-family: Arial, sans-serif;
+
+/* === Estilo Global === */
+* {
+    box-sizing: border-box;
+}
+
+html, body {
     margin: 0;
     padding: 0;
-    background-color: #d3d3d3;
+    width: 100%;
+    height: 100%;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f0f2f5;
+    overflow: visible;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
 }
 
 /* === Cabecera === */
@@ -15,6 +28,7 @@ body {
     color: white;
     padding: 10px 30px;
     min-height: 60px;
+    flex-shrink: 0;
 }
 
 .nav-left, .nav-center, .nav-right {
@@ -22,6 +36,25 @@ body {
     align-items: center;
 }
 
+.logo {
+    height: 50px;
+}
+
+.Logo_Casa {
+    height: 25px;
+}
+
+.nav-right img {
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.nav-right span {
+    font-size: 14px;
+    color: #fff;
+    font-weight: 500;
+}
 
 .dropdown {
     position: relative;
@@ -50,30 +83,12 @@ body {
     color: black;
 }
 
-.logo {
-    height: 300px;
-}
-
-.Logo_Casa {
-    height: 25px;
-}
-
-.nav-right img {
-    height: 50px;
-    border-radius: 50%;
-    margin-right: 10px;
-}
-
-.nav-right span {
-    font-size: 14px;
-    color: #fff;
-    font-weight: 500;
-}
-
 /* === Estructura Principal === */
 .fila-principal {
+    flex: 1;
     display: flex;
-    height: calc(100vh - 60px);
+    overflow: hidden;
+    min-height: 0;
 }
 
 /* === Columna Izquierda === */
@@ -82,6 +97,7 @@ body {
     background-color: #ed6809;
     display: flex;
     flex-direction: column;
+    height: 100%;
     overflow: hidden;
 }
 
@@ -130,8 +146,10 @@ body {
 
 /* === Columna Derecha === */
 .columna-derecha {
-    width: 50%;
+    width: 100%;
     background-color: white;
+    height: 100%;
+    overflow-y: auto;
 }
 
 .tabla-sensores {
@@ -157,50 +175,112 @@ body {
     text-decoration: underline;
 }
 
-/* ====== MODAL AJUSTADO Y CENTRADO ====== */
+/* === Estilo Gráfico === */
+#grafico-placeholder {
+    width: 100%;
+    height: 90%;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    box-sizing: border-box;
+    text-align: center;
+}
+
+#grafico-placeholder canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+
+/* === Títulos === */
+h2, #detalle-sensor-titulo {
+    text-align: center;
+    color: #333;
+    margin-bottom: 10px;
+    font-size: 1.6em;
+}
+
+/* === Modal con tamaño fijo al 85% de pantalla === */
 .modal {
     position: fixed;
-    z-index: 1000;
     top: 0;
     left: 0;
-    height: 100%;
-    width: 100%;
+    width: 100vw;
+    height: 100vh;
     background-color: rgba(0, 0, 0, 0.4);
     display: none;
     justify-content: center;
     align-items: center;
+    z-index: 1000;
 }
 
 .modal-content {
-    background-color: white;
-    width: 90%;
-    max-width: 400px;
-    max-height: 85vh;
-    padding: 25px;
-    border-radius: 10px;
-    overflow-y: auto;
-    text-align: center;
+    width: 85vw;
+    height: 85vh;
+    background-color: #fff;
+    display: flex;
+    flex-direction: row;
+    border-radius: 12px;
+    overflow: hidden;
+    padding: 0;
     position: relative;
 }
 
-.modal-content h2 {
-    margin-bottom: 15px;
+.modal-column-left {
+    border-right: 2px solid black;
+    width: 30%;
+    height: 100%;
+    overflow-y: auto;
+    padding: 25px;
+    box-sizing: border-box;
+}
+
+.modal-column-right {
+    text-align: left;
+    width: 70%;
+    height: 100%;
+    overflow-y: auto;
+    padding: 25px;
+    box-sizing: border-box;
+}
+
+#detalle-sensor-info li {
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.5;
+    font-size: 15px;
+    margin-bottom: 10px;
+}
+
+.fecha-selector {
+    margin-top: 20px;
+    text-align: left;
+}
+
+.fecha-selector input {
+    padding: 10px;
+    width: 100%;
+    font-size: 16px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
 }
 
 .cerrar {
     position: absolute;
     top: 10px;
     right: 15px;
-    font-size: 22px;
+    font-size: 24px;
     font-weight: bold;
     cursor: pointer;
     color: #333;
+    z-index: 10;
 }
 
 .cerrar:hover {
     color: red;
 }
 
+/* === Lista Subtipos === */
 #lista-subtipos {
     margin-top: 20px;
     padding: 0;
@@ -212,7 +292,7 @@ body {
 }
 
 #lista-subtipos li {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: normal;
     cursor: pointer;
     transition: background-color 0.3s;
@@ -223,55 +303,7 @@ body {
     text-decoration: underline;
 }
 
-#modal-detalle .modal-content {
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-    box-sizing: border-box;
-    width: 100%;
-}
-
-.modal-column-left {
-    flex: 1;
-    padding: 10px;
-    box-sizing: border-box;
-    border-right: 2px solid black;
-}
-
-.modal-column-right {
-    flex: 1;
-    padding: 10px;
-    box-sizing: border-box;
-    text-align: right;
-}
-
-#grafico-placeholder {
-    width: 100%;
-    height: 200px;
-    background-color: #e0e0e0;
-    text-align: center;
-    line-height: 200px;
-    font-size: 16px;
-    color: #333;
-}
-
-.fecha-selector {
-    margin-top: 15px;
-    text-align: right;
-}
-
-.fecha-selector input {
-    padding: 10px;
-    width: 100%;
-    border-radius: 8px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-}
-
-#modal .modal-content {
-    display: block;
-}
-
+/* === Perfil === */
 .perfil-container {
     display: flex;
     align-items: center;
@@ -302,7 +334,3 @@ body {
     font-size: 14px;
     color: black;
 }
-
-
-
-
