@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Calendario con Rangos y Días Individuales Editable</title>
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f7fa;
+      margin: 0; padding: 15px 15px 20px;
+      color: #34495e;
+      user-select: none;
+      display: flex; flex-direction: column; align-items: center;
+      min-height: 100vh;
+    }
+    h1 {
+      margin: 6px 0 16px;
+      font-weight: 700;
+      font-size: 1.9rem;
+      color: #2c3e50;
+      text-align: center;
+      user-select: none;
+    }
+    form#scheduleForm {
+      max-width: 920px;
+      width: 100%;
+      background: white;
+      padding: 16px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      margin-bottom: 24px;
+      user-select: none;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 14px 18px;
+      align-items: end;
+    }
+    form#scheduleForm label {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #34495e;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    form#scheduleForm select,
+    form#scheduleForm input[type="date"],
+    form#scheduleForm input[type="time"] {
+      padding: 6px 8px;
+      font-size: 0.9rem;
+      border: none;
+      border-bottom: 2px solid #bbb;
+      border-radius: 0;
+      background: transparent;
+      outline-offset: 0;
+      transition: border-color 0.3s ease;
+      color: #34495e;
+      min-width: 140px;
+    }
+    form#scheduleForm select:focus,
+    form#scheduleForm input[type="date"]:focus,
+    form#scheduleForm input[type="time"]:focus {
+      border-bottom-color: #2980b9;
+      outline: none;
+    }
+    label.checkbox-label {
+      grid-column: 1 / -1;
+      font-weight: 700;
+      font-size: 0.9rem;
+      user-select: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #34495e;
+      padding-top: 8px;
+    }
+    label.checkbox-label input[type="checkbox"] {
+      width: 18px; height: 18px; cursor: pointer;
+    }
+    form#scheduleForm button {
+      grid-column: 1 / -1;
+      padding: 10px 28px;
+      background: #2980b9;
+      color: white;
+      font-weight: 700;
+      font-size: 1rem;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      user-select: none;
+      justify-self: center;
+      min-width: 140px;
+    }
+    form#scheduleForm button:hover {
+      background: #1c5980;
+    }
+    .range-fields {
+      display: none;
+      flex-direction: column;
+    }
+    .range-fields label {
+      min-width: auto;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .range-fields input {
+      min-width: 140px;
+      padding: 6px 8px;
+    }
+    #mainContainer {
+      display: flex;
+      max-width: 1100px;
+      width: 100%;
+      gap: 16px;
+      height: 620px;
+    }
+    #calendar, #logTableContainer {
+      width: 50%;
+      height: 100%;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.14);
+      padding: 18px 20px;
+      overflow-y: auto;
+    }
+    #logTable {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    #logTable thead {
+      background: #2980b9;
+      color: white;
+      user-select: none;
+    }
+    #logTable th, #logTable td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #ddd;
+      text-align: center;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+    #logTable th:nth-child(1),
+    #logTable td:nth-child(1),
+    #logTable th:nth-child(2),
+    #logTable td:nth-child(2) {
+      min-width: 130px;
+    }
+    #logTable th:nth-child(3),
+    #logTable td:nth-child(3) {
+      min-width: 160px;
+    }
+    #logTable th:nth-child(4),
+    #logTable td:nth-child(4),
+    #logTable th:nth-child(5),
+    #logTable td:nth-child(5) {
+      min-width: 80px;
+    }
+    #logTable th:nth-child(6),
+    #logTable td:nth-child(6) {
+      min-width: 45px;
+    }
+    #logTable tbody tr:hover {
+      background-color: #f0f8ff;
+      cursor: pointer;
+    }
+    .fc-event-main-frame {
+      white-space: normal !important;
+      font-weight: 600;
+      font-size: 0.9rem !important;
+      line-height: 1.2;
+      padding: 5px 8px !important;
+      text-align: center;
+      color: white !important;
+      user-select: none;
+    }
+    #editPopupOverlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.35);
+      display: none; z-index: 1700;
+      backdrop-filter: blur(3px);
+    }
+    #editPopup {
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 22px 28px;
+      border-radius: 14px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.28);
+      width: 340px;
+      z-index: 1800;
+      display: none;
+      font-size: 1rem;
+      color: #34495e;
+      user-select: none;
+    }
+    #editPopup h3 {
+      margin: 0 0 16px 0;
+      font-weight: 700;
+      color: #2c3e50;
+      text-align: center;
+      letter-spacing: 0.7px;
+    }
+    #editPopup label {
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: block;
+      margin-bottom: 8px;
+    }
+    #editPopup input[type="date"],
+    #editPopup input[type="time"],
+    #editPopup select {
+      width: 100%;
+      padding: 7px 10px;
+      font-size: 1rem;
+      border: 1.5px solid #dcdfe6;
+      border-radius: 8px;
+      margin-bottom: 14px;
+      transition: border-color 0.3s ease;
+      outline-offset: 2px;
+      color: #34495e;
+      background: white;
+    }
+    #editPopup input[type="date"]:focus,
+    #editPopup input[type="time"]:focus,
+    #editPopup select:focus {
+      border-color: #2980b9;
+      outline: none;
+      box-shadow: 0 0 8px #2980b9cc;
+    }
+    #editPopup .actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    #editPopup button {
+      flex: 1;
+      padding: 10px 0;
+      font-weight: 700;
+      font-size: 1rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.25s ease;
+    }
+    #editPopup #deleteBtnPopup {
+      background: #e74c3c;
+      color: white;
+    }
+    #editPopup #deleteBtnPopup:hover {
+      background: #c0392b;
+    }
+    #editPopup #saveBtnPopup {
+      background: #27ae60;
+      color: white;
+    }
+    #editPopup #saveBtnPopup:hover {
+      background: #1e8449;
+    }
+    #editPopup #cancelBtnPopup {
+      background: #bdc3c7;
+      color: #2c3e50;
+    }
+    #editPopup #cancelBtnPopup:hover {
+      background: #95a5a6;
+    }
+    @media (max-width: 900px) {
+      #mainContainer {
+        flex-direction: column;
+        height: auto;
+      }
+      #calendar, #logTableContainer {
+        width: 100%;
+        height: 520px;
+      }
+      form#scheduleForm {
+        grid-template-columns: 1fr;
+      }
+      form#scheduleForm label,
+      form#scheduleForm select,
+      form#scheduleForm input,
+      form#scheduleForm button {
+        min-width: auto;
+        width: 100%;
+      }
+      #logTable th, #logTable td {
+        font-size: 0.85rem;
+        padding: 7px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>Calendario con Rangos y Días Individuales Editable</h1>
+
+<form id="scheduleForm" aria-label="Formulario para añadir horarios">
+  <label for="userSelect">Trabajador
+    <select id="userSelect" required aria-required="true" title="Selecciona un trabajador">
+      <option value="">Selecciona Trabajador</option>
+      <option value="Jesus">Cuidador (Jesus)</option>
+      <option value="Alicia">Cuidador (Alicia)</option>
+      <option value="Pepe">Cuidador (Pepe)</option>
+    </select>
+  </label>
+
+  <label for="clientSelect">Usuario
+    <select id="clientSelect" required aria-required="true" title="Selecciona un usuario">
+      <option value="">Selecciona Usuario</option>
+      <option value="Casa Enrique">Casa Enrique</option>
+      <option value="Casa Maria">Casa Maria</option>
+      <option value="Casa Carla">Casa Carla</option>
+    </select>
+  </label>
+
+  <label for="singleDate">Fecha individual
+    <input type="date" id="singleDate" required aria-required="true" title="Fecha individual" />
+  </label>
+
+  <label class="checkbox-label" for="useRange">
+    <input type="checkbox" id="useRange" />
+    Añadir rango de fechas
+  </label>
+
+  <div class="range-fields" id="rangeFields">
+    <label for="rangeStartDate">Fecha inicio rango
+      <input type="date" id="rangeStartDate" />
+    </label>
+
+    <label for="rangeEndDate">Fecha fin rango
+      <input type="date" id="rangeEndDate" />
+    </label>
+  </div>
+
+  <label for="startTime">Hora inicio
+    <input type="time" id="startTime" required aria-required="true" title="Hora inicio" />
+  </label>
+
+  <label for="endTime">Hora fin
+    <input type="time" id="endTime" required aria-required="true" title="Hora fin" />
+  </label>
+
+  <button type="submit" aria-label="Añadir horario">Añadir</button>
+</form>
+
+<div id="mainContainer">
+  <div id="calendar" aria-label="Calendario mensual de horarios"></div>
+
+  <div id="logTableContainer" aria-label="Tabla resumen de horarios">
+    <table id="logTable" aria-describedby="Tabla con registros de horarios añadidos">
+      <thead>
+      <tr>
+        <th>Trabajador</th>
+        <th>Usuario</th>
+        <th>Fecha(s)</th>
+        <th>Hora inicio</th>
+        <th>Hora fin</th>
+        <th>Descripción</th>
+        <th>Color</th>
+      </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Popup edición -->
+<div id="editPopupOverlay" role="dialog" aria-modal="true" aria-hidden="true"></div>
+<div id="editPopup" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="editPopupTitle" tabindex="-1">
+  <h3 id="editPopupTitle">Editar Horario</h3>
+  <label for="popupUser">Trabajador</label>
+  <select id="popupUser" required>
+    <option value="Jesus">Cuidador (Jesus)</option>
+    <option value="Alicia">Cuidador (Alicia)</option>
+    <option value="Pepe">Cuidador (Pepe)</option>
+  </select>
+
+  <label for="popupClient">Usuario</label>
+  <select id="popupClient" required>
+    <option value="Casa Enrique">Casa Enrique</option>
+    <option value="Casa Maria">Casa Maria</option>
+    <option value="Casa Carla">Casa Carla</option>
+  </select>
+
+  <label for="popupDate">Fecha</label>
+  <input type="date" id="popupDate" required />
+
+  <label for="popupStartTime">Hora inicio</label>
+  <input type="time" id="popupStartTime" required />
+
+  <label for="popupEndTime">Hora fin</label>
+  <input type="time" id="popupEndTime" required />
+
+  <label for="popupDescription">Descripción</label>
+  <input type="text" id="popupDescription" />
+
+  <div class="actions" style="margin-top: 14px; display:flex; gap:12px; justify-content: space-between;">
+    <button id="deleteBtnPopup" type="button" style="flex:1; background:#e74c3c; color:white; border:none; border-radius:8px; cursor:pointer;">Eliminar</button>
+    <button id="saveBtnPopup" type="button" style="flex:1; background:#27ae60; color:white; border:none; border-radius:8px; cursor:pointer;">Guardar</button>
+    <button id="cancelBtnPopup" type="button" style="flex:1; background:#bdc3c7; color:#2c3e50; border:none; border-radius:8px; cursor:pointer;">Cancelar</button>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const calendarEl = document.getElementById('calendar');
+    const editOverlay = document.getElementById('editPopupOverlay');
+    const editPopup = document.getElementById('editPopup');
+    const popupUser = document.getElementById('popupUser');
+    const popupClient = document.getElementById('popupClient');
+    const popupDate = document.getElementById('popupDate');
+    const popupStartTime = document.getElementById('popupStartTime');
+    const popupEndTime = document.getElementById('popupEndTime');
+    const popupDescription = document.getElementById('popupDescription');
+    const deleteBtn = document.getElementById('deleteBtnPopup');
+    const saveBtn = document.getElementById('saveBtnPopup');
+    const cancelBtn = document.getElementById('cancelBtnPopup');
+
+    const userSelect = document.getElementById('userSelect');
+    const clientSelect = document.getElementById('clientSelect');
+    const singleDateInput = document.getElementById('singleDate');
+    const useRangeCheckbox = document.getElementById('useRange');
+    const rangeFields = document.getElementById('rangeFields');
+    const rangeStartDateInput = document.getElementById('rangeStartDate');
+    const rangeEndDateInput = document.getElementById('rangeEndDate');
+    const startTimeInput = document.getElementById('startTime');
+    const endTimeInput = document.getElementById('endTime');
+    const scheduleForm = document.getElementById('scheduleForm');
+
+    const colors = [
+      '#1abc9c','#2ecc71','#3498db','#9b59b6','#e67e22','#e74c3c','#34495e','#f39c12','#d35400','#7f8c8d'
+    ];
+    let colorIndex = 0;
+
+    // Array para almacenar horarios:
+    // rango: {type:'range', id, user, client, startDate, endDate, startTime, endTime, color, excludedDays:[]}
+    // día individual: {type:'single', id, user, client, date, startTime, endTime, color, parentId?}
+    const schedules = [];
+    let editingItem = null; // objeto {type, id} del item que se está editando
+
+    // Helper: generar ID único simple
+    function generateId() {
+      return '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    // Mostrar u ocultar campos rango
+    useRangeCheckbox.addEventListener('change', () => {
+      if(useRangeCheckbox.checked) {
+        rangeFields.style.display = 'flex';
+        singleDateInput.parentElement.style.display = 'none';
+        singleDateInput.value = '';
+        rangeStartDateInput.required = true;
+        rangeEndDateInput.required = true;
+        singleDateInput.required = false;
+      } else {
+        rangeFields.style.display = 'none';
+        singleDateInput.parentElement.style.display = 'block';
+        rangeStartDateInput.required = false;
+        rangeEndDateInput.required = false;
+        singleDateInput.required = true;
+        rangeStartDateInput.value = '';
+        rangeEndDateInput.value = '';
+      }
+    });
+
+    // Añadir horario rango o día individual
+    scheduleForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const user = userSelect.value;
+      const client = clientSelect.value;
+      const startTime = startTimeInput.value;
+      const endTime = endTimeInput.value;
+
+      if(!user || !client || !startTime || !endTime) {
+        alert('Por favor, completa todos los campos obligatorios.');
+        return;
+      }
+
+      if(useRangeCheckbox.checked) {
+        const startRange = rangeStartDateInput.value;
+        const endRange = rangeEndDateInput.value;
+        if(!startRange || !endRange) {
+          alert('Por favor, selecciona fechas para el rango.');
+          return;
+        }
+        if(startRange > endRange) {
+          alert('La fecha de inicio del rango no puede ser mayor que la fecha fin.');
+          return;
+        }
+        const color = colors[colorIndex % colors.length];
+        colorIndex++;
+        schedules.push({
+          type: 'range',
+          id: generateId(),
+          user,
+          client,
+          startDate: startRange,
+          endDate: endRange,
+          startTime,
+          endTime,
+          color,
+          excludedDays: [],
+          description: ''
+        });
+      } else {
+        const date = singleDateInput.value;
+        if(!date) {
+          alert('Por favor, selecciona una fecha individual.');
+          return;
+        }
+        const color = colors[colorIndex % colors.length];
+        colorIndex++;
+        schedules.push({
+          type: 'single',
+          id: generateId(),
+          user,
+          client,
+          date,
+          startTime,
+          endTime,
+          color,
+          description: ''
+        });
+      }
+
+      renderAllEvents();
+      updateLogTable();
+      scheduleForm.reset();
+
+      // Reset UI si estaba activo el rango
+      if(useRangeCheckbox.checked) {
+        useRangeCheckbox.checked = false;
+        rangeFields.style.display = 'none';
+        singleDateInput.parentElement.style.display = 'block';
+        rangeStartDateInput.required = false;
+        rangeEndDateInput.required = false;
+        singleDateInput.required = true;
+        rangeStartDateInput.value = '';
+        rangeEndDateInput.value = '';
+      }
+    });
+
+    // Inicializar calendario
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+      locale: 'es', // Idioma calendario
+      firstDay: 1, //Pone el lunes el primer dia
+      initialView: 'dayGridMonth',
+      selectable: true,
+      editable: false,
+      eventDisplay: 'block',
+      height: '100%',
+      allDaySlot: false,
+      events: [],
+      buttonText: {
+        today: 'HOY'  // Cambia el texto del botón "Hoy"
+      },
+      eventContent: function(arg) {
+        let container = document.createElement('div');
+        container.style.fontWeight = '600';
+        container.style.fontSize = '0.9rem';
+        container.style.lineHeight = '1.2';
+        container.style.whiteSpace = 'normal';
+        container.style.textAlign = 'center';
+        container.style.userSelect = 'none';
+
+        let title = arg.event.title;
+        let parts = title.split(' - ');
+        let clientName = parts.length > 1 ? parts[1] : title;
+
+        let clientNode = document.createElement('div');
+        clientNode.textContent = clientName;
+        container.appendChild(clientNode);
+
+        return { domNodes: [container] };
+      },
+      eventClick: function(info) {
+        const event = info.event;
+        const ext = event.extendedProps;
+        editingItem = null;
+
+        if(ext.isSingle) {
+          // Día individual - editar/modificar
+          editingItem = { type: 'single', id: ext.id };
+          const schedule = schedules.find(s => s.type === 'single' && s.id === ext.id);
+          if(!schedule) return alert('Evento no encontrado.');
+
+          fillEditPopup(schedule);
+          showEditPopup(false);
+        } else if(ext.isRangeDay) {
+          // Día individual dentro de rango, editar/modificar ese día concreto
+          editingItem = { type: 'rangeDay', parentId: ext.parentId, date: ext.date };
+
+          // Encontrar si ya existe override día individual
+          const singleOverride = schedules.find(s => s.type === 'single' && s.parentId === ext.parentId && s.date === ext.date);
+          if(singleOverride) {
+            fillEditPopup(singleOverride);
+            showEditPopup(false);
+          } else {
+            // Si no hay override, rellenamos con datos del rango
+            const parentRange = schedules.find(s => s.type === 'range' && s.id === ext.parentId);
+            if(!parentRange) return alert('Rango padre no encontrado.');
+
+            fillEditPopup({
+              user: parentRange.user,
+              client: parentRange.client,
+              date: ext.date,
+              startTime: parentRange.startTime,
+              endTime: parentRange.endTime,
+              color: parentRange.color,
+              description: parentRange.description
+            });
+            showEditPopup(false);
+          }
+        } else if(ext.isRange) {
+          // Evento rango completo (clic raro, porque no dibujamos así, pero por si acaso)
+          editingItem = { type: 'range', id: ext.id };
+          const schedule = schedules.find(s => s.type === 'range' && s.id === ext.id);
+          if(!schedule) return alert('Rango no encontrado.');
+
+          fillEditPopup(schedule);
+          showEditPopup(true);
+        }
+      }
+    });
+    calendar.render();
+
+    // Función para pintar eventos en el calendario
+    function renderAllEvents() {
+      calendar.getEvents().forEach(ev => ev.remove());
+
+      schedules.forEach(s => {
+        if(s.type === 'range') {
+          // Pintamos cada día individual del rango (excepto excluidos)
+          let current = new Date(s.startDate);
+          const end = new Date(s.endDate);
+
+          while(current <= end) {
+            const yyyy = current.getFullYear();
+            const mm = String(current.getMonth()+1).padStart(2,'0');
+            const dd = String(current.getDate()).padStart(2,'0');
+            const dateStr = `${yyyy}-${mm}-${dd}`;
+
+            if(s.excludedDays.includes(dateStr)) {
+              current.setDate(current.getDate()+1);
+              continue; // saltar día excluido
+            }
+
+            calendar.addEvent({
+              id: `rangeDay-${s.id}-${dateStr}`, // id único por día dentro rango
+              title: `${s.user} - ${s.client}`,
+              start: `${dateStr}T${s.startTime}`,
+              end: `${dateStr}T${s.endTime}`,
+              backgroundColor: s.color,
+              borderColor: s.color,
+              textColor: 'white',
+              extendedProps: {
+                isRangeDay: true,
+                parentId: s.id,
+                date: dateStr
+              }
+            });
+
+            current.setDate(current.getDate()+1);
+          }
+
+          // Pintar overrides individuales que pertenezcan a este rango
+          schedules.filter(x => x.type === 'single' && x.parentId === s.id).forEach(single => {
+            calendar.addEvent({
+              id: `single-${single.id}`,
+              title: `${single.user} - ${single.client}`,
+              start: `${single.date}T${single.startTime}`,
+              end: `${single.date}T${single.endTime}`,
+              backgroundColor: single.color,
+              borderColor: single.color,
+              textColor: 'white',
+              extendedProps: {
+                isSingle: true,
+                id: single.id,
+                parentId: s.id,
+                date: single.date
+              }
+            });
+          });
+
+        } else if(s.type === 'single' && !s.parentId) {
+          // Día individual sin rango padre
+          calendar.addEvent({
+            id: `single-${s.id}`,
+            title: `${s.user} - ${s.client}`,
+            start: `${s.date}T${s.startTime}`,
+            end: `${s.date}T${s.endTime}`,
+            backgroundColor: s.color,
+            borderColor: s.color,
+            textColor: 'white',
+            extendedProps: {
+              isSingle: true,
+              id: s.id
+            }
+          });
+        }
+      });
+    }
+
+    // Actualiza tabla resumen
+    function updateLogTable() {
+      const tbody = document.querySelector('#logTable tbody');
+      tbody.innerHTML = '';
+
+      schedules.forEach(s => {
+        const tr = document.createElement('tr');
+        tr.dataset.id = s.id;
+        tr.dataset.type = s.type;
+        tr.style.backgroundColor = s.color + '33';
+        let fechas = '';
+        if(s.type === 'range') fechas = `${s.startDate} → ${s.endDate}`;
+        else fechas = s.date;
+
+        tr.innerHTML = `
+          <td>${s.user}</td>
+          <td>${s.client}</td>
+          <td>${fechas}</td>
+          <td>${s.startTime}</td>
+          <td>${s.endTime}</td>
+          <td>${s.description || 'No descripción'}</td> <!-- Mostrar descripción -->
+          <td><div style="width:20px; height:16px; background-color:${s.color}; border-radius:4px; margin:auto;"></div></td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Completa el formulario del popup edición
+    function fillEditPopup(s) {
+      popupUser.value = s.user;
+      popupClient.value = s.client;
+      popupDate.value = s.date || s.startDate || '';
+      popupStartTime.value = s.startTime;
+      popupEndTime.value = s.endTime;
+      popupDescription.value = s.description || '';
+    }
+
+    // Mostrar popup
+    function showEditPopup(isRange = false) {
+      editOverlay.style.display = 'block';
+      editPopup.style.display = 'block';
+      editPopup.setAttribute('aria-hidden', 'false');
+      editOverlay.setAttribute('aria-hidden', 'false');
+      // Para rangos no permitimos editar fecha en popup (solo en tabla)
+      popupDate.disabled = isRange;
+      editPopup.focus();
+    }
+
+    // Ocultar popup
+    function hideEditPopup() {
+      editOverlay.style.display = 'none';
+      editPopup.style.display = 'none';
+      editPopup.setAttribute('aria-hidden', 'true');
+      editOverlay.setAttribute('aria-hidden', 'true');
+      editingItem = null;
+      popupDate.disabled = false;
+    }
+
+    // CLICK en fila tabla para editar o eliminar
+    document.querySelector('#logTable tbody').addEventListener('click', e => {
+      const tr = e.target.closest('tr');
+      if(!tr) return;
+
+      const id = tr.dataset.id;
+      const type = tr.dataset.type;
+
+      editingItem = {type, id};
+      const schedule = schedules.find(s => s.id === id && s.type === type);
+      if(!schedule) return alert('Horario no encontrado');
+
+      fillEditPopup(schedule);
+      showEditPopup(type === 'range');
+    });
+
+    // Botón guardar popup edición
+    saveBtn.addEventListener('click', () => {
+      if(!editingItem) return;
+      const user = popupUser.value;
+      const client = popupClient.value;
+      const date = popupDate.value;
+      const startTime = popupStartTime.value;
+      const endTime = popupEndTime.value;
+      const description = popupDescription.value; // Tomar descripción
+
+      if(!user || !client || !startTime || !endTime) {
+        alert('Por favor, completa todos los campos obligatorios.');
+        return;
+      }
+
+      if(editingItem.type === 'range') {
+        // Actualizar usuario, cliente, horas del rango (fecha no editable)
+        const range = schedules.find(s => s.id === editingItem.id);
+        if(range) {
+          range.user = user;
+          range.client = client;
+          range.startTime = startTime;
+          range.endTime = endTime;
+          range.description = description;
+        }
+      } else if(editingItem.type === 'single' || editingItem.type === 'rangeDay') {
+        if(!date) {
+          alert('Por favor, selecciona una fecha.');
+          return;
+        }
+
+        if(editingItem.type === 'single') {
+          // Día individual sin rango padre
+          const single = schedules.find(s => s.id === editingItem.id);
+          if(single) {
+            single.user = user;
+            single.client = client;
+
+            // Si la fecha ha cambiado, actualízala y manten el color nuevo
+            if(single.date !== date) {
+              single.date = date;
+              single.color = colors[colorIndex++ % colors.length];
+            }
+
+            single.startTime = startTime;
+            single.endTime = endTime;
+            single.description = description; // Actualizar descripción
+          }
+        } else if(editingItem.type === 'rangeDay') {
+          // Editar día dentro de un rango
+          const parentRange = schedules.find(s => s.type === 'range' && s.id === editingItem.parentId);
+          if(!parentRange) {
+            alert('Rango padre no encontrado.');
+            return;
+          }
+
+          // Buscamos si ya existe override para ese día
+          let override = schedules.find(s => s.type === 'single' && s.parentId === editingItem.parentId && s.date === date);
+
+          if(override) {
+            // Actualizamos override existente
+            override.user = user;
+            override.client = client;
+            override.startTime = startTime;
+            override.endTime = endTime;
+            override.color = colors[colorIndex++ % colors.length];
+            override.description = description; // Actualizar descripción
+          } else {
+            // Creamos nuevo override con color distinto
+            override = {
+              type: 'single',
+              id: generateId(),
+              user,
+              client,
+              date,
+              startTime,
+              endTime,
+              color: colors[colorIndex++ % colors.length],
+              parentId: editingItem.parentId,
+              description
+            };
+            schedules.push(override);
+
+            // Añadimos la fecha al excludedDays del rango para ocultar el día original
+            if(!parentRange.excludedDays.includes(date)) {
+              parentRange.excludedDays.push(date);
+            }
+          }
+
+          // Ahora debemos dividir el rango padre en subrangos excluyendo todos los días modificados (excludedDays + overrides)
+          splitRangeByExcludedDays(parentRange);
+        }
+      }
+
+      renderAllEvents();
+      updateLogTable();
+      hideEditPopup();
+    });
+
+    // Función para dividir un rango en subrangos separados según excludedDays
+    function splitRangeByExcludedDays(range) {
+      const excluded = [...range.excludedDays];
+
+      // Además, añadimos fechas de overrides individuales para asegurar que no se repitan
+      schedules.filter(s => s.type === 'single' && s.parentId === range.id).forEach(o => {
+        if(!excluded.includes(o.date)) excluded.push(o.date);
+      });
+
+      excluded.sort(); // Ordenamos fechas excluidas
+
+      // Convertir fechas a Date para manejo
+      const startDate = new Date(range.startDate);
+      const endDate = new Date(range.endDate);
+
+      // Eliminar rango original
+      const idx = schedules.findIndex(s => s.id === range.id);
+      if(idx !== -1) schedules.splice(idx,1);
+
+      let currentStart = new Date(startDate);
+
+      // Vamos a crear subrangos entre las fechas excluidas
+      excluded.forEach(exDateStr => {
+        const exDate = new Date(exDateStr);
+        // Solo si el exDate está dentro del rango y después de currentStart
+        if(exDate > currentStart && exDate <= endDate) {
+          // Creamos rango desde currentStart hasta día antes de exDate
+          const subRangeEnd = new Date(exDate.getTime() - 86400000);
+          if(subRangeEnd >= currentStart) {
+            schedules.push({
+              type: 'range',
+              id: generateId(),
+              user: range.user,
+              client: range.client,
+              startDate: formatDate(currentStart),
+              endDate: formatDate(subRangeEnd),
+              startTime: range.startTime,
+              endTime: range.endTime,
+              color: range.color,
+              excludedDays: []
+            });
+          }
+          // Actualizamos currentStart para siguiente rango (día después de exDate)
+          currentStart = new Date(exDate.getTime() + 86400000);
+        }
+      });
+
+      // Finalmente añadimos último subrango desde currentStart a endDate si válido
+      if(currentStart <= endDate) {
+        schedules.push({
+          type: 'range',
+          id: generateId(),
+          user: range.user,
+          client: range.client,
+          startDate: formatDate(currentStart),
+          endDate: formatDate(endDate),
+          startTime: range.startTime,
+          endTime: range.endTime,
+          color: range.color,
+          excludedDays: []
+        });
+      }
+    }
+
+    // Botón eliminar popup edición
+    deleteBtn.addEventListener('click', () => {
+      if(!editingItem) return;
+      if(!confirm('¿Seguro que quieres eliminar este horario?')) return;
+
+      if(editingItem.type === 'range') {
+        // Eliminar rango y sus overrides individuales
+        const index = schedules.findIndex(s => s.id === editingItem.id);
+        if(index !== -1) {
+          const rangeId = schedules[index].id;
+          // Borrar overrides que tengan parentId igual al rango
+          for(let i = schedules.length - 1; i >= 0; i--) {
+            if(schedules[i].parentId === rangeId) schedules.splice(i,1);
+          }
+          schedules.splice(index,1);
+        }
+      } else if(editingItem.type === 'single') {
+        // Eliminar día individual (sin rango padre)
+        const index = schedules.findIndex(s => s.id === editingItem.id);
+        if(index !== -1) {
+          schedules.splice(index,1);
+        }
+      } else if(editingItem.type === 'rangeDay') {
+        // Eliminar un día individual dentro de un rango
+        const parentRange = schedules.find(s => s.type === 'range' && s.id === editingItem.parentId);
+        if(!parentRange) return alert('Rango padre no encontrado.');
+
+        const dateToRemove = editingItem.date;
+
+        // Añadir fecha a excludedDays para que no se muestre en calendario
+        if(!parentRange.excludedDays.includes(dateToRemove)) {
+          parentRange.excludedDays.push(dateToRemove);
+        }
+
+        // Dividir rango en subrangos excluyendo fechas excluidas + overrides
+        splitRangeByExcludedDays(parentRange);
+      }
+
+      renderAllEvents();
+      updateLogTable();
+      hideEditPopup();
+    });
+
+    // ESC cierra popup
+    document.addEventListener('keydown', e => {
+      if(e.key === 'Escape' && editPopup.style.display === 'block') {
+        hideEditPopup();
+      }
+    });
+
+    // Render inicial
+    renderAllEvents();
+    updateLogTable();
+
+    // Cambiar fecha individual o día override: si es override, ajustamos excludedDays del rango padre
+    popupDate.addEventListener('change', () => {
+      if(editingItem?.type === 'single') {
+        const single = schedules.find(s => s.id === editingItem.id);
+        if(single && single.parentId) {
+          const parent = schedules.find(s => s.type === 'range' && s.id === single.parentId);
+          if(!parent) return;
+          // Si cambiamos fecha override, quitar la fecha vieja de excludedDays y añadir la nueva
+          const oldDate = single.date;
+          const newDate = popupDate.value;
+          if(newDate !== oldDate) {
+            // Quitar oldDate
+            const posOld = parent.excludedDays.indexOf(oldDate);
+            if(posOld !== -1) parent.excludedDays.splice(posOld, 1);
+            // Añadir newDate si no está ya excluida
+            if(!parent.excludedDays.includes(newDate)) parent.excludedDays.push(newDate);
+            single.date = newDate;
+          }
+        }
+      }
+    });
+
+    // Helper para formatear fecha a yyyy-mm-dd
+    function formatDate(date) {
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth()+1).padStart(2,'0');
+      const dd = String(date.getDate()).padStart(2,'0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+  });
+</script>
+
+</body>
+</html>
