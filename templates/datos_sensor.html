@@ -124,7 +124,7 @@
             <div id="grafico-placeholder">[Gráfico Aquí]</div>
             <div class="fecha-selector">
                 <label for="fecha">Fecha:</label>
-                <input type="date" id="fecha" value="2025-05-28" />
+                <input type="date" id="fecha" />
             </div>
         </div>
     </div>
@@ -218,6 +218,11 @@
 
     window.addEventListener('DOMContentLoaded', async () => {
         const datalist = document.getElementById('usuarios');
+        // Establecer la fecha actual por defecto en el campo de fecha
+        const fechaInput = document.getElementById("fecha");
+        const hoy = new Date().toISOString().split("T")[0];
+        fechaInput.value = hoy;
+
         const input = document.getElementById('usuarioInput');
         const hiddenInput = document.getElementById('usuarioId');
 
@@ -290,6 +295,9 @@
                 console.error(error);
             }
         }
+
+
+
 
         // Evento para seleccionar fecha → recarga gráfico si ya hay uno mostrado
         document.getElementById("fecha").addEventListener("change", () => {
@@ -373,6 +381,8 @@
                                 const result = await response.json();
 
                                 if (result.datos && result.datos.length > 0) {
+                                    document.getElementById("titulo-grafico-sensor").textContent = `Gráfico sensor: "${el.textContent.split(":")[0]}"`;
+                                    // Cambia el título del gráfico con el nombre del sensor (antes de pintar)
                                     pintarGrafico(result.sensor, result.datos);
                                 } else {
                                     document.getElementById("grafico-placeholder").innerHTML = "<p>No hay datos disponibles.</p>";

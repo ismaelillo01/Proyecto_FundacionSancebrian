@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8" />
     <title>Administrar Sistema</title>
-     <link rel="stylesheet" href="{{ url_for('static', path='/css/MiPortal.css') }}" />
-     <script>
-    const USER_ROLE = "{{ role }}";
-    console.log("USER_ROLE:", USER_ROLE);
-</script>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/MiPortal.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', path='css/formulario_admin.css') }}" />
+    <script>
+        const USER_ROLE = "{{ role }}";
+        console.log("USER_ROLE:", USER_ROLE);
+    </script>
 </head>
 <body>
 <header class="main-header" id="movible-header">
@@ -28,19 +29,24 @@
             </div>
         </div>
     </div>
-    
 </header>
 <main>
-    <div id="columna-izquierda">
-        <div class="menu-item" data-menu="trabajadores">Administrar Trabajadores</div>
-        <div class="menu-item" data-menu="clientes">Administrar Clientes</div>
-        <div class="menu-item" data-menu="hogares">Administrar Hogares</div>
-    </div>
+    <div id="columna-izquierda"></div>
     <div id="columna-secundaria"></div>
     <div id="columna-terciaria">
         <div id="botones-terciarios"></div>
         <div id="formulario-contenedor"></div>
     </div>
+    <div id="modal-confirmacion" class="modal" style="display: none;">
+        <div class="modal-contenido">
+            <p id="mensaje-confirmacion"></p>
+            <div class="botones-modal">
+                <button id="btn-confirmar">Confirmar</button>
+                <button id="btn-cancelar">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
 </main>
 <script>
     const columnaIzquierda = document.getElementById('columna-izquierda');
@@ -152,38 +158,219 @@
 
     function manejarAccion(textoBoton, submenu) {
         contenedorFormulario.innerHTML = '';
-
         if (textoBoton === 'Horario Cuidador') {
             mostrarFormularioHorario();
         } else if (textoBoton.startsWith('Añadir') || textoBoton.startsWith('Modificar')) {
             mostrarFormulario(textoBoton, submenu);
+        } else if (textoBoton.startsWith('Eliminar')) {
+            mostrarFormularioEliminar(textoBoton, submenu);
         }
     }
 
-    function mostrarFormularioHorario() {
-        const formHTML = `
-            <form>
-                <h4>Horario Cuidador</h4>
-                <label>Día: <input type="text" name="dia" placeholder="Ej: Lunes" required></label>
-                <label>Hora inicio: <input type="time" name="horaInicio" required></label>
-                <label>Hora fin: <input type="time" name="horaFin" required></label>
-                <button type="submit">Guardar Horario</button>
-            </form>`;
 
-        const formDiv = document.createElement('div');
-        formDiv.innerHTML = formHTML;
+        function mostrarFormulario(textoBoton, submenu) {
+        let formHTML = '', formClass = '';
+        if (textoBoton.startsWith('Modificar')) {
+            const entidad = submenu;
+            const listaEjemplo = [
+                {
+                    id: 1, nombre: "Juan", primerApellido: "Pérez", segundoApellido: "López", usuario: "juanp",
+                    password: "", telefono: "600123456", dni: "12345678A", direccion: "Calle Mayor",
+                    cp: "34001", provincia: "Palencia", sexo: "M", fechaNacimiento: "1990-01-01",
+                    telefonoPersonal: "", telefonoFamiliar: "", hogar: "Hogar 1", descripcion: ""
+                },
+                {
+                    id: 2, nombre: "Ana", primerApellido: "García", segundoApellido: "Martínez", usuario: "anagm",
+                    password: "", telefono: "600987654", dni: "87654321B", direccion: "Avenida Libertad",
+                    cp: "28001", provincia: "Madrid", sexo: "F", fechaNacimiento: "1992-05-10",
+                    telefonoPersonal: "", telefonoFamiliar: "", hogar: "Hogar 2", descripcion: ""
+                }
+            ];
 
-        const form = formDiv.querySelector('form');
+            const camposPorEntidad = {
+                gestores: ['nombre', 'primerApellido', 'segundoApellido', 'usuario', 'password'],
+                cuidadores: ['nombre', 'primerApellido', 'segundoApellido', 'usuario', 'password', 'telefono'],
+                clientes: ['gestor', 'nombre', 'primerApellido', 'segundoApellido', 'dni', 'sexo', 'fechaNacimiento', 'telefonoPersonal', 'telefonoFamiliar', 'hogar', 'descripcion'],
+                hogares: ['direccion', 'cp', 'provincia', 'url', 'token']
+            };
+
+            const contenedorBusqueda = document.createElement('div');
+            contenedorBusqueda.classList.add('contenedor-busqueda');
+            contenedorBusqueda.innerHTML = `
+                <label>Seleccionar ${entidad.charAt(0).toUpperCase() + entidad.slice(1)}:
+                    <select id="selector-${entidad}">
+                        <option value="">Seleccione...</option>
+                        ${listaEjemplo.map(item => `<option value="${item.id}">${item.nombre} ${item.primerApellido}</option>`).join('')}
+                    </select>
+                </label>
+                <div id="datos-${entidad}" class="datos-modificables"></div>
+`;
+            contenedorFormulario.appendChild(contenedorBusqueda);
+
+
+            const selector = contenedorBusqueda.querySelector(`#selector-${entidad}`);
+            const contenedorDatos = contenedorBusqueda.querySelector(`#datos-${entidad}`);
+
+            selector.addEventListener('change', () => {
+                contenedorDatos.innerHTML = '';
+                const seleccionado = listaEjemplo.find(item => item.id == selector.value);
+                if (!seleccionado) return;
+
+                const campos = camposPorEntidad[entidad] || [];
+                campos.forEach(clave => {
+                    const campo = document.createElement('div');
+                    campo.classList.add('campo-modificable');
+                    campo.innerHTML = `
+                <label>${clave.charAt(0).toUpperCase() + clave.slice(1)}:</label>
+                <span class="valor-campo" contenteditable="false">${seleccionado[clave] || ''}</span>
+                <button class="editar-campo" title="Editar">&#9998;</button>
+            `;
+                    const btnEditar = campo.querySelector('.editar-campo');
+                    const spanValor = campo.querySelector('.valor-campo');
+                    btnEditar.addEventListener('click', () => {
+                        const enEdicion = spanValor.getAttribute('contenteditable') === 'true';
+                        spanValor.setAttribute('contenteditable', enEdicion ? 'false' : 'true');
+                        btnEditar.innerHTML = enEdicion ? '&#9998;' : '&#10004;';
+                        if (enEdicion) alert(`Nuevo valor de "${clave}": ${spanValor.textContent} (simulado)`);
+                    });
+                    contenedorDatos.appendChild(campo);
+                });
+            });
+            return;
+        }
+
+        // Formularios para "Añadir"
+        if (submenu === 'gestores') {
+            formHTML = `
+        <form>
+            <h4>${textoBoton}</h4>
+            <label>Nombre: <input type="text" name="nombre" required></label>
+            <label>Primer Apellido: <input type="text" name="primerApellido" required></label>
+            <label>Segundo Apellido: <input type="text" name="segundoApellido"></label>
+            <label>Usuario: <input type="text" name="usuario" required></label>
+            <label>Contraseña: <input type="password" name="password" required></label>
+            <button type="submit">${textoBoton}</button>
+        </form>`;
+        } else if (submenu === 'cuidadores') {
+            formHTML = `
+        <form>
+            <h4>${textoBoton}</h4>
+            <label>Nombre: <input type="text" name="nombre" required></label>
+            <label>Primer Apellido: <input type="text" name="primerApellido" required></label>
+            <label>Segundo Apellido: <input type="text" name="segundoApellido"></label>
+            <label>Usuario: <input type="text" name="usuario" required></label>
+            <label>Contraseña: <input type="password" name="password" required></label>
+            <label>Teléfono: <input type="tel" name="telefono"></label>
+            <button type="submit">${textoBoton}</button>
+        </form>`;
+        } else if (submenu === 'clientes') {
+            formClass = 'form-dos-columnas';
+            formHTML = `
+        <form class="${formClass}">
+            <h4>${textoBoton}</h4>
+            <label>Gestor:
+                <select name="gestor">
+                    <option value="">Seleccione un gestor</option>
+                </select>
+            </label>
+            <label>Nombre: <input type="text" name="nombre" required></label>
+            <label>Primer Apellido: <input type="text" name="primerApellido" required></label>
+            <label>Segundo Apellido: <input type="text" name="segundoApellido"></label>
+            <label>DNI: <input type="text" name="dni" required></label>
+            <label>Sexo: <input type="text" name="sexo"></label>
+            <label>Fecha Nacimiento: <input type="date" name="fechaNacimiento"></label>
+            <label>Teléfono personal: <input type="tel" name="telefonoPersonal"></label>
+            <label>Teléfono familiar: <input type="tel" name="telefonoFamiliar"></label>
+            <label>Hogar: <input type="text" name="hogar"></label>
+            <label>Descripción: <textarea name="descripcion"></textarea></label>
+            <button type="submit">${textoBoton}</button>
+        </form>`;
+        } else if (submenu === 'hogares') {
+            formHTML = `
+        <form>
+            <h4>${textoBoton}</h4>
+            <label>Dirección: <input type="text" name="direccion" required></label>
+            <label>Código Postal: <input type="text" name="cp" required></label>
+            <label>Provincia: <input type="text" name="provincia" required></label>
+            <label>URL: <input type="url" name="url"></label>
+            <label>Token: <input type="text" name="token"></label>
+            <button type="submit">${textoBoton}</button>
+        </form>`;
+        }
+
+        const contenedorForm = document.createElement('div');
+        contenedorForm.innerHTML = formHTML;
+        const form = contenedorForm.querySelector('form');
         form.addEventListener('submit', e => {
             e.preventDefault();
-            alert('Horario guardado (simulado)');
+            alert(`${textoBoton} realizado (simulado)`);
             contenedorFormulario.innerHTML = '';
         });
-
-        contenedorFormulario.appendChild(formDiv);
+        contenedorFormulario.appendChild(contenedorForm);
     }
 
-    // Llamada inicial para construir el menú
+    function mostrarFormularioEliminar(textoBoton, submenu) {
+        const entidad = submenu;
+        const listaEjemplo = [
+            {id: 1, nombre: "Juan", primerApellido: "Pérez"},
+            {id: 2, nombre: "Ana", primerApellido: "García"}
+        ];
+
+        contenedorFormulario.innerHTML = '';
+
+        const contenedor = document.createElement('div');
+        contenedor.classList.add('contenedor-eliminar');
+        contenedor.innerHTML = `
+        <h4>${textoBoton}</h4>
+        <label>Selecciona a quién eliminar:
+            <select id="selector-eliminar-${entidad}">
+                <option value="">Seleccione...</option>
+                ${listaEjemplo.map(item => `<option value="${item.id}">${item.nombre} ${item.primerApellido}</option>`).join('')}
+            </select>
+        </label>
+        <div id="zona-boton-eliminar">
+            <button id="btn-eliminar-real">Eliminar</button>
+        </div>
+    `;
+        contenedorFormulario.appendChild(contenedor);
+
+        const selector = document.getElementById(`selector-eliminar-${entidad}`);
+        const btnEliminar = document.getElementById('btn-eliminar-real');
+        const modal = document.getElementById('modal-confirmacion');
+        const mensaje = document.getElementById('mensaje-confirmacion');
+        const btnConfirmar = document.getElementById('btn-confirmar');
+        const btnCancelar = document.getElementById('btn-cancelar');
+
+        btnEliminar.addEventListener('click', () => {
+            const seleccionado = listaEjemplo.find(item => item.id == selector.value);
+            if (seleccionado) {
+                mensaje.textContent = `¿Estás seguro que quieres eliminar a "${seleccionado.nombre} ${seleccionado.primerApellido}"?`;
+                modal.style.display = 'flex';
+
+                const confirmarAccion = () => {
+                    alert(`Eliminado: ${seleccionado.nombre} ${seleccionado.primerApellido} (simulado)`);
+                    contenedorFormulario.innerHTML = '';
+                    modal.style.display = 'none';
+                    limpiarListeners();
+                };
+
+                const cancelarAccion = () => {
+                    modal.style.display = 'none';
+                    limpiarListeners();
+                };
+
+                const limpiarListeners = () => {
+                    btnConfirmar.removeEventListener('click', confirmarAccion);
+                    btnCancelar.removeEventListener('click', cancelarAccion);
+                };
+
+                btnConfirmar.addEventListener('click', confirmarAccion);
+                btnCancelar.addEventListener('click', cancelarAccion);
+            }
+        });
+    }
+
+
     generarMenuIzquierdoPorRol();
 </script>
 </body>
