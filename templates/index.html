@@ -5,6 +5,10 @@
     <title>Inicio / Perfil</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/index1.css') }}">
     <link rel="icon" href="{{ url_for('static', path='img/img.png') }}">
+    <script>
+    const USER_ROLE = "{{ user_role }}";
+    console.log("USER_ROLE:", USER_ROLE);
+</script>
 </head>
 <body>
 

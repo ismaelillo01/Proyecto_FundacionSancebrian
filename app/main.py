@@ -18,7 +18,7 @@ from datetime import datetime
 from babel.dates import format_date
 from fastapi import FastAPI
 from app.routes import alexa
-
+from fastapi.responses import PlainTextResponse
 
 
 
@@ -60,25 +60,24 @@ app.include_router(alexa.router)
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request, auth=Depends(require_login)):
     usuario = request.cookies.get("usuario", "")
-    return templates.TemplateResponse("index.html", {"request": request, "usuario": usuario})
+    rol = request.cookies.get("user_role", "cuidador")
+    return templates.TemplateResponse("index.html", {"request": request, "usuario": usuario, "user_role": rol})
 
 @app.get("/home", response_class=HTMLResponse)
 async def home(request: Request, auth=Depends(require_login)):
     usuario = request.cookies.get("usuario", "")
-    return templates.TemplateResponse("index.html", {"request": request, "usuario": usuario})
-
-# Login
-
-
-
-from fastapi.responses import PlainTextResponse
+    rol = request.cookies.get("user_role", "cuidador")
+    return templates.TemplateResponse("index.html", {"request": request, "usuario": usuario, "user_role": rol})
 
 @app.post("/login", response_class=HTMLResponse)
 async def login_post(request: Request, usuario: str = Form(...), password: str = Form(...)):
     try:
-        if verificar_usuario(usuario, password):
+        ok, rol = verificar_usuario(usuario, password)
+        if ok and rol:
             response = RedirectResponse(url="/home", status_code=302)
             response.set_cookie(key="usuario", value=usuario)
+            response.set_cookie(key="user_role", value=rol)
+            print(f"[DEBUG] Usuario {usuario} autenticado como {rol}")
             return response
         else:
             return templates.TemplateResponse("login.html", {
@@ -86,17 +85,24 @@ async def login_post(request: Request, usuario: str = Form(...), password: str =
                 "error": "Nombre de usuario o contraseña incorrectos"
             })
     except Exception as e:
-        # Mostrar error como texto plano para debug
         return PlainTextResponse(str(e), status_code=500)
 
 @app.get("/login", response_class=HTMLResponse)
 async def login_get(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
+@app.get("/logout")
+def logout():
+    response = RedirectResponse(url="/login", status_code=302)
+    response.delete_cookie("usuario")
+    response.delete_cookie("user_role")
+    return response
 
-
-
-
+@app.get("/miportal", response_class=HTMLResponse, name="miportal")
+async def mi_portal(request: Request, auth=Depends(require_login)):
+    usuario = request.cookies.get("usuario", "")
+    role = request.cookies.get("user_role", "cuidador")
+    return templates.TemplateResponse("MiPortal.html", {"request": request, "usuario": usuario, "role": role})
 @app.get("/datos", response_class=HTMLResponse, name="datos_sensor")
 async def datos(request: Request, usuario_id: int = Query(...), auth=Depends(require_login)):
     from app.persons.clientes import get_cliente_detalle
@@ -133,13 +139,6 @@ async def datos(request: Request, usuario_id: int = Query(...), auth=Depends(req
 
 
 
-# Logout
-@app.get("/logout")
-def logout():
-    response = RedirectResponse(url="/login", status_code=302)
-    response.delete_cookie("usuario")
-    return response
-
 
 
 # Ejecutar como script
@@ -147,7 +146,3 @@ if __name__ == "__main__":
     import uvicorn
     uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
 
-@app.get("/miportal", response_class=HTMLResponse, name="miportal")
-async def mi_portal(request: Request, auth=Depends(require_login)):
-    usuario = request.cookies.get("usuario", "")
-    return templates.TemplateResponse("MiPortal.html", {"request": request, "usuario": usuario})

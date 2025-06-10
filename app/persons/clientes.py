@@ -1,13 +1,37 @@
 from fastapi import APIRouter, HTTPException
 from app.database.db import get_connection
-
+from fastapi import Cookie
 router = APIRouter()
 
 @router.get("/clientes/{id_cliente}")
-def get_cliente_detalle(id_cliente: int):
+def get_cliente_detalle(
+    id_cliente: int,
+    user_role: str = Cookie(None),
+    usuario: str = Cookie(None)
+):
     conn = get_connection()
     cursor = conn.cursor()
     try:
+        if user_role == "gestor":
+            # gestores pueden acceder a cualquier cliente
+            pass  # no filtro especial aquí
+        elif user_role == "cuidador":
+            # cuidadores solo si tienen horario con ese cliente
+            cursor.execute("SELECT id_cuidador FROM cuidadores WHERE usuario = %s", (usuario,))
+            result = cursor.fetchone()
+            if not result:
+                raise HTTPException(status_code=403, detail="Cuidador no autorizado")
+            id_cuidador = result[0]
+
+            cursor.execute("""
+                SELECT 1 FROM horarios
+                WHERE id_cuidador = %s AND id_cliente = %s
+            """, (id_cuidador, id_cliente))
+            acceso = cursor.fetchone()
+            if not acceso:
+                raise HTTPException(status_code=403, detail="Acceso denegado a cliente")
+
+        # Consulta detalles cliente
         cursor.execute("""
             SELECT 
                 dc.nombre, dc.apellido1, dc.apellido2, dc.dni, dc.fecha_registro,
@@ -46,8 +70,12 @@ def get_cliente_detalle(id_cliente: int):
             }
         else:
             raise HTTPException(status_code=404, detail="Cliente no encontrado")
+
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         cursor.close()
         conn.close()
+
