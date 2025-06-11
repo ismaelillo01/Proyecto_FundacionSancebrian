@@ -41,8 +41,8 @@
         <div class="modal-contenido">
             <p id="mensaje-confirmacion"></p>
             <div class="botones-modal">
-                <button id="btn-confirmar">Confirmar</button>
-                <button id="btn-cancelar">Cancelar</button>
+                <button id="btn-confirmar" class="boton-verde">Confirmar</button>
+                <button id="btn-cancelar" class="boton-rojo">Cancelar</button>
             </div>
         </div>
     </div>
@@ -167,8 +167,36 @@
         }
     }
 
+    function obtenerIconoCampo(clave) {
+        const iconos = {
+            nombre: "👤",
+            primerApellido: "👥",
+            segundoApellido: "👥",
+            usuario: "🆔",
+            password: "🔒",
+            telefono: "📞",
+            dni: "🪪",
+            direccion: "🏠",
+            cp: "📮",
+            provincia: "🌍",
+            sexo: "⚥",
+            fechaNacimiento: "📅",
+            telefonoPersonal: "📱",
+            telefonoFamiliar: "📲",
+            hogar: "🏡",
+            descripcion: "📝",
+            gestor: "👨‍💼"
+        };
+        return iconos[clave] || "📄";
+    }
 
-        function mostrarFormulario(textoBoton, submenu) {
+    function formatearEtiqueta(campo) {
+        return campo
+            .replace(/([A-Z])/g, ' $1') // Añade espacio antes de mayúsculas
+            .replace(/^./, s => s.toUpperCase()); // Primera letra en mayúscula
+    }
+
+    function mostrarFormulario(textoBoton, submenu) {
         let formHTML = '', formClass = '';
         if (textoBoton.startsWith('Modificar')) {
             const entidad = submenu;
@@ -210,6 +238,13 @@
 
             const selector = contenedorBusqueda.querySelector(`#selector-${entidad}`);
             const contenedorDatos = contenedorBusqueda.querySelector(`#datos-${entidad}`);
+            const singularEntidad = {
+                gestores: 'gestor',
+                cuidadores: 'cuidador',
+                clientes: 'cliente',
+                hogares: 'hogar'
+            };
+
 
             selector.addEventListener('change', () => {
                 contenedorDatos.innerHTML = '';
@@ -221,20 +256,50 @@
                     const campo = document.createElement('div');
                     campo.classList.add('campo-modificable');
                     campo.innerHTML = `
-                <label>${clave.charAt(0).toUpperCase() + clave.slice(1)}:</label>
-                <span class="valor-campo" contenteditable="false">${seleccionado[clave] || ''}</span>
-                <button class="editar-campo" title="Editar">&#9998;</button>
-            `;
-                    const btnEditar = campo.querySelector('.editar-campo');
-                    const spanValor = campo.querySelector('.valor-campo');
-                    btnEditar.addEventListener('click', () => {
-                        const enEdicion = spanValor.getAttribute('contenteditable') === 'true';
-                        spanValor.setAttribute('contenteditable', enEdicion ? 'false' : 'true');
-                        btnEditar.innerHTML = enEdicion ? '&#9998;' : '&#10004;';
-                        if (enEdicion) alert(`Nuevo valor de "${clave}": ${spanValor.textContent} (simulado)`);
-                    });
+                    <div class="tarjeta-campo-horizontal">
+                        <div class="titulo-campo">
+                            <span class="icono-campo">${obtenerIconoCampo(clave)}</span>
+                            <span class="etiqueta-campo">${formatearEtiqueta(clave)}</span>
+                        </div>
+                        <div class="fila-editable">
+                            <input type="text" class="input-campo" name="${clave}" value="${seleccionado[clave] || ''}" />
+                        </div>
+                    </div>
+                `;
+
                     contenedorDatos.appendChild(campo);
                 });
+                // Crear botón guardar fuera del bucle
+                const botonGuardar = document.createElement('button');
+                botonGuardar.textContent = 'Guardar cambios';
+                botonGuardar.className = 'boton-guardar';
+                botonGuardar.style.marginTop = '20px';
+
+// Lógica al pulsar
+                botonGuardar.addEventListener('click', () => {
+                    const datosActualizados = {};
+                    const inputs = contenedorDatos.querySelectorAll('input');
+
+                    inputs.forEach(input => {
+                        const clave = input.name;
+                        datosActualizados[clave] = input.value;
+                    });
+
+                    // Aquí podrías hacer una llamada real a la API para guardar
+
+                    const mensajeConfirmacion = document.createElement('div');
+                    mensajeConfirmacion.className = 'mensaje-confirmacion';
+                    mensajeConfirmacion.innerText = `${singularEntidad[entidad]} modificado correctamente.`;
+
+                    contenedorFormulario.innerHTML = '';
+                    contenedorFormulario.appendChild(mensajeConfirmacion);
+                });
+
+                const contenedorBoton = document.createElement('div');
+                contenedorBoton.style.textAlign = 'center';
+                contenedorBoton.appendChild(botonGuardar);
+                contenedorFormulario.appendChild(contenedorBoton);
+
             });
             return;
         }
@@ -303,9 +368,13 @@
         const form = contenedorForm.querySelector('form');
         form.addEventListener('submit', e => {
             e.preventDefault();
-            alert(`${textoBoton} realizado (simulado)`);
+            const mensajeInfo = document.createElement('div');
+            mensajeInfo.className = 'mensaje-confirmacion';
+            mensajeInfo.innerText = `${textoBoton} realizado correctamente.`;
             contenedorFormulario.innerHTML = '';
+            contenedorFormulario.appendChild(mensajeInfo);
         });
+
         contenedorFormulario.appendChild(contenedorForm);
     }
 
@@ -347,14 +416,8 @@
                 mensaje.textContent = `¿Estás seguro que quieres eliminar a "${seleccionado.nombre} ${seleccionado.primerApellido}"?`;
                 modal.style.display = 'flex';
 
-                const confirmarAccion = () => {
-                    alert(`Eliminado: ${seleccionado.nombre} ${seleccionado.primerApellido} (simulado)`);
-                    contenedorFormulario.innerHTML = '';
-                    modal.style.display = 'none';
-                    limpiarListeners();
-                };
 
-                const cancelarAccion = () => {
+const cancelarAccion = () => {
                     modal.style.display = 'none';
                     limpiarListeners();
                 };
@@ -368,6 +431,21 @@
                 btnCancelar.addEventListener('click', cancelarAccion);
             }
         });
+    }
+
+    function confirmarAccion() {
+        // Aquí puedes añadir lógica real para eliminar (por ejemplo, llamada a API)
+
+        // Mostrar mensaje de éxito
+        const mensajeExito = document.createElement('div');
+        mensajeExito.className = 'mensaje-confirmacion';
+        mensajeExito.textContent = 'Eliminación realizada correctamente.';
+
+        contenedorFormulario.innerHTML = '';
+        contenedorFormulario.appendChild(mensajeExito);
+
+        // Ocultar el modal
+        document.getElementById('modal-confirmacion').style.display = 'none';
     }
 
 
