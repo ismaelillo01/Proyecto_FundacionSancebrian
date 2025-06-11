@@ -33,6 +33,7 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 from pydantic import BaseModel
 from typing import Optional
 from datetime import date
+from fastapi.middleware.cors import CORSMiddleware
 
 
 class HorarioCreate(BaseModel):
@@ -68,7 +69,13 @@ def get_db():
 
 app = FastAPI()
 
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://fscsensor.hometec.uk"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.exception_handler(StarletteHTTPException)
