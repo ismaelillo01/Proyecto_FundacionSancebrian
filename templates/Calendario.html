@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Calendario con Horarios Editable</title>
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+  <style>
+    /* Reset, layout y estilos generales */
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f7fa;
+      margin: 0; padding: 15px;
+      color: #34495e;
+      user-select: none;
+      display: flex; flex-direction: column; align-items: center;
+      min-height: 100vh;
+    }
+    h1 {
+      margin: 6px 0 16px;
+      font-weight: 700;
+      font-size: 1.9rem;
+      color: #2c3e50;
+      text-align: center;
+      user-select: none;
+    }
+    form#scheduleForm {
+      max-width: 920px;
+      width: 100%;
+      background: white;
+      padding: 16px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      margin-bottom: 24px;
+      user-select: none;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 14px 18px;
+      align-items: end;
+    }
+    form#scheduleForm label {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #34495e;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    form#scheduleForm select,
+    form#scheduleForm input[type="date"],
+    form#scheduleForm input[type="time"] {
+      padding: 6px 8px;
+      font-size: 0.9rem;
+      border: none;
+      border-bottom: 2px solid #bbb;
+      background: transparent;
+      outline-offset: 0;
+      transition: border-color 0.3s ease;
+      color: #34495e;
+      min-width: 140px;
+    }
+    form#scheduleForm select:focus,
+    form#scheduleForm input[type="date"]:focus,
+    form#scheduleForm input[type="time"]:focus {
+      border-bottom-color: #2980b9;
+      outline: none;
+    }
+    label.checkbox-label {
+      grid-column: 1 / -1;
+      font-weight: 700;
+      font-size: 0.9rem;
+      user-select: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #34495e;
+      padding-top: 8px;
+    }
+    label.checkbox-label input[type="checkbox"] {
+      width: 18px; height: 18px; cursor: pointer;
+    }
+    form#scheduleForm button {
+      grid-column: 1 / -1;
+      padding: 10px 28px;
+      background: #2980b9;
+      color: white;
+      font-weight: 700;
+      font-size: 1rem;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      user-select: none;
+      justify-self: center;
+      min-width: 140px;
+    }
+    form#scheduleForm button:hover {
+      background: #1c5980;
+    }
+    .range-fields {
+      display: none;
+      flex-direction: column;
+    }
+    .range-fields label {
+      min-width: auto;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .range-fields input {
+      min-width: 140px;
+      padding: 6px 8px;
+    }
+    #mainContainer {
+      display: flex;
+      max-width: 1100px;
+      width: 100%;
+      gap: 16px;
+      height: 620px;
+    }
+    #calendar, #logTableContainer {
+      width: 50%;
+      height: 100%;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.14);
+      padding: 18px 20px;
+      overflow-y: auto;
+    }
+    #logTable {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    #logTable thead {
+      background: #2980b9;
+      color: white;
+      user-select: none;
+    }
+    #logTable th, #logTable td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #ddd;
+      text-align: center;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+    #logTable tbody tr:hover {
+      background-color: #f0f8ff;
+      cursor: pointer;
+    }
+    .fc-event-main-frame {
+      white-space: normal !important;
+      font-weight: 600;
+      font-size: 0.9rem !important;
+      line-height: 1.2;
+      padding: 5px 8px !important;
+      text-align: center;
+      color: white !important;
+      user-select: none;
+    }
+    /* Popup styles */
+    #editPopupOverlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.35);
+      display: none; z-index: 1700;
+      backdrop-filter: blur(3px);
+    }
+    #editPopup {
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 22px 28px;
+      border-radius: 14px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.28);
+      width: 340px;
+      z-index: 1800;
+      display: none;
+      font-size: 1rem;
+      color: #34495e;
+      user-select: none;
+    }
+    #editPopup h3 {
+      margin: 0 0 16px 0;
+      font-weight: 700;
+      color: #2c3e50;
+      text-align: center;
+      letter-spacing: 0.7px;
+    }
+    #editPopup label {
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: block;
+      margin-bottom: 8px;
+    }
+    #editPopup input[type="date"],
+    #editPopup input[type="time"],
+    #editPopup select {
+      width: 100%;
+      padding: 7px 10px;
+      font-size: 1rem;
+      border: 1.5px solid #dcdfe6;
+      border-radius: 8px;
+      margin-bottom: 14px;
+      transition: border-color 0.3s ease;
+      outline-offset: 2px;
+      color: #34495e;
+      background: white;
+    }
+    #editPopup input[type="date"]:focus,
+    #editPopup input[type="time"]:focus,
+    #editPopup select:focus {
+      border-color: #2980b9;
+      outline: none;
+      box-shadow: 0 0 8px #2980b9cc;
+    }
+    #editPopup .actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    #editPopup button {
+      flex: 1;
+      padding: 10px 0;
+      font-weight: 700;
+      font-size: 1rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.25s ease;
+    }
+    #editPopup #deleteBtnPopup {
+      background: #e74c3c;
+      color: white;
+    }
+    #editPopup #deleteBtnPopup:hover {
+      background: #c0392b;
+    }
+    #editPopup #saveBtnPopup {
+      background: #27ae60;
+      color: white;
+    }
+    #editPopup #saveBtnPopup:hover {
+      background: #1e8449;
+    }
+    #editPopup #cancelBtnPopup {
+      background: #bdc3c7;
+      color: #2c3e50;
+    }
+    #editPopup #cancelBtnPopup:hover {
+      background: #95a5a6;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Calendario con Horarios Editable</h1>
+
+<form id="scheduleForm" aria-label="Formulario para añadir horarios">
+  <label for="userSelect">Trabajador
+    <select id="userSelect" required aria-required="true" title="Selecciona un trabajador">
+      <option value="">Selecciona Trabajador</option>
+    </select>
+  </label>
+
+  <label for="clientSelect">Usuario
+    <select id="clientSelect" required aria-required="true" title="Selecciona un usuario">
+      <option value="">Selecciona Usuario</option>
+    </select>
+  </label>
+
+  <label for="singleDate">Fecha individual
+    <input type="date" id="singleDate" required aria-required="true" title="Fecha individual" />
+  </label>
+
+  <label class="checkbox-label" for="useRange">
+    <input type="checkbox" id="useRange" />
+    Añadir rango de fechas
+  </label>
+
+  <div class="range-fields" id="rangeFields">
+    <label for="rangeStartDate">Fecha inicio rango
+      <input type="date" id="rangeStartDate" />
+    </label>
+
+    <label for="rangeEndDate">Fecha fin rango
+      <input type="date" id="rangeEndDate" />
+    </label>
+  </div>
+
+  <label for="startTime">Hora inicio
+    <input type="time" id="startTime" required aria-required="true" title="Hora inicio" />
+  </label>
+
+  <label for="endTime">Hora fin
+    <input type="time" id="endTime" required aria-required="true" title="Hora fin" />
+  </label>
+
+  <button type="submit" aria-label="Añadir horario">Añadir</button>
+</form>
+
+<div id="mainContainer">
+  <div id="calendar" aria-label="Calendario mensual de horarios"></div>
+
+  <div id="logTableContainer" aria-label="Tabla resumen de horarios">
+    <table id="logTable" aria-describedby="Tabla con registros de horarios añadidos">
+      <thead>
+        <tr>
+          <th>Trabajador</th>
+          <th>Usuario</th>
+          <th>Fecha(s)</th>
+          <th>Hora inicio</th>
+          <th>Hora fin</th>
+          <th>Descripción</th>
+          <th>Color</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+
+<!-- Popup edición -->
+<div id="editPopupOverlay" role="dialog" aria-modal="true" aria-hidden="true" style="display:none;"></div>
+<div id="editPopup" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="editPopupTitle" tabindex="-1" style="display:none;">
+  <h3 id="editPopupTitle">Editar Horario</h3>
+
+  <label for="popupUser">Trabajador</label>
+  <select id="popupUser" required>
+    <option value="">Selecciona un trabajador</option>
+
+  </select>
+
+  <label for="popupClient">Usuario</label>
+  <select id="popupClient" required>
+    <option value="">Selecciona Usuario</option>
+
+  </select>
+
+  <label for="popupDate">Fecha</label>
+  <input type="date" id="popupDate" required />
+
+  <label for="popupStartTime">Hora inicio</label>
+  <input type="time" id="popupStartTime" required />
+
+  <label for="popupEndTime">Hora fin</label>
+  <input type="time" id="popupEndTime" required />
+
+  <label for="popupDescription">Descripción</label>
+  <input type="text" id="popupDescription" />
+
+  <div class="actions" style="margin-top: 14px; display:flex; gap:12px; justify-content: space-between;">
+    <button id="deleteBtnPopup" type="button" style="flex:1; background:#e74c3c; color:white; border:none; border-radius:8px; cursor:pointer;">Eliminar</button>
+    <button id="saveBtnPopup" type="button" style="flex:1; background:#27ae60; color:white; border:none; border-radius:8px; cursor:pointer;">Guardar</button>
+    <button id="cancelBtnPopup" type="button" style="flex:1; background:#bdc3c7; color:#2c3e50; border:none; border-radius:8px; cursor:pointer;">Cancelar</button>
+  </div>
+</div>
+<div style="position: fixed; bottom: 20px; right: 20px;">
+  <button id="saveToDatabase" style="padding: 12px 24px; background: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+    Guardar en Base de Datos
+  </button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Clase principal para manejar la aplicación
+  class CalendarApp {
+    constructor() {
+      this.colors = [
+        '#1abc9c','#2ecc71','#3498db','#9b59b6','#e67e22','#e74c3c','#34495e','#f39c12','#d35400','#7f8c8d'
+      ];
+      this.colorIndex = 0;
+      this.schedules = [];
+      this.editingItem = null;
+
+      this.initElements();
+      this.initEventListeners();
+      this.initCalendar();
+      this.loadInitialData();
+    }
+     prepareDataForDatabase() {
+return this.schedules.map(schedule => {
+  return {
+id_cuidador: Number(schedule.user),
+id_cliente: Number(schedule.client),
+    tipo_horario: schedule.type === 'range' ? 'R' : 'I',
+    fecha: schedule.type === 'single' ? schedule.date : null,
+    fecha_inicio: schedule.type === 'range' ? schedule.startDate : null,
+    fecha_fin: schedule.type === 'range' ? schedule.endDate : null,
+    hora_inicio: schedule.startTime,
+    hora_fin: schedule.endTime,
+    color: schedule.color,
+    descripcion: schedule.description || '',
+    parent_id: schedule.parentId || null
+  };
+});
+}
+
+      
+      initElements() {
+        // Elementos del DOM
+        this.calendarEl = document.getElementById('calendar');
+        this.editOverlay = document.getElementById('editPopupOverlay');
+        this.editPopup = document.getElementById('editPopup');
+        
+        // Formulario principal
+        this.userSelect = document.getElementById('userSelect');
+        this.clientSelect = document.getElementById('clientSelect');
+        this.singleDateInput = document.getElementById('singleDate');
+        this.useRangeCheckbox = document.getElementById('useRange');
+        this.rangeFields = document.getElementById('rangeFields');
+        this.rangeStartDateInput = document.getElementById('rangeStartDate');
+        this.rangeEndDateInput = document.getElementById('rangeEndDate');
+        this.startTimeInput = document.getElementById('startTime');
+        this.endTimeInput = document.getElementById('endTime');
+        this.scheduleForm = document.getElementById('scheduleForm');
+        
+        // Popup de edición
+        this.popupUser = document.getElementById('popupUser');
+        this.popupClient = document.getElementById('popupClient');
+        this.popupDate = document.getElementById('popupDate');
+        this.popupStartTime = document.getElementById('popupStartTime');
+        this.popupEndTime = document.getElementById('popupEndTime');
+        this.popupDescription = document.getElementById('popupDescription');
+        this.deleteBtn = document.getElementById('deleteBtnPopup');
+        this.saveBtn = document.getElementById('saveBtnPopup');
+        this.cancelBtn = document.getElementById('cancelBtnPopup');
+        
+        // Tabla de registros
+        this.logTableBody = document.querySelector('#logTable tbody');
+      }
+      
+      initEventListeners() {
+        // Rango de fechas
+        this.useRangeCheckbox.addEventListener('change', () => this.toggleRangeFields());
+        
+        // Formulario principal
+        this.scheduleForm.addEventListener('submit', (e) => this.handleFormSubmit(e));
+        
+        // Popup de edición
+        this.saveBtn.addEventListener('click', () => this.handleSave());
+        this.deleteBtn.addEventListener('click', () => this.handleDelete());
+        this.cancelBtn.addEventListener('click', () => this.hideEditPopup());
+        
+        // Cierre con ESC
+        document.addEventListener('keydown', (e) => {
+          if(e.key === 'Escape' && this.editPopup.style.display === 'block') {
+            this.hideEditPopup();
+          }
+        });
+        
+        // Click en fila de tabla
+        this.logTableBody.addEventListener('click', (e) => this.handleTableRowClick(e));
+      }
+      
+      initCalendar() {
+        this.calendar = new FullCalendar.Calendar(this.calendarEl, {
+          locale: 'es',
+          firstDay: 1,
+          initialView: 'dayGridMonth',
+          selectable: true,
+          editable: false,
+          eventDisplay: 'block',
+          height: '100%',
+          allDaySlot: false,
+          events: [],
+          buttonText: { today: 'HOY' },
+          eventContent: this.renderEventContent.bind(this),
+          eventClick: this.handleEventClick.bind(this)
+        });
+        this.calendar.render();
+      }
+      
+      loadInitialData() {
+        this.loadHomes();
+        this.loadCaregivers();
+      }
+      
+      // Métodos de carga de datos
+async loadHomes() {
+  try {
+    const res = await fetch('/hogares/lista');
+    const data = await res.json();
+
+    console.log("Hogares recibidos:", data.data);  // Para confirmar
+
+    if(data.success) {
+      data.data.forEach(address => {
+        this.addOption(this.clientSelect, address.id, address.nombre);
+        this.addOption(this.popupClient, address.id, address.nombre);
+      });
+    } else {
+      console.error("Error al cargar hogares");
+    }
+  } catch (error) {
+    console.error("Error en fetch hogares:", error);
+  }
+}
+      
+      async loadCaregivers() {
+        try {
+          const res = await fetch('/trabajadores/cuidadores');
+          const data = await res.json();
+          console.log("Cuidadores cargados:", data.data);
+          console.log("Cuidadores recibidos:", data);
+          if(data.success) {
+            data.data.forEach(caregiver => {
+              const nombreCompleto = `${caregiver.nombre} ${caregiver.apellido1 || ''} ${caregiver.apellido2 || ''}`.trim();
+              this.addOption(this.userSelect, caregiver.id, nombreCompleto);
+              this.addOption(this.popupUser, caregiver.id, nombreCompleto);
+            });
+
+          } else {
+            console.error("Error al cargar cuidadores");
+          }
+        } catch (error) {
+          console.error("Error en fetch cuidadores:", error);
+        }
+      }
+      
+      addOption(selectElement, value, text) {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = text;
+        console.log("Insertando opción:", { value, text });
+        selectElement.appendChild(option);
+      }
+      
+      // Métodos de manejo de UI
+      toggleRangeFields() {
+        if(this.useRangeCheckbox.checked) {
+          this.rangeFields.style.display = 'flex';
+          this.singleDateInput.parentElement.style.display = 'none';
+          this.singleDateInput.value = '';
+          this.rangeStartDateInput.required = true;
+          this.rangeEndDateInput.required = true;
+          this.singleDateInput.required = false;
+        } else {
+          this.rangeFields.style.display = 'none';
+          this.singleDateInput.parentElement.style.display = 'block';
+          this.rangeStartDateInput.required = false;
+          this.rangeEndDateInput.required = false;
+          this.singleDateInput.required = true;
+          this.rangeStartDateInput.value = '';
+          this.rangeEndDateInput.value = '';
+        }
+      }
+      
+      showEditPopup(isRange = false) {
+        this.editOverlay.style.display = 'block';
+        this.editPopup.style.display = 'block';
+        this.editPopup.setAttribute('aria-hidden', 'false');
+        this.editOverlay.setAttribute('aria-hidden', 'false');
+        this.popupDate.disabled = isRange;
+        this.editPopup.focus();
+      }
+      
+      hideEditPopup() {
+        this.editOverlay.style.display = 'none';
+        this.editPopup.style.display = 'none';
+        this.editPopup.setAttribute('aria-hidden', 'true');
+        this.editOverlay.setAttribute('aria-hidden', 'true');
+        this.editingItem = null;
+        this.popupDate.disabled = false;
+      }
+      
+      fillEditPopup(schedule) {
+        this.popupUser.value = schedule.user;
+        this.popupClient.value = schedule.client;
+        this.popupDate.value = schedule.date || schedule.startDate || '';
+        this.popupStartTime.value = schedule.startTime;
+        this.popupEndTime.value = schedule.endTime;
+        this.popupDescription.value = schedule.description || '';
+      }
+      
+      // Métodos de manejo de eventos
+      handleFormSubmit(e) {
+  e.preventDefault();
+
+  // 1. DEFINIR VARIABLES PRIMERO
+  const user = this.userSelect.value;
+  const userName = this.userSelect.options[this.userSelect.selectedIndex]?.text;
+
+  const client = this.clientSelect.value;
+  const clientName = this.clientSelect.options[this.clientSelect.selectedIndex]?.text;
+
+  const startTime = this.startTimeInput.value;
+  const endTime = this.endTimeInput.value;
+
+  // 2. DEBUG CORRECTAMENTE
+  console.log("SUBMIT:");
+  console.log("User select value:", user);
+  console.log("User select text:", userName);
+  console.log("Client select value:", client);
+  console.log("Client select text:", clientName);
+  console.log("Hora inicio:", startTime);
+  console.log("Hora fin:", endTime);
+
+  // 3. VALIDACIÓN
+  if (!user || !client || !startTime || !endTime) {
+    alert('Por favor, completa todos los campos obligatorios.');
+    return;
+  }
+
+  // 4. LLAMAR A LAS FUNCIONES CON VARIABLES DEFINIDAS
+  if (this.useRangeCheckbox.checked) {
+    this.handleRangeSchedule(user, userName, client, clientName, startTime, endTime);
+  } else {
+    this.handleSingleSchedule(user, userName, client, clientName, startTime, endTime);
+  }
+
+  this.renderAllEvents();
+  this.updateLogTable();
+  this.resetForm();
+}
+
+handleRangeSchedule(user, userName, client, clientName, startTime, endTime) {
+  const startRange = this.rangeStartDateInput.value;
+  const endRange = this.rangeEndDateInput.value;
+
+  if (!startRange || !endRange) {
+    alert('Por favor, selecciona fechas para el rango.');
+    return;
+  }
+
+  if (startRange > endRange) {
+    alert('La fecha de inicio no puede ser posterior a la final.');
+    return;
+  }
+
+  this.schedules.push({
+    type: 'range',
+    id: this.generateId(),
+    user,
+    userName,
+    client,
+    clientName,
+    startDate: startRange,
+    endDate: endRange,
+    startTime,
+    endTime,
+    color: this.getNextColor(),
+    excludedDays: [],
+    description: ''
+  });
+}
+
+      
+ handleSingleSchedule(user, userName, client, clientName, startTime, endTime) {
+  const date = this.singleDateInput.value;
+
+  if (!date) {
+    alert('Por favor, selecciona una fecha individual.');
+    return;
+  }
+
+  this.schedules.push({
+    type: 'single',
+    id: this.generateId(),
+    user,
+    userName,
+    client,
+    clientName,
+    date,
+    startTime,
+    endTime,
+    color: this.getNextColor(),
+    description: ''
+  });
+}
+
+      
+      handleEventClick(info) {
+        const event = info.event;
+        const ext = event.extendedProps;
+        this.editingItem = null;
+        
+        if(ext.isSingle) {
+          this.handleSingleEventClick(ext.id);
+        } else if(ext.isRangeDay) {
+          this.handleRangeDayEventClick(ext.parentId, ext.date);
+        } else if(ext.isRange) {
+          this.handleRangeEventClick(ext.id);
+        }
+      }
+      
+      handleSingleEventClick(id) {
+        const schedule = this.schedules.find(s => s.type === 'single' && s.id === id);
+        if(!schedule) return alert('Evento no encontrado.');
+        
+        this.fillEditPopup(schedule);
+        this.showEditPopup(false);
+        this.editingItem = { type: 'single', id };
+      }
+      
+      handleRangeDayEventClick(parentId, date) {
+        const singleOverride = this.schedules.find(s => 
+          s.type === 'single' && s.parentId === parentId && s.date === date
+        );
+        
+        if(singleOverride) {
+          this.fillEditPopup(singleOverride);
+          this.editingItem = { type: 'rangeDay', parentId, date };
+        } else {
+          const parentRange = this.schedules.find(s => s.type === 'range' && s.id === parentId);
+          if(!parentRange) return alert('Rango padre no encontrado.');
+          
+          this.fillEditPopup({
+            user: parentRange.user,
+            client: parentRange.client,
+            date,
+            startTime: parentRange.startTime,
+            endTime: parentRange.endTime,
+            color: parentRange.color,
+            description: parentRange.description
+          });
+          this.editingItem = { type: 'rangeDay', parentId, date };
+        }
+        
+        this.showEditPopup(false);
+      }
+      
+      handleRangeEventClick(id) {
+        const schedule = this.schedules.find(s => s.type === 'range' && s.id === id);
+        if(!schedule) return alert('Rango no encontrado.');
+        
+        this.fillEditPopup(schedule);
+        this.showEditPopup(true);
+        this.editingItem = { type: 'range', id };
+      }
+      
+      handleTableRowClick(e) {
+        const tr = e.target.closest('tr');
+        if(!tr) return;
+        
+        const id = tr.dataset.id;
+        const type = tr.dataset.type;
+        
+        this.editingItem = {type, id};
+        const schedule = this.schedules.find(s => s.id === id && s.type === type);
+        if(!schedule) return alert('Horario no encontrado');
+        
+        this.fillEditPopup(schedule);
+        this.showEditPopup(type === 'range');
+      }
+      
+      handleSave() {
+        if(!this.editingItem) return;
+        
+        const user = this.popupUser.value;
+        const client = this.popupClient.value;
+        const date = this.popupDate.value;
+        const startTime = this.popupStartTime.value;
+        const endTime = this.popupEndTime.value;
+        const description = this.popupDescription.value;
+        
+        if(!user || !client || !startTime || !endTime) {
+          alert('Por favor, completa todos los campos obligatorios.');
+          return;
+        }
+        
+        switch(this.editingItem.type) {
+          case 'range':
+            this.updateRangeSchedule(user, client, startTime, endTime, description);
+            break;
+          case 'single':
+            this.updateSingleSchedule(user, client, date, startTime, endTime, description);
+            break;
+          case 'rangeDay':
+            this.updateRangeDaySchedule(user, client, date, startTime, endTime, description);
+            break;
+        }
+        
+        this.renderAllEvents();
+        this.updateLogTable();
+        this.hideEditPopup();
+      }
+      
+      updateRangeSchedule(user, client, startTime, endTime, description) {
+        const range = this.schedules.find(s => s.id === this.editingItem.id);
+        if(range) {
+          range.user = user;
+          range.client = client;
+          range.startTime = startTime;
+          range.endTime = endTime;
+          range.description = description;
+        }
+      }
+      
+      updateSingleSchedule(user, client, date, startTime, endTime, description) {
+        if(!date) {
+          alert('Por favor, selecciona una fecha.');
+          return;
+        }
+        
+        const single = this.schedules.find(s => s.id === this.editingItem.id);
+        if(single) {
+          single.user = user;
+          single.client = client;
+          if(single.date !== date) {
+            single.date = date;
+            single.color = this.getNextColor();
+          }
+          single.startTime = startTime;
+          single.endTime = endTime;
+          single.description = description;
+        }
+      }
+      
+      updateRangeDaySchedule(user, client, date, startTime, endTime, description) {
+        const parentRange = this.schedules.find(s => s.type === 'range' && s.id === this.editingItem.parentId);
+        if(!parentRange) {
+          alert('Rango padre no encontrado.');
+          return;
+        }
+        
+        let override = this.schedules.find(s => 
+          s.type === 'single' && s.parentId === this.editingItem.parentId && s.date === date
+        );
+        
+        if(override) {
+          override.user = user;
+          override.client = client;
+          override.startTime = startTime;
+          override.endTime = endTime;
+          override.color = this.getNextColor();
+          override.description = description;
+        } else {
+          override = {
+            type: 'single',
+            id: this.generateId(),
+            user,
+            client,
+            date,
+            startTime,
+            endTime,
+            color: this.getNextColor(),
+            parentId: this.editingItem.parentId,
+            description
+          };
+          this.schedules.push(override);
+          
+          if(!parentRange.excludedDays.includes(date)) {
+            parentRange.excludedDays.push(date);
+          }
+        }
+        
+        this.splitRangeByExcludedDays(parentRange);
+      }
+      
+      handleDelete() {
+        if(!this.editingItem) return;
+        if(!confirm('¿Seguro que quieres eliminar este horario?')) return;
+        
+        switch(this.editingItem.type) {
+          case 'range':
+            this.deleteRangeSchedule();
+            break;
+          case 'single':
+            this.deleteSingleSchedule();
+            break;
+          case 'rangeDay':
+            this.deleteRangeDaySchedule();
+            break;
+        }
+        
+        this.renderAllEvents();
+        this.updateLogTable();
+        this.hideEditPopup();
+      }
+      
+      deleteRangeSchedule() {
+        const index = this.schedules.findIndex(s => s.id === this.editingItem.id);
+        if(index !== -1) {
+          const rangeId = this.schedules[index].id;
+          // Eliminar todos los eventos hijos
+          for(let i = this.schedules.length - 1; i >= 0; i--) {
+            if(this.schedules[i].parentId === rangeId) this.schedules.splice(i,1);
+          }
+          this.schedules.splice(index,1);
+        }
+      }
+      
+      deleteSingleSchedule() {
+        const index = this.schedules.findIndex(s => s.id === this.editingItem.id);
+        if(index !== -1) {
+          this.schedules.splice(index,1);
+        }
+      }
+      
+      deleteRangeDaySchedule() {
+        const parentRange = this.schedules.find(s => s.type === 'range' && s.id === this.editingItem.parentId);
+        if(!parentRange) return alert('Rango padre no encontrado.');
+        
+        const dateToRemove = this.editingItem.date;
+        
+        if(!parentRange.excludedDays.includes(dateToRemove)) {
+          parentRange.excludedDays.push(dateToRemove);
+        }
+        this.splitRangeByExcludedDays(parentRange);
+      }
+      
+      // Métodos de utilidad
+      generateId() {
+        return '_' + Math.random().toString(36).substr(2, 9);
+      }
+      
+      getNextColor() {
+        return this.colors[this.colorIndex++ % this.colors.length];
+      }
+      
+      formatDate(date) {
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth()+1).padStart(2,'0');
+        const dd = String(date.getDate()).padStart(2,'0');
+        return `${yyyy}-${mm}-${dd}`;
+      }
+      
+      resetForm() {
+        this.scheduleForm.reset();
+        
+        if(this.useRangeCheckbox.checked) {
+          this.useRangeCheckbox.checked = false;
+          this.rangeFields.style.display = 'none';
+          this.singleDateInput.parentElement.style.display = 'block';
+          this.rangeStartDateInput.required = false;
+          this.rangeEndDateInput.required = false;
+          this.singleDateInput.required = true;
+          this.rangeStartDateInput.value = '';
+          this.rangeEndDateInput.value = '';
+        }
+      }
+      
+      // Métodos de renderizado
+      renderEventContent(arg) {
+        let container = document.createElement('div');
+        container.style.fontWeight = '600';
+        container.style.fontSize = '0.9rem';
+        container.style.lineHeight = '1.2';
+        container.style.whiteSpace = 'normal';
+        container.style.textAlign = 'center';
+        container.style.userSelect = 'none';
+        
+        let title = arg.event.title;
+        let parts = title.split(' - ');
+        let clientName = parts.length > 1 ? parts[1] : title;
+        
+        let clientNode = document.createElement('div');
+        clientNode.textContent = clientName;
+        container.appendChild(clientNode);
+        
+        return { domNodes: [container] };
+      }
+      
+      renderAllEvents() {
+        this.calendar.getEvents().forEach(ev => ev.remove());
+        
+        this.schedules.forEach(schedule => {
+          if(schedule.type === 'range') {
+            this.renderRangeSchedule(schedule);
+          } else if(schedule.type === 'single' && !schedule.parentId) {
+            this.renderSingleSchedule(schedule);
+          }
+        });
+      }
+      
+      renderRangeSchedule(schedule) {
+        let current = new Date(schedule.startDate);
+        const end = new Date(schedule.endDate);
+        
+        while(current <= end) {
+          const dateStr = this.formatDate(current);
+          
+          if(schedule.excludedDays.includes(dateStr)) {
+            current.setDate(current.getDate()+1);
+            continue;
+          }
+          
+          this.calendar.addEvent({
+            id: `rangeDay-${schedule.id}-${dateStr}`,
+            title: `${schedule.userName || schedule.user} - ${schedule.clientName || schedule.client}`,
+            start: `${dateStr}T${schedule.startTime}`,
+            end: `${dateStr}T${schedule.endTime}`,
+            backgroundColor: schedule.color,
+            borderColor: schedule.color,
+            textColor: 'white',
+            extendedProps: {
+              isRangeDay: true,
+              parentId: schedule.id,
+              date: dateStr
+            }
+          });
+          
+          current.setDate(current.getDate()+1);
+        }
+        
+        // Renderizar overrides individuales para este rango
+        this.schedules
+          .filter(s => s.type === 'single' && s.parentId === schedule.id)
+          .forEach(single => this.renderSingleSchedule(single));
+      }
+      
+      renderSingleSchedule(schedule) {
+        this.calendar.addEvent({
+          id: `single-${schedule.id}`,
+          title: `${schedule.userName || schedule.user} - ${schedule.clientName || schedule.client}`,
+          start: `${schedule.date}T${schedule.startTime}`,
+          end: `${schedule.date}T${schedule.endTime}`,
+          backgroundColor: schedule.color,
+          borderColor: schedule.color,
+          textColor: 'white',
+          extendedProps: {
+            isSingle: true,
+            id: schedule.id,
+            parentId: schedule.parentId,
+            date: schedule.date
+          }
+        });
+      }
+      
+      updateLogTable() {
+        console.log("SCHEDULES EN LA TABLA:", this.schedules);
+        this.logTableBody.innerHTML = '';
+        
+        this.schedules.forEach(schedule => {
+          const tr = document.createElement('tr');
+          tr.dataset.id = schedule.id;
+          tr.dataset.type = schedule.type;
+          tr.style.backgroundColor = schedule.color + '33';
+          
+          let dates = '';
+          if(schedule.type === 'range') {
+            dates = `${schedule.startDate} → ${schedule.endDate}`;
+          } else {
+            dates = schedule.date;
+          }
+          
+          tr.innerHTML = `
+            <td>${schedule.userName || schedule.user}</td>
+            <td>${schedule.clientName || schedule.client}</td>
+            <td>${dates}</td>
+            <td>${schedule.startTime}</td>
+            <td>${schedule.endTime}</td>
+            <td>${schedule.description || 'No descripción'}</td>
+            <td><div style="width:20px; height:16px; background-color:${schedule.color}; border-radius:4px; margin:auto;"></div></td>
+          `;
+          
+          this.logTableBody.appendChild(tr);
+        });
+      }
+      
+      splitRangeByExcludedDays(range) {
+        const excluded = [...range.excludedDays];
+        this.schedules
+          .filter(s => s.type === 'single' && s.parentId === range.id)
+          .forEach(o => {
+            if(!excluded.includes(o.date)) excluded.push(o.date);
+          });
+        excluded.sort();
+        
+        const startDate = new Date(range.startDate);
+        const endDate = new Date(range.endDate);
+        
+        const idx = this.schedules.findIndex(s => s.id === range.id);
+        if(idx !== -1) this.schedules.splice(idx,1);
+        
+        let currentStart = new Date(startDate);
+        
+        excluded.forEach(exDateStr => {
+          const exDate = new Date(exDateStr);
+          if(exDate > currentStart && exDate <= endDate) {
+            const subRangeEnd = new Date(exDate.getTime() - 86400000);
+            if(subRangeEnd >= currentStart) {
+              this.schedules.push({
+                type: 'range',
+                id: this.generateId(),
+                user: range.user,
+                client: range.client,
+                startDate: this.formatDate(currentStart),
+                endDate: this.formatDate(subRangeEnd),
+                startTime: range.startTime,
+                endTime: range.endTime,
+                color: range.color,
+                excludedDays: []
+              });
+            }
+            currentStart = new Date(exDate.getTime() + 86400000);
+          }
+        });
+        
+        if(currentStart <= endDate) {
+          this.schedules.push({
+            type: 'range',
+            id: this.generateId(),
+            user: range.user,
+            client: range.client,
+            startDate: this.formatDate(currentStart),
+            endDate: this.formatDate(endDate),
+            startTime: range.startTime,
+            endTime: range.endTime,
+            color: range.color,
+            excludedDays: []
+          });
+        }
+      }
+      
+    }
+    
+
+document.getElementById('saveToDatabase').addEventListener('click', function () {
+  if (app.schedules.length === 0) {
+    alert('No hay horarios para guardar.');
+    return;
+  }
+
+  const data = app.prepareDataForDatabase();
+
+  // Validación de IDs
+  for (const h of data) {
+    if (!h.id_cuidador || !h.id_cliente || isNaN(h.id_cuidador) || isNaN(h.id_cliente)) {
+      alert('Error: hay horarios con cuidadores o usuarios no seleccionados correctamente.');
+      return;
+    }
+  }
+
+  console.log("Datos a guardar:", JSON.stringify(data, null, 2));
+
+  fetch('http://127.0.0.1:8000/guardar-horario/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data)  // ✅ ENVIAMOS LISTA DIRECTAMENTE
+  })
+    .then(response => response.json())
+    .then(result => {
+      console.log('Horarios guardados:', result);
+      if (result.message?.includes("exitosamente")) {
+        alert("✅ " + result.message);
+        // app.schedules = [];
+        // app.renderAllEvents();
+        // app.updateLogTable();
+      } else {
+        alert("❌ Error al guardar: " + (result.error || result.message || "Respuesta no válida"));
+      }
+    })
+    .catch(error => {
+      console.error('Error en fetch:', error);
+      alert('Error al conectar con el servidor');
+    });
+});
+
+    // Inicializar la aplicación
+  const app = new CalendarApp();  // Guarda la instancia 
+  });
+
+</script>
+
+</body>
+</html>

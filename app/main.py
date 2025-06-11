@@ -1,33 +1,73 @@
 import sys
 from pathlib import Path
+from datetime import datetime
 
-from fastapi import FastAPI, Request, Depends, Form
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi import FastAPI, Request, Depends, Form, Query
+from fastapi.responses import HTMLResponse, RedirectResponse, PlainTextResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi import Query
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from sqlalchemy.orm import Session
+from pydantic import BaseModel
+from babel.dates import format_date
+
+# Importación de módulos internos
 from app.dependencies.auth import require_login
 from app.services.auth_service import verificar_usuario
-from app.routes import sensors, historico
-from app.routes.dispositivos import detalle
+from app.services.crud import create_horario
+from app.database.db import SessionLocal, engine
+from app.database.models import Base
+from typing import Optional
+from typing import List
+# Importación de rutas
+from app.routes import historico, alexa, cuidadores, hogares
+from app.routes.dispositivos import detalle, zonas
 from app.persons import clientes, data
-from fastapi.responses import RedirectResponse
-from starlette.exceptions import HTTPException as StarletteHTTPException
-from app.routes.dispositivos import zonas
-from datetime import datetime
-from babel.dates import format_date
-from fastapi import FastAPI
-from app.routes import alexa
-from fastapi.responses import PlainTextResponse
-
-
-
+from app.database.models import Horario, Cuidador, Cliente
 
 # Añadir la raíz del proyecto al sys.path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
-# Crear instancia FastAPI
+
+# app/main.py
+from pydantic import BaseModel
+from typing import Optional
+from datetime import date
+
+
+class HorarioCreate(BaseModel):
+    id_cuidador: int
+    id_cliente: int
+    tipo_horario: str  # 'R' para Rango, 'I' para Individual
+    fecha: Optional[str] = None  # La fecha es opcional, puede ser None
+    fecha_inicio: Optional[str] = None  # También opcional
+    fecha_fin: Optional[str] = None  # También opcional
+    hora_inicio: str
+    hora_fin: str
+    color: Optional[str] = '#3498db'  # Opcional, por defecto '#3498db'
+    descripcion: Optional[str] = None  # Opcional
+    parent_id: Optional[int] = None  # Opcional, puede ser None
+
+    # Función para convertir las fechas de string a tipo Date
+    def transform_dates(self):
+        if self.fecha:
+            self.fecha = date.fromisoformat(self.fecha)
+        if self.fecha_inicio:
+            self.fecha_inicio = date.fromisoformat(self.fecha_inicio)
+        if self.fecha_fin:
+            self.fecha_fin = date.fromisoformat(self.fecha_fin)
+
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 app = FastAPI()
+
 
 
 
@@ -48,13 +88,14 @@ app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 templates = Jinja2Templates(directory=BASE_DIR / "templates")
 
 # Registrar routers
-app.include_router(sensors.router, prefix="/sensors", tags=["Sensors"])
 app.include_router(data.router, prefix="/personas", tags=["Personas"])
 app.include_router(historico.router, prefix="/historico", tags=["Historico"])
 app.include_router(detalle.router, prefix="/dispositivos", tags=["Dispositivos"])
 app.include_router(clientes.router, prefix="/personas", tags=["Clientes"])
 app.include_router(zonas.router, prefix="/dispositivos", tags=["Zonas"])
 app.include_router(alexa.router)
+app.include_router(cuidadores.router)
+app.include_router(hogares.router)
 
 # Rutas protegidas
 @app.get("/", response_class=HTMLResponse)
@@ -137,7 +178,30 @@ async def datos(request: Request, usuario_id: int = Query(...), auth=Depends(req
         "datos": datos_usuario
     })
 
+@app.get("/calendario", response_class=HTMLResponse)
+async def calendario(request: Request):
+    return templates.TemplateResponse("calendario.html", {"request": request})
 
+@app.post("/guardar-horario/")
+async def guardar_horario(horarios: List[HorarioCreate], db: Session = Depends(get_db)):
+    try:
+        resultados = []
+        for horario in horarios:
+            horario.transform_dates()  # Asegura que las fechas sean convertidas
+            horario_data = horario.dict()
+            new_horario = create_horario(db=db, horario_data=horario_data)
+            resultados.append(new_horario.dict())
+
+        return JSONResponse(
+            content={"message": "Horarios guardados exitosamente", "count": len(resultados), "data": resultados},
+            status_code=200
+        )
+
+    except Exception as e:
+        return JSONResponse(
+            content={"message": "Error al guardar horarios", "error": str(e)},
+            status_code=400
+        )
 
 
 
