@@ -1128,7 +1128,7 @@ document.getElementById('saveToDatabase').addEventListener('click', function () 
 
   console.log("Datos a guardar:", JSON.stringify(data, null, 2));
 
-  fetch('http://127.0.0.1:8000/guardar-horario/', {
+  fetch('/guardar-horario/', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
