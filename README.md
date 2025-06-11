@@ -1,93 +1,116 @@
-# Proyecto_FundacionSancebrian
-Proyecto para unificar y centralizar los datos de distintos sensores
-
-
-
-git clone https://github.com/ismaelillo01/Proyecto_FundacionSancebrian.git
-
-
-CREATE TABLE trabajadores (
-  id_trabajador INT NOT NULL,
-  nombre_usuario VARCHAR(100) NOT NULL,
-  contraseña VARCHAR(100) NOT NULL,
-  nombre VARCHAR(100) NOT NULL,
-  apellido1 VARCHAR(100) NOT NULL,
-  apellido2 VARCHAR(100),
-  CONSTRAINT pk1_trabajadores PRIMARY KEY (id_trabajador),
-  CONSTRAINT uq1_trabajadores_nombre_usuario UNIQUE (nombre_usuario),
-  CONSTRAINT chk_nombre_no_espacio CHECK (TRIM(nombre_usuario) <> ''),
-  CONSTRAINT chk_contraseña CHECK (TRIM(contraseña) <> '')
-);
-
-CREATE TABLE gestores (
-  id_gestor INT NOT NULL,
-  CONSTRAINT pk1_gestores PRIMARY KEY (id_gestor),
-  CONSTRAINT fk1_gestores_trabajadores FOREIGN KEY (id_gestor) REFERENCES trabajadores(id_trabajador)
-    ON DELETE CASCADE
-);
-
-CREATE TABLE cuidadores (
-  id_cuidador INT NOT NULL,
-  telefono VARCHAR(20) NOT NULL,
-  CONSTRAINT pk1_cuidadores PRIMARY KEY (id_cuidador),
-  CONSTRAINT chk_telefono CHECK (telefono REGEXP '^[0-9]{9,15}$'),
-  CONSTRAINT fk1_cuidadores_trabajadores FOREIGN KEY (id_cuidador) REFERENCES trabajadores(id_trabajador)
-    ON DELETE CASCADE
-);
-
-CREATE TABLE hogares (
-  id_hogar INT NOT NULL,
-  url VARCHAR(255) NOT NULL,
-  token VARCHAR(255) NOT NULL,
-  codigo_postal CHAR(5) ,
-  provincia VARCHAR(100) ,
-  direccion VARCHAR(255) NOT NULL,
-  CONSTRAINT pk1_hogares PRIMARY KEY (id_hogar)
-);
-
-CREATE TABLE datos_clientes (
-  id_cliente INT NOT NULL,
-  nombre VARCHAR(100) NOT NULL,
-  apellido1 VARCHAR(100) NOT NULL,
-  apellido2 VARCHAR(100),
-  dni VARCHAR(9) UNIQUE,
-  sexo VARCHAR(20),
-  descripcion VARCHAR(500),
-  fecha_nacimiento DATE,
-  telefono_contacto VARCHAR(20),
-  telefono_familiar VARCHAR(20),
-  fecha_registro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  email VARCHAR(255),
-  CONSTRAINT pk1_datos_clientes PRIMARY KEY (id_cliente),
-  CONSTRAINT chk_email_valid CHECK (email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
-  CONSTRAINT chk_telefono_contacto CHECK (telefono_contacto REGEXP '^[0-9]{9,15}$'),
-  CONSTRAINT chk_telefono_familiar CHECK (telefono_familiar REGEXP '^[0-9]{9,15}$')
-);
-
-CREATE TABLE clientes (
-  id_cliente INT NOT NULL,
-  id_hogar INT NOT NULL,
-  id_gestor INT NOT NULL,
-  CONSTRAINT pk1_clientes PRIMARY KEY (id_cliente),
-  CONSTRAINT fk1_clientes_datos_clientes FOREIGN KEY (id_cliente) REFERENCES datos_clientes(id_cliente),
-  CONSTRAINT fk2_clientes_hogares FOREIGN KEY (id_hogar) REFERENCES hogares(id_hogar),
-  CONSTRAINT fk3_clientes_gestores FOREIGN KEY (id_gestor) REFERENCES gestores(id_gestor)
-);
-
-CREATE TABLE horarios (
-  id_horario INT NOT NULL,
-  id_cuidador INT NOT NULL,
-  id_cliente INT NOT NULL,
-  fecha_inicio DATE,
-  fecha_fin DATE,
-  dia_inicio VARCHAR(20),
-  dia_fin VARCHAR(20),
-  hora_inicio TIME,
-  hora_fin TIME,
-  CONSTRAINT pk1_horarios PRIMARY KEY (id_horario),
-  CONSTRAINT fk1_horarios_cuidadores FOREIGN KEY (id_cuidador) REFERENCES cuidadores(id_cuidador),
-  CONSTRAINT fk2_horarios_cliente FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente)
-);
-
-
-
+feature_collector.js:23 using deprecated parameters for the initialization function; pass a single object instead
+M @ feature_collector.js:23
+calendario:488 Hogares recibidos: Array(22)
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Objecttext: "Paseo Marítimo 10"value: 4[[Prototype]]: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:507 Cuidadores cargados: Array(14)
+calendario:508 Cuidadores recibidos: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+calendario:528 Insertando opción: Object
+favicon.ico:1 
+            
+            
+           Failed to load resource: the server responded with a status of 500 ()
+favicon.ico:1 
+            
+            
+           Failed to load resource: the server responded with a status of 500 ()
+calendario:594 SUBMIT:
+calendario:595 User select value: 11
+calendario:596 User select text: Trabajador Fundacion
+calendario:597 Client select value: 6
+calendario:598 Client select text: Gran Vía 8
+calendario:599 Hora inicio: 04:06
+calendario:600 Hora fin: 23:57
+calendario:1025 SCHEDULES EN LA TABLA: Array(1)
+calendario:1129 Datos a guardar: [
+  {
+    "id_cuidador": 11,
+    "id_cliente": 6,
+    "tipo_horario": "I",
+    "fecha": "2025-06-19",
+    "fecha_inicio": null,
+    "fecha_fin": null,
+    "hora_inicio": "04:06",
+    "hora_fin": "23:57",
+    "color": "#1abc9c",
+    "descripcion": "",
+    "parent_id": null
+  }
+]
+calendario:1 Access to fetch at 'http://127.0.0.1:8000/guardar-horario/' from origin 'https://fscsensor.hometec.uk' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+127.0.0.1:8000/guardar-horario/:1 
+            
+            
+           Failed to load resource: net::ERR_FAILED
+calendario:1151 Error en fetch: TypeError: Failed to fetch
+    at HTMLButtonElement.<anonymous> (calendario:1131:3)
+(anonymous) @ calendario:1151
