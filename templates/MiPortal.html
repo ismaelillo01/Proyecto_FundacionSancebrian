@@ -79,7 +79,8 @@
                 <div class="menu-item" data-menu="trabajadores">Administrar Trabajadores</div>
                 <div class="menu-item" data-menu="clientes">Administrar Clientes</div>
                 <div class="menu-item" data-menu="hogares">Administrar Hogares</div>
-                <div class="menu-item" data-menu="horario">Administrar Horario</div>
+                <a href="{{ url_for('calendario') }}" class="nav-link"><div class="menu-item" data-menu="horario">Administrar Calendario</a></div>
+
             `;
         } else if (USER_ROLE === 'cuidador') {
             columnaIzquierda.innerHTML = `
