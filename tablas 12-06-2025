@@ -1,0 +1,111 @@
+CREATE TABLE trabajadores (
+  id_trabajador INT NOT NULL AUTO_INCREMENT,
+  nombre_usuario VARCHAR(100) NOT NULL,
+  contraseña VARCHAR(100) NOT NULL,
+  nombre VARCHAR(100) NOT NULL,
+  apellido1 VARCHAR(100) NOT NULL,
+  apellido2 VARCHAR(100),
+  activo ENUM('activo', 'inactivo') DEFAULT 'activo',
+  CONSTRAINT pk1_trabajadores PRIMARY KEY (id_trabajador),
+  CONSTRAINT uq1_trabajadores_nombre_usuario UNIQUE (nombre_usuario),
+  CONSTRAINT chk_nombre_no_espacio CHECK (TRIM(nombre_usuario) <> ''),
+  CONSTRAINT chk_contraseña CHECK (TRIM(contraseña) <> '')
+);
+
+CREATE TABLE gestores (
+  id_gestor INT NOT NULL,
+  color VARCHAR(7) NOT NULL UNIQUE,
+  CONSTRAINT pk1_gestores PRIMARY KEY (id_gestor),
+  CONSTRAINT fk1_gestores_trabajadores FOREIGN KEY (id_gestor) REFERENCES trabajadores(id_trabajador)
+    ON DELETE CASCADE
+);
+
+CREATE TABLE cuidadores (
+  id_cuidador INT NOT NULL,
+  telefono VARCHAR(20) NOT NULL,
+  CONSTRAINT pk1_cuidadores PRIMARY KEY (id_cuidador),
+  CONSTRAINT chk_telefono CHECK (telefono REGEXP '^[0-9]{9,15}$'),
+  CONSTRAINT fk1_cuidadores_trabajadores FOREIGN KEY (id_cuidador) REFERENCES trabajadores(id_trabajador)
+    ON DELETE CASCADE
+);
+
+CREATE TABLE hogares (
+  id_hogar INT NOT NULL AUTO_INCREMENT,
+  url VARCHAR(255) NOT NULL,
+  token VARCHAR(255) NOT NULL,
+  codigo_postal CHAR(5) ,
+  provincia VARCHAR(100) ,
+  direccion VARCHAR(255) NOT NULL,
+  activo ENUM('activo', 'inactivo') DEFAULT 'activo',
+  CONSTRAINT pk1_hogares PRIMARY KEY (id_hogar)
+);
+
+CREATE TABLE datos_clientes (
+  id_cliente INT NOT NULL AUTO_INCREMENT,
+  nombre VARCHAR(100) NOT NULL,
+  apellido1 VARCHAR(100) NOT NULL,
+  apellido2 VARCHAR(100),
+  dni VARCHAR(9) UNIQUE,
+  sexo VARCHAR(20),
+  descripcion VARCHAR(500),
+  fecha_nacimiento DATE,
+  telefono_contacto VARCHAR(20),
+  telefono_familiar VARCHAR(20),
+  fecha_registro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  email VARCHAR(255),
+  CONSTRAINT pk1_datos_clientes PRIMARY KEY (id_cliente),
+  CONSTRAINT chk_email_valid CHECK (email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
+  CONSTRAINT chk_telefono_contacto CHECK (telefono_contacto REGEXP '^[0-9]{9,15}$'),
+  CONSTRAINT chk_telefono_familiar CHECK (telefono_familiar REGEXP '^[0-9]{9,15}$')
+);
+
+CREATE TABLE clientes (
+  id_cliente INT NOT NULL,
+  id_hogar INT NOT NULL,
+  id_gestor INT NOT NULL,
+  activo ENUM('activo', 'inactivo') DEFAULT 'activo',
+  CONSTRAINT pk1_clientes PRIMARY KEY (id_cliente),
+  CONSTRAINT fk1_clientes_datos_clientes FOREIGN KEY (id_cliente) REFERENCES datos_clientes(id_cliente),
+  CONSTRAINT fk2_clientes_hogares FOREIGN KEY (id_hogar) REFERENCES hogares(id_hogar),
+  CONSTRAINT fk3_clientes_gestores FOREIGN KEY (id_gestor) REFERENCES gestores(id_gestor)
+);
+
+
+
+CREATE TABLE horarios (
+     id_horario INT AUTO_INCREMENT PRIMARY KEY,
+    id_cuidador INT NOT NULL,
+    id_cliente INT NOT NULL,
+    tipo_horario CHAR(1) NOT NULL COMMENT "'R' para Rango, 'I' para Individual",
+    fecha DATE NULL COMMENT "Fecha para horarios individuales",
+    fecha_inicio DATE NULL COMMENT "Fecha inicio para rangos",
+    fecha_fin DATE NULL COMMENT "Fecha fin para rangos",
+    hora_inicio TIME NOT NULL,
+    hora_fin TIME NOT NULL,
+    color VARCHAR(7) NOT NULL DEFAULT '#3498db' COMMENT "Código hexadecimal del color",
+    descripcion TEXT NULL,
+    parent_id INT NULL COMMENT "ID del horario padre para excepciones en rangos",
+    fecha_creacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    activo ENUM('activo', 'inactivo') DEFAULT 'activo',
+   CONSTRAINT fk1_horario_cuidadores FOREIGN KEY (id_cuidador) REFERENCES cuidadores(id_cuidador),
+    CONSTRAINT fk2_horario_clientes FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente),
+    CONSTRAINT fk3_horario_horario FOREIGN KEY (parent_id) REFERENCES horarios(id_horario),
+    CONSTRAINT chk_tipo_horario CHECK (tipo_horario IN ('R', 'I')),
+    CONSTRAINT chk_fechas_rango CHECK (
+        (tipo_horario = 'R' AND fecha IS NULL AND fecha_inicio IS NOT NULL AND fecha_fin IS NOT NULL AND fecha_inicio <= fecha_fin) OR
+        (tipo_horario = 'I' AND fecha IS NOT NULL AND fecha_inicio IS NULL AND fecha_fin IS NULL)
+    ),
+    CONSTRAINT chk_horarios_validos CHECK (hora_inicio < hora_fin)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT="Tabla de horarios para cuidadores";
+
+
+create table grupos (
+    id_grupo INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL
+);
+
+create table formar (
+    id_gestor int NOT NULL,
+    id_grupo int NOT NULL ,
+    CONSTRAINT pk_formar PRIMARY KEY (id_gestor, id_grupo)
+);
