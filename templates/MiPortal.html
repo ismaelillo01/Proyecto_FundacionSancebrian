@@ -9,6 +9,11 @@
         const USER_ROLE = "{{ role }}";
         console.log("USER_ROLE:", USER_ROLE);
     </script>
+  
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+    
 </head>
 <body>
 <header class="main-header" id="movible-header">
@@ -53,8 +58,7 @@
     const columnaSecundaria = document.getElementById('columna-secundaria');
     const columnaTerciaria = document.getElementById('columna-terciaria');
     const botonesTerciarios = document.getElementById('botones-terciarios');
-    const contenedorFormulario = document.getElementById('formulario-contenedor');
-
+    
     function limpiarSecundaria() {
         columnaSecundaria.innerHTML = '';
         columnaSecundaria.style.display = 'none';
@@ -450,6 +454,92 @@ const cancelarAccion = () => {
 
 
     generarMenuIzquierdoPorRol();
+
+const contenedorFormulario = document.getElementById('formulario-contenedor');
+
+async function mostrarFormularioHorario() {
+    try {
+        const res = await fetch("/horarios/mi-horario");
+        const data = await res.json();
+
+        console.log("HORARIOS RECIBIDOS:", data); // Verificar que los datos son correctos
+
+        const calendarioResponse = await fetch("/static/calendario_vista.html");
+        const calendarioHTML = await calendarioResponse.text();
+        document.getElementById("columna-terciaria").style.display = "block"; // Hacer visible el contenedor
+
+        contenedorFormulario.innerHTML = calendarioHTML;
+
+        // Esperar al DOM antes de observar el calendario
+        setTimeout(() => {
+            renderizarCalendarioCuandoEsteVisible(data);
+        }, 50);
+    } catch (error) {
+        alert("Error al cargar el horario.");
+        console.error(error);
+    }
+}
+
+function renderizarCalendarioCuandoEsteVisible(horarios) {
+    const calendarEl = document.getElementById("calendar");
+    if (!calendarEl) return;
+
+    const observer = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+            if (entry.contentRect.height > 0) {
+                observer.disconnect(); // Ya se ha hecho visible
+
+                const calendar = new FullCalendar.Calendar(calendarEl, {
+                    locale: 'es',
+                    initialView: 'dayGridMonth',
+                    height: "auto",
+                    events: getEventosDesdeHorarios(horarios)
+                });
+
+                calendar.render();
+                setTimeout(() => calendar.updateSize(), 100);
+            }
+        }
+    });
+
+    observer.observe(calendarEl);
+}
+
+function getEventosDesdeHorarios(horarios) {
+    return horarios.flatMap(h => {
+        if (h.tipo_horario === "I") {
+            return [{
+                title: h.nombre_cliente || `Usuario ${h.id_cliente}`,
+                start: `${h.fecha}T${h.hora_inicio}`,
+                end: `${h.fecha}T${h.hora_fin}`,
+                backgroundColor: h.color,
+                borderColor: h.color,
+                textColor: "#fff"
+            }];
+        } else if (h.tipo_horario === "R") {
+            const eventos = [];
+            let current = new Date(h.fecha_inicio);
+            const end = new Date(h.fecha_fin);
+
+            while (current <= end) {
+                const dateStr = current.toISOString().split("T")[0];
+                eventos.push({
+                    title: `${h.nombre_cliente || `Usuario ${h.id_cliente}`}`,
+                    start: `${dateStr}T${h.hora_inicio}`,
+                    end: `${dateStr}T${h.hora_fin}`,
+                    backgroundColor: h.color,
+                    borderColor: h.color,
+                    textColor: "#fff"
+                });
+                current.setDate(current.getDate() + 1);
+            }
+            return eventos;
+        }
+        return [];
+    });
+}
+
 </script>
+
 </body>
 </html>

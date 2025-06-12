@@ -4,7 +4,7 @@ import mariadb
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 
 # Carga las variables del .env
 load_dotenv()
@@ -31,8 +31,18 @@ def get_connection():
         return None
 
 # Configuración de SQLAlchemy
-DATABASE_URL = f"mysql+mariadbconnector://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
+DATABASE_URL = f"mysql+mysqlconnector://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
+
+
+
+
+def get_db():
+    db: Session = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

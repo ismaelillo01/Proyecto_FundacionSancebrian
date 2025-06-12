@@ -24,7 +24,7 @@ from app.routes import historico, alexa, cuidadores, hogares
 from app.routes.dispositivos import detalle, zonas
 from app.persons import clientes, data
 from app.database.models import Horario, Cuidador, Cliente
-
+from app.routes import verhorario
 # Añadir la raíz del proyecto al sys.path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
@@ -33,7 +33,6 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 from pydantic import BaseModel
 from typing import Optional
 from datetime import date
-from fastapi.middleware.cors import CORSMiddleware
 
 
 class HorarioCreate(BaseModel):
@@ -69,13 +68,7 @@ def get_db():
 
 app = FastAPI()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["https://fscsensor.hometec.uk"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+
 
 
 @app.exception_handler(StarletteHTTPException)
@@ -103,6 +96,7 @@ app.include_router(zonas.router, prefix="/dispositivos", tags=["Zonas"])
 app.include_router(alexa.router)
 app.include_router(cuidadores.router)
 app.include_router(hogares.router)
+app.include_router(verhorario.router)
 
 # Rutas protegidas
 @app.get("/", response_class=HTMLResponse)
