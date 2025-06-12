@@ -31,7 +31,7 @@ def get_connection():
         return None
 
 # Configuración de SQLAlchemy
-DATABASE_URL = f"mysql+mysqlconnector://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
+DATABASE_URL = f"mysql+mariadbconnector://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
