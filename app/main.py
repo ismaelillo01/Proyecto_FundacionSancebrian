@@ -11,7 +11,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from babel.dates import format_date
-from fastapi.exception_handlers import http_exception_handler
+from fastapi.exception_handlers import http_exception_handler  # Importamos el manejador por defecto
 
 # Importación de módulos internos
 from app.dependencies.auth import require_login
@@ -65,7 +65,7 @@ def get_db():
     finally:
         db.close()
 
-# Manejo de excepciones
+# Manejo de excepciones CORREGIDO
 @app.exception_handler(StarletteHTTPException)
 async def custom_http_exception_handler(request: Request, exc: StarletteHTTPException):
     # Capturamos específicamente la excepción de redirección al login
@@ -134,17 +134,8 @@ async def datos(request: Request, usuario_id: int = Query(...), auth=Depends(req
         "datos": datos_usuario
     })
 
-# Ruta calendario protegida para gestores
 @app.get("/calendario", response_class=HTMLResponse)
 async def calendario(request: Request, auth=Depends(require_login)):
-    # Obtener el rol del usuario desde las cookies
-    rol = request.cookies.get("user_role", "")
-    
-    # Verificar si el rol es "gestor"
-    if rol != "gestor":
-        # Redirigir a la página principal si no es gestor
-        return RedirectResponse(url="/")
-    
     return templates.TemplateResponse("calendario.html", {"request": request})
 
 @app.post("/guardar-horario/")
