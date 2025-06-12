@@ -1,20 +1,4 @@
 import requests
-from app.core.config import HA_BASE_URL, HA_TOKEN
-from datetime import datetime, timedelta
-
-headers = {
-    "Authorization": f"Bearer {HA_TOKEN}",
-    "Content-Type": "application/json",
-}
-
-def get_sensor_state(entity_id: str):
-    url = f"{HA_BASE_URL}/api/states/{entity_id}"
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-        return response.json()
-    return {"error": "No se pudo obtener el estado del sensor"}
-
-import requests
 from datetime import datetime, timedelta
 
 def get_sensor_history(entity_id: str, start: datetime = None, end: datetime = None, url: str = None, token: str = None):
