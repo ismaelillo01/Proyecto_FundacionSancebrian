@@ -78,7 +78,7 @@
     function limpiarTerciaria() {
         botonesTerciarios.innerHTML = '';
         contenedorFormulario.innerHTML = '';
-        columnaTerciaria.style.display = 'none';
+        columnaTerciaria.style.display = 'block';
     }
 
     function generarMenuIzquierdoPorRol() {
@@ -221,8 +221,6 @@
 
         if (textoBoton.startsWith('Añadir') || textoBoton.startsWith('Modificar')) {
             mostrarFormulario(textoBoton, submenu);
-        } else if (textoBoton.startsWith('Eliminar')) {
-            mostrarFormularioEliminar(textoBoton, submenu);
         }
     }
 
@@ -261,116 +259,130 @@
         let formHTML = '', formClass = '';
         if (textoBoton.startsWith('Modificar')) {
             const entidad = submenu;
-            const listaEjemplo = [
-                {
-                    id: 1, nombre: "Juan", primerApellido: "Pérez", segundoApellido: "López", usuario: "juanp",
-                    password: "5688", telefono: "600123456", dni: "12345678A", direccion: "Calle Mayor",
-                    cp: "34001", provincia: "Palencia", sexo: "M", fechaNacimiento: "1990-01-01",
-                    telefonoPersonal: "641526987", telefonoFamiliar: "979526384", hogar: "Hogar 1", descripcion: "nada",
-                    estado: "activo", color:"#2980b9"
-                },
-                {
-                    id: 2, nombre: "Ana", primerApellido: "García", segundoApellido: "Martínez", usuario: "anagm",
-                    password: "", telefono: "600987654", dni: "87654321B", direccion: "Avenida Libertad",
-                    cp: "28001", provincia: "Madrid", sexo: "F", fechaNacimiento: "1992-05-10",
-                    telefonoPersonal: "", telefonoFamiliar: "", hogar: "Hogar 2", descripcion: "",
-                    estado: "inactivo", color:"#e67e22"
-                }
-            ];
+
+            // Datos de ejemplo (puedes sustituirlos por los reales)
+            const listaEjemplo = {
+                gestores: [
+                    { id: 1, nombre: "Juan", primerApellido: "Pérez", estado: "activo" },
+                    { id: 2, nombre: "Ana", primerApellido: "García", estado: "inactivo" }
+                ],
+                cuidadores: [
+                    { id: 1, nombre: "Pedro", primerApellido: "López", estado: "activo" },
+                    { id: 2, nombre: "María", primerApellido: "Sánchez", estado: "inactivo" }
+                ],
+                clientes: [
+                    { id: 1, nombre: "Luis", primerApellido: "Martínez", estado: "activo" },
+                    { id: 2, nombre: "Sara", primerApellido: "Fernández", estado: "inactivo" }
+                ],
+                hogares: [
+                    { id: 1, direccion: "Calle Mayor", estado: "activo" },
+                    { id: 2, direccion: "Avenida Libertad", estado: "inactivo" }
+                ]
+            };
 
             const camposPorEntidad = {
                 gestores: ['nombre', 'primerApellido', 'segundoApellido', 'usuario', 'color', 'password', 'estado'],
                 cuidadores: ['nombre', 'primerApellido', 'segundoApellido', 'usuario', 'password', 'telefono', 'estado'],
-                clientes: ['gestor', 'nombre', 'primerApellido', 'segundoApellido', 'dni', 'sexo', 'fechaNacimiento', 'telefonoPersonal', 'telefonoFamiliar', 'hogar', 'descripcion', 'estado'],
-                hogares: ['estado', 'direccion', 'cp', 'provincia', 'url', 'token']
+                clientes: ['nombre', 'primerApellido', 'segundoApellido', 'dni', 'sexo', 'fechaNacimiento', 'telefonoPersonal', 'telefonoFamiliar', 'hogar', 'descripcion', 'estado'],
+                hogares: ['direccion', 'codigo postal', 'Provincia','url_homeassistant', 'token_homeassistant', 'estado']
             };
 
             const contenedorBusqueda = document.createElement('div');
             contenedorBusqueda.classList.add('contenedor-busqueda');
             contenedorBusqueda.innerHTML = `
-                <label>Seleccionar ${entidad.charAt(0).toUpperCase() + entidad.slice(1)}:
-                    <select id="selector-${entidad}">
-                        <option value="">Seleccione...</option>
-                        ${listaEjemplo.map(item => `<option value="${item.id}">${item.nombre} ${item.primerApellido}</option>`).join('')}
-                    </select>
-                </label>
-                <div id="datos-${entidad}" class="datos-modificables"></div>
-`;
+        <!-- Campo para seleccionar la entidad -->
+        <label>Seleccionar ${entidad.charAt(0).toUpperCase() + entidad.slice(1)}:
+            <select id="selector-${entidad}">
+                <option value="">Seleccione...</option>
+                ${listaEjemplo[entidad].map(item => `<option value="${item.id}">${item.nombre || item.direccion} ${item.primerApellido || ''}</option>`).join('')}
+            </select>
+        </label>
+    `;
             contenedorFormulario.appendChild(contenedorBusqueda);
 
-
             const selector = contenedorBusqueda.querySelector(`#selector-${entidad}`);
-            const contenedorDatos = contenedorBusqueda.querySelector(`#datos-${entidad}`);
-            const singularEntidad = {
-                gestores: 'gestor',
-                cuidadores: 'cuidador',
-                clientes: 'cliente',
-                hogares: 'hogar'
-            };
-
 
             selector.addEventListener('change', () => {
-                contenedorDatos.innerHTML = '';
-                const seleccionado = listaEjemplo.find(item => item.id == selector.value);
+                const seleccionado = listaEjemplo[entidad].find(item => item.id == selector.value);
+                console.log(seleccionado);  // Añadido para depurar
                 if (!seleccionado) return;
+                // Asignar el gestor seleccionado al formulario
+                const gestorSeleccionado = seleccionado.gestor || '';  // Asegurarnos de que el valor del gestor está disponible
 
+                // Creamos el formulario con todos los campos correspondientes a la entidad seleccionada
+                const contenedorDatos = document.createElement('div');
+                contenedorDatos.classList.add('datos-modificables');
+
+                // Generar todos los campos (sin eliminar los existentes)
                 const campos = camposPorEntidad[entidad] || [];
+                // Generar los campos de edición según la entidad seleccionada
                 campos.forEach(clave => {
                     const campo = document.createElement('div');
                     campo.classList.add('campo-modificable');
 
-                    if (clave === 'estado') {
+                    // Generar el campo de gestor
+                    if (clave === 'gestor') {
+                        console.log("Formulario generado", contenedorForm);
                         campo.innerHTML = `
-                  <div class="tarjeta-campo-horizontal">
-                    <div class="titulo-campo">
-                      <span class="icono-campo">📌</span>
-                      <span class="etiqueta-campo">Estado</span>
-                    </div>
-                    <div class="fila-editable">
-                      <select class="input-campo" name="estado">
+            <div class="tarjeta-campo-horizontal">
+                <div class="titulo-campo">
+                    <span class="icono-campo">👨‍💼</span>
+                    <span class="etiqueta-campo">Gestor</span>
+                </div>
+                <div class="fila-editable">
+                    <select class="input-campo" name="gestor">
+                        <option value="">Seleccione un gestor</option>
+                        <option value="1" ${seleccionado.gestor === '1' ? 'selected' : ''}>Juan Pérez</option>
+                        <option value="2" ${seleccionado.gestor === '2' ? 'selected' : ''}>Ana García</option>
+                    </select>
+                </div>
+            </div>
+        `;
+                    }
+                    else if (clave === 'estado') {
+                        campo.innerHTML = `
+            <div class="tarjeta-campo-horizontal">
+                <div class="titulo-campo">
+                    <span class="icono-campo">📌</span>
+                    <span class="etiqueta-campo">Estado</span>
+                </div>
+                <div class="fila-editable">
+                    <select class="input-campo" name="estado">
                         <option value="activo" ${seleccionado.estado === 'activo' ? 'selected' : ''}>Activo</option>
                         <option value="inactivo" ${seleccionado.estado === 'inactivo' ? 'selected' : ''}>Inactivo</option>
-                      </select>
-                    </div>
-                  </div>
-                `;
-                                } else if (clave === 'color' && entidad === 'gestores') {
-                                    campo.innerHTML = `
-                  <div class="tarjeta-campo-horizontal">
-                    <div class="titulo-campo">
-                      <span class="icono-campo">🖌️</span>
-                      <span class="etiqueta-campo">Color</span>
-                    </div>
-                    <div class="fila-editable">
-                      <input type="color" class="input-campo" name="color" value="${seleccionado.color || '#2980b9'}">
-                    </div>
-                  </div>
-                `;
-                                } else {
-                                    campo.innerHTML = `
-                  <div class="tarjeta-campo-horizontal">
-                    <div class="titulo-campo">
-                      <span class="icono-campo">${obtenerIconoCampo(clave)}</span>
-                      <span class="etiqueta-campo">${formatearEtiqueta(clave)}</span>
-                    </div>
-                    <div class="fila-editable">
-                      <input type="text" class="input-campo" name="${clave}" value="${seleccionado[clave] ?? ''}">
-                    </div>
-                  </div>
-                `;
+                    </select>
+                </div>
+            </div>
+        `;
+                    } else {
+                        campo.innerHTML = `
+            <div class="tarjeta-campo-horizontal">
+                <div class="titulo-campo">
+                    <span class="icono-campo">${obtenerIconoCampo(clave)}</span>
+                    <span class="etiqueta-campo">${formatearEtiqueta(clave)}</span>
+                </div>
+                <div class="fila-editable">
+                    <input type="text" class="input-campo" name="${clave}" value="${seleccionado[clave] ?? ''}">
+                </div>
+            </div>
+        `;
                     }
 
                     contenedorDatos.appendChild(campo);
                 });
 
 
-                // Crear botón guardar fuera del bucle
+                // Añadimos el contenedor de datos al formulario
+                contenedorFormulario.innerHTML = ''; // Limpiamos el formulario anterior
+                contenedorFormulario.appendChild(contenedorDatos);
+
+// Crear el botón guardar para el formulario
                 const botonGuardar = document.createElement('button');
                 botonGuardar.textContent = 'Guardar cambios';
                 botonGuardar.className = 'boton-guardar';
                 botonGuardar.style.marginTop = '20px';
 
-// Lógica al pulsar
+// Lógica al pulsar "Guardar cambios"
                 botonGuardar.addEventListener('click', () => {
                     const datosActualizados = {};
                     const inputs = contenedorDatos.querySelectorAll('input, select, textarea');
@@ -381,27 +393,24 @@
                         }
                     });
 
-                    // Aquí también podrías hacer una llamada a tu API, por ejemplo:
-                    // fetch(`/api/gestores/${id}`, { method: 'PUT', body: JSON.stringify(datosActualizados) })
-
                     const mensajeConfirmacion = document.createElement('div');
                     mensajeConfirmacion.className = 'mensaje-confirmacion';
-                    mensajeConfirmacion.innerText = `${singularEntidad[entidad]} modificado correctamente.`;
+                    mensajeConfirmacion.innerText = `${entidad.charAt(0).toUpperCase() + entidad.slice(1)} modificado correctamente.`;
 
-                    contenedorFormulario.innerHTML = '';
+                    contenedorFormulario.innerHTML = '';  // Limpiamos el formulario anterior
                     contenedorFormulario.appendChild(mensajeConfirmacion);
                 });
-
-
 
                 const contenedorBoton = document.createElement('div');
                 contenedorBoton.style.textAlign = 'center';
                 contenedorBoton.appendChild(botonGuardar);
                 contenedorFormulario.appendChild(contenedorBoton);
-
             });
+
             return;
         }
+
+
 
         // Formularios para "Añadir"
         if (submenu === 'gestores') {
@@ -415,6 +424,13 @@
             <label>Color:
             <input type="color" name="color" value="#2980b9">
             </label>
+            <label>Estado:
+          <select name="estado">
+            <option value="activo" selected>Activo</option>
+            <option value="inactivo">Inactivo</option>
+          </select>
+          </label>
+
 
             <label>Contraseña: <input type="password" name="password" required></label>
             <button type="submit">${textoBoton}</button>
@@ -430,6 +446,13 @@
             <label>Usuario: <input type="text" name="usuario" required></label>
             <label>Contraseña: <input type="password" name="password" required></label>
             <label>Teléfono: <input type="tel" name="telefono"></label>
+            <label>Estado:
+            <select name="estado">
+                <option value="activo" selected>Activo</option>
+                <option value="inactivo">Inactivo</option>
+              </select>
+            </label>
+
             <button type="submit">${textoBoton}</button>
         </form>`;
         } else if (submenu === 'clientes') {
@@ -437,11 +460,15 @@
             formHTML = `
         <form class="${formClass}">
             <h4>${textoBoton}</h4>
-            <label>Gestor:
-                <select name="gestor">
-                    <option value="">Seleccione un gestor</option>
-                </select>
-            </label>
+            <!-- Campo para seleccionar el gestor -->
+        <label>Gestor:
+            <select name="gestor" id="gestor-select">
+                <option value="">Seleccione un gestor</option>
+                <!-- Aquí puedes cargar los gestores dinámicamente si es necesario -->
+                <option value="1">Juan Pérez</option>
+                <option value="2">Ana García</option>
+            </select>
+        </label>
             <label>Nombre: <input type="text" name="nombre" required></label>
             <label>Primer Apellido: <input type="text" name="primerApellido" required></label>
             <label>Segundo Apellido: <input type="text" name="segundoApellido"></label>
@@ -451,6 +478,13 @@
             <label>Teléfono personal: <input type="tel" name="telefonoPersonal"></label>
             <label>Teléfono familiar: <input type="tel" name="telefonoFamiliar"></label>
             <label>Hogar: <input type="text" name="hogar"></label>
+            <label>Estado:
+              <select name="estado">
+                <option value="activo" selected>Activo</option>
+                <option value="inactivo">Inactivo</option>
+              </select>
+            </label>
+
             <label>Descripción: <textarea name="descripcion"></textarea></label>
             <button type="submit">${textoBoton}</button>
         </form>`;
@@ -461,8 +495,15 @@
             <label>Dirección: <input type="text" name="direccion" required></label>
             <label>Código Postal: <input type="text" name="cp" required></label>
             <label>Provincia: <input type="text" name="provincia" required></label>
-            <label>URL: <input type="url" name="url"></label>
-            <label>Token: <input type="text" name="token"></label>
+            <label>URL_HomeAssistant: <input type="url" name="url"></label>
+            <label>Token_HomeAssistant: <input type="text" name="token"></label>
+            <label>Estado:
+              <select name="estado">
+                <option value="activo" selected>Activo</option>
+                <option value="inactivo">Inactivo</option>
+              </select>
+            </label>
+
             <button type="submit">${textoBoton}</button>
         </form>`;
 
