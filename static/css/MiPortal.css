@@ -196,6 +196,31 @@ main {
     background-color: #1f5f8b;
     transform: scale(1.05);
 }
+/* --- Botones Activo / Inactivo con estilo unificado --- */
+.boton-estado,
+.boton-accion{
+    background-color: #2980b9;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    margin: 6px 6px 12px 0;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease, transform 0.15s ease;
+}
+
+.boton-estado:hover,
+.boton-accion:hover{
+    background-color: #1f5f8b;
+    transform: scale(1.05);
+}
+
+.boton-estado.activo {
+    background-color: #0a78d1;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+}
+
 
 /* Formularios dentro de columna terciaria */
 #columna-terciaria form {
@@ -402,4 +427,22 @@ main {
     cursor: pointer;
     color: #007bff;
 }
+
+/* ——— Administrar Calendario: forzamos texto blanco en TODOS los estados ——— */
+.menu-item.link-calendario,
+#columna-izquierda a.menu-item.link-calendario,
+#columna-izquierda a.menu-item.link-calendario:link,
+#columna-izquierda a.menu-item.link-calendario:visited,
+#columna-izquierda a.menu-item.link-calendario:hover,
+#columna-izquierda a.menu-item.link-calendario:active {
+    color: #ecf0f1 !important;  /* texto blanco */
+    background-color: #2c3e50;
+    text-decoration: none;
+    display: block;
+    padding: 12px 20px;
+    margin: 4px 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease, transform 0.15s ease;
+}
+
 

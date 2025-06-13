@@ -1,32 +1,42 @@
 <!DOCTYPE html>
 <html lang="es">
+<style>
+    /* fuerza texto blanco sí o sí */
+    #columna-izquierda a.menu-item.link-calendario:link,
+    #columna-izquierda a.menu-item.link-calendario:visited,
+    #columna-izquierda a.menu-item.link-calendario:hover,
+    #columna-izquierda a.menu-item.link-calendario:active {
+        color:#ecf0f1 !important;
+        text-decoration:none !important;
+    }
+</style>
+
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8"/>
     <title>Administrar Sistema</title>
-    <link rel="stylesheet" href="{{ url_for('static', path='css/MiPortal.css') }}" />
-    <link rel="stylesheet" href="{{ url_for('static', path='css/formulario_admin.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', path='css/MiPortal.css') }}"/>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/formulario_admin.css') }}"/>
     <script>
         const USER_ROLE = "{{ role }}";
         console.log("USER_ROLE:", USER_ROLE);
     </script>
-  
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
-    
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
 </head>
 <body>
 <header class="main-header" id="movible-header">
     <div class="nav-left">
         <a href="{{ url_for('root') }}">
-            <img src="{{ url_for('static', path='img/logo_casa.png') }}" alt="Logo_Casa" class="Logo_Casa" />
+            <img src="{{ url_for('static', path='img/logo_casa.png') }}" alt="Logo_Casa" class="Logo_Casa"/>
         </a>
     </div>
     <div class="nav-center">
-        <img src="{{ url_for('static', path='img/img.png') }}" alt="Logo Fundación" class="logo" />
+        <img src="{{ url_for('static', path='img/img.png') }}" alt="Logo Fundación" class="logo"/>
     </div>
     <div class="nav-right">
-        <img src="{{ url_for('static', path='img/img_1.png') }}" alt="Foto perfil" />
+        <img src="{{ url_for('static', path='img/img_1.png') }}" alt="Foto perfil"/>
         <div class="dropdown">
             <span>{{ usuario or "Nombre Usuario" }}</span>
             <div class="dropdown-content">
@@ -58,7 +68,7 @@
     const columnaSecundaria = document.getElementById('columna-secundaria');
     const columnaTerciaria = document.getElementById('columna-terciaria');
     const botonesTerciarios = document.getElementById('botones-terciarios');
-    
+
     function limpiarSecundaria() {
         columnaSecundaria.innerHTML = '';
         columnaSecundaria.style.display = 'none';
@@ -79,8 +89,9 @@
                 <div class="menu-item" data-menu="trabajadores">Administrar Trabajadores</div>
                 <div class="menu-item" data-menu="clientes">Administrar Clientes</div>
                 <div class="menu-item" data-menu="hogares">Administrar Hogares</div>
-                <a href="{{ url_for('calendario') }}" class="nav-link"><div class="menu-item" data-menu="horario">Administrar Calendario</a></div>
-
+                 <a href="{{ url_for('calendario') }}" class="menu-item link-calendario">
+                        Administrar Calendario
+                    </a>
             `;
         } else if (USER_ROLE === 'cuidador') {
             columnaIzquierda.innerHTML = `
@@ -134,39 +145,81 @@
 
     function cargarTerciaria(submenu) {
         columnaTerciaria.style.display = 'block';
-        botonesTerciarios.innerHTML = '';
-        contenedorFormulario.innerHTML = '';
+        botonesTerciarios.innerHTML = '';          // vaciar contenedor de botones
+        contenedorFormulario.innerHTML = '';       // vaciar posibles formularios
 
-        let botones = [];
-        if (submenu === 'gestores') {
-            botones = ['Añadir Gestor', 'Eliminar Gestor', 'Modificar Gestor'];
-        } else if (submenu === 'cuidadores') {
-            botones = ['Añadir Cuidador', 'Eliminar Cuidador', 'Modificar Cuidador', 'Horario Cuidador'];
-        } else if (submenu === 'clientes') {
-            botones = ['Añadir Cliente', 'Eliminar Cliente', 'Modificar Cliente'];
-        } else if (submenu === 'hogares') {
-            botones = ['Añadir Hogar', 'Eliminar Hogar', 'Modificar Hogar'];
-        }
+        // Mostrar primero los dos botones “Activo / Inactivo”
+        ['Activo', 'Inactivo'].forEach(etiqueta => {
+            const btnEstado = document.createElement('button');
+            btnEstado.textContent = etiqueta;
+            btnEstado.className = 'boton-estado boton-accion';
+            btnEstado.dataset.estado = etiqueta.toLowerCase();
+            btnEstado.addEventListener('click', () => {
+                // marcar visualmente el estado seleccionado
+                document
+                    .querySelectorAll('#botones-terciarios .boton-estado')
+                    .forEach(b => b.classList.remove('activo'));
+                btnEstado.classList.add('activo');
 
-        if (USER_ROLE === 'cuidador') {
-            botones = botones.filter(b => b === 'Horario Cuidador');
-        }
-
-        botones.forEach(botonTexto => {
-            const btn = document.createElement('button');
-            btn.textContent = botonTexto;
-            btn.className = 'boton-accion';
-            btn.dataset.accion = botonTexto.toLowerCase().replace(/\s/g, '-');
-            btn.addEventListener('click', () => manejarAccion(botonTexto, submenu));
-            botonesTerciarios.appendChild(btn);
+                // una vez elegido el estado, mostramos los botones acción
+                mostrarBotonesAccion(submenu, etiqueta.toLowerCase());
+            });
+            botonesTerciarios.appendChild(btnEstado);
         });
     }
 
-    function manejarAccion(textoBoton, submenu) {
+    /* 2️⃣  NUEVA función: genera Añadir / Modificar según el estado elegido */
+    function mostrarBotonesAccion(submenu, estado) {
+        // eliminamos los botones de acción anteriores, si los hubiera
+        let contenedorAcciones = document.getElementById('contenedor-acciones');
+        if (!contenedorAcciones) {
+            contenedorAcciones = document.createElement('div');
+            contenedorAcciones.id = 'contenedor-acciones';
+            botonesTerciarios.appendChild(contenedorAcciones);
+        }
+        contenedorAcciones.innerHTML = '';
+
+        // determinar qué acciones deben aparecer
+        const mapa = {
+            gestores: ['Añadir Gestor', 'Modificar Gestor'],
+            cuidadores: ['Añadir Cuidador', 'Modificar Cuidador', 'Horario Cuidador'],
+            clientes: ['Añadir Cliente', 'Modificar Cliente'],
+            hogares: ['Añadir Hogar', 'Modificar Hogar']
+        };
+
+        // “Añadir” sólo si está en Activo
+        let acciones = mapa[submenu] || [];
+        acciones = acciones.filter(a => {
+            if (a.startsWith('Añadir')) return estado === 'activo';
+            if (a === 'Horario Cuidador') return USER_ROLE !== 'cuidador' && estado === 'activo';
+            return true; // Modificar siempre
+        });
+
+        // crear los botones acción
+        acciones.forEach(texto => {
+            const btn = document.createElement('button');
+            btn.textContent = texto;
+            btn.className = 'boton-accion';
+            btn.dataset.accion = texto.toLowerCase().replace(/\s/g, '-');
+            btn.addEventListener('click', () => manejarAccion(texto, submenu, estado));
+            contenedorAcciones.appendChild(btn);
+        });
+    }
+
+    /* 3️⃣  Añade un argumento “estado” a manejarAccion (por si quieres filtrar) */
+    function manejarAccion(textoBoton, submenu, estado) {
         contenedorFormulario.innerHTML = '';
+
         if (textoBoton === 'Horario Cuidador') {
-            mostrarFormularioHorario();
-        } else if (textoBoton.startsWith('Añadir') || textoBoton.startsWith('Modificar')) {
+            mostrarFormularioHorario();          // sin cambios
+            return;
+        }
+
+        // En los formularios “Modificar” puedes filtrar por activos/inactivos
+        // con ‘estado’ si tu API lo necesita. Por ejemplo:
+        // fetch(`/api/${submenu}?estado=${estado}`)
+
+        if (textoBoton.startsWith('Añadir') || textoBoton.startsWith('Modificar')) {
             mostrarFormulario(textoBoton, submenu);
         } else if (textoBoton.startsWith('Eliminar')) {
             mostrarFormularioEliminar(textoBoton, submenu);
@@ -191,7 +244,9 @@
             telefonoFamiliar: "📲",
             hogar: "🏡",
             descripcion: "📝",
-            gestor: "👨‍💼"
+            gestor: "👨‍💼",
+            estado:"📌",
+            color:"🖌️"
         };
         return iconos[clave] || "📄";
     }
@@ -209,23 +264,25 @@
             const listaEjemplo = [
                 {
                     id: 1, nombre: "Juan", primerApellido: "Pérez", segundoApellido: "López", usuario: "juanp",
-                    password: "", telefono: "600123456", dni: "12345678A", direccion: "Calle Mayor",
+                    password: "5688", telefono: "600123456", dni: "12345678A", direccion: "Calle Mayor",
                     cp: "34001", provincia: "Palencia", sexo: "M", fechaNacimiento: "1990-01-01",
-                    telefonoPersonal: "", telefonoFamiliar: "", hogar: "Hogar 1", descripcion: ""
+                    telefonoPersonal: "641526987", telefonoFamiliar: "979526384", hogar: "Hogar 1", descripcion: "nada",
+                    estado: "activo", color:"#2980b9"
                 },
                 {
                     id: 2, nombre: "Ana", primerApellido: "García", segundoApellido: "Martínez", usuario: "anagm",
                     password: "", telefono: "600987654", dni: "87654321B", direccion: "Avenida Libertad",
                     cp: "28001", provincia: "Madrid", sexo: "F", fechaNacimiento: "1992-05-10",
-                    telefonoPersonal: "", telefonoFamiliar: "", hogar: "Hogar 2", descripcion: ""
+                    telefonoPersonal: "", telefonoFamiliar: "", hogar: "Hogar 2", descripcion: "",
+                    estado: "inactivo", color:"#e67e22"
                 }
             ];
 
             const camposPorEntidad = {
-                gestores: ['nombre', 'primerApellido', 'segundoApellido', 'usuario', 'password'],
-                cuidadores: ['nombre', 'primerApellido', 'segundoApellido', 'usuario', 'password', 'telefono'],
-                clientes: ['gestor', 'nombre', 'primerApellido', 'segundoApellido', 'dni', 'sexo', 'fechaNacimiento', 'telefonoPersonal', 'telefonoFamiliar', 'hogar', 'descripcion'],
-                hogares: ['direccion', 'cp', 'provincia', 'url', 'token']
+                gestores: ['nombre', 'primerApellido', 'segundoApellido', 'usuario', 'color', 'password', 'estado'],
+                cuidadores: ['nombre', 'primerApellido', 'segundoApellido', 'usuario', 'password', 'telefono', 'estado'],
+                clientes: ['gestor', 'nombre', 'primerApellido', 'segundoApellido', 'dni', 'sexo', 'fechaNacimiento', 'telefonoPersonal', 'telefonoFamiliar', 'hogar', 'descripcion', 'estado'],
+                hogares: ['estado', 'direccion', 'cp', 'provincia', 'url', 'token']
             };
 
             const contenedorBusqueda = document.createElement('div');
@@ -261,20 +318,52 @@
                 campos.forEach(clave => {
                     const campo = document.createElement('div');
                     campo.classList.add('campo-modificable');
-                    campo.innerHTML = `
-                    <div class="tarjeta-campo-horizontal">
-                        <div class="titulo-campo">
-                            <span class="icono-campo">${obtenerIconoCampo(clave)}</span>
-                            <span class="etiqueta-campo">${formatearEtiqueta(clave)}</span>
-                        </div>
-                        <div class="fila-editable">
-                            <input type="text" class="input-campo" name="${clave}" value="${seleccionado[clave] || ''}" />
-                        </div>
+
+                    if (clave === 'estado') {
+                        campo.innerHTML = `
+                  <div class="tarjeta-campo-horizontal">
+                    <div class="titulo-campo">
+                      <span class="icono-campo">📌</span>
+                      <span class="etiqueta-campo">Estado</span>
                     </div>
+                    <div class="fila-editable">
+                      <select class="input-campo" name="estado">
+                        <option value="activo" ${seleccionado.estado === 'activo' ? 'selected' : ''}>Activo</option>
+                        <option value="inactivo" ${seleccionado.estado === 'inactivo' ? 'selected' : ''}>Inactivo</option>
+                      </select>
+                    </div>
+                  </div>
                 `;
+                                } else if (clave === 'color' && entidad === 'gestores') {
+                                    campo.innerHTML = `
+                  <div class="tarjeta-campo-horizontal">
+                    <div class="titulo-campo">
+                      <span class="icono-campo">🖌️</span>
+                      <span class="etiqueta-campo">Color</span>
+                    </div>
+                    <div class="fila-editable">
+                      <input type="color" class="input-campo" name="color" value="${seleccionado.color || '#2980b9'}">
+                    </div>
+                  </div>
+                `;
+                                } else {
+                                    campo.innerHTML = `
+                  <div class="tarjeta-campo-horizontal">
+                    <div class="titulo-campo">
+                      <span class="icono-campo">${obtenerIconoCampo(clave)}</span>
+                      <span class="etiqueta-campo">${formatearEtiqueta(clave)}</span>
+                    </div>
+                    <div class="fila-editable">
+                      <input type="text" class="input-campo" name="${clave}" value="${seleccionado[clave] ?? ''}">
+                    </div>
+                  </div>
+                `;
+                    }
 
                     contenedorDatos.appendChild(campo);
                 });
+
+
                 // Crear botón guardar fuera del bucle
                 const botonGuardar = document.createElement('button');
                 botonGuardar.textContent = 'Guardar cambios';
@@ -284,14 +373,16 @@
 // Lógica al pulsar
                 botonGuardar.addEventListener('click', () => {
                     const datosActualizados = {};
-                    const inputs = contenedorDatos.querySelectorAll('input');
+                    const inputs = contenedorDatos.querySelectorAll('input, select, textarea');
 
                     inputs.forEach(input => {
-                        const clave = input.name;
-                        datosActualizados[clave] = input.value;
+                        if (input.name) {
+                            datosActualizados[input.name] = input.value;
+                        }
                     });
 
-                    // Aquí podrías hacer una llamada real a la API para guardar
+                    // Aquí también podrías hacer una llamada a tu API, por ejemplo:
+                    // fetch(`/api/gestores/${id}`, { method: 'PUT', body: JSON.stringify(datosActualizados) })
 
                     const mensajeConfirmacion = document.createElement('div');
                     mensajeConfirmacion.className = 'mensaje-confirmacion';
@@ -300,6 +391,8 @@
                     contenedorFormulario.innerHTML = '';
                     contenedorFormulario.appendChild(mensajeConfirmacion);
                 });
+
+
 
                 const contenedorBoton = document.createElement('div');
                 contenedorBoton.style.textAlign = 'center';
@@ -319,9 +412,14 @@
             <label>Primer Apellido: <input type="text" name="primerApellido" required></label>
             <label>Segundo Apellido: <input type="text" name="segundoApellido"></label>
             <label>Usuario: <input type="text" name="usuario" required></label>
+            <label>Color:
+            <input type="color" name="color" value="#2980b9">
+            </label>
+
             <label>Contraseña: <input type="password" name="password" required></label>
             <button type="submit">${textoBoton}</button>
         </form>`;
+
         } else if (submenu === 'cuidadores') {
             formHTML = `
         <form>
@@ -367,7 +465,9 @@
             <label>Token: <input type="text" name="token"></label>
             <button type="submit">${textoBoton}</button>
         </form>`;
+
         }
+
 
         const contenedorForm = document.createElement('div');
         contenedorForm.innerHTML = formHTML;
@@ -384,162 +484,91 @@
         contenedorFormulario.appendChild(contenedorForm);
     }
 
-    function mostrarFormularioEliminar(textoBoton, submenu) {
-        const entidad = submenu;
-        const listaEjemplo = [
-            {id: 1, nombre: "Juan", primerApellido: "Pérez"},
-            {id: 2, nombre: "Ana", primerApellido: "García"}
-        ];
-
-        contenedorFormulario.innerHTML = '';
-
-        const contenedor = document.createElement('div');
-        contenedor.classList.add('contenedor-eliminar');
-        contenedor.innerHTML = `
-        <h4>${textoBoton}</h4>
-        <label>Selecciona a quién eliminar:
-            <select id="selector-eliminar-${entidad}">
-                <option value="">Seleccione...</option>
-                ${listaEjemplo.map(item => `<option value="${item.id}">${item.nombre} ${item.primerApellido}</option>`).join('')}
-            </select>
-        </label>
-        <div id="zona-boton-eliminar">
-            <button id="btn-eliminar-real">Eliminar</button>
-        </div>
-    `;
-        contenedorFormulario.appendChild(contenedor);
-
-        const selector = document.getElementById(`selector-eliminar-${entidad}`);
-        const btnEliminar = document.getElementById('btn-eliminar-real');
-        const modal = document.getElementById('modal-confirmacion');
-        const mensaje = document.getElementById('mensaje-confirmacion');
-        const btnConfirmar = document.getElementById('btn-confirmar');
-        const btnCancelar = document.getElementById('btn-cancelar');
-
-        btnEliminar.addEventListener('click', () => {
-            const seleccionado = listaEjemplo.find(item => item.id == selector.value);
-            if (seleccionado) {
-                mensaje.textContent = `¿Estás seguro que quieres eliminar a "${seleccionado.nombre} ${seleccionado.primerApellido}"?`;
-                modal.style.display = 'flex';
-
-
-const cancelarAccion = () => {
-                    modal.style.display = 'none';
-                    limpiarListeners();
-                };
-
-                const limpiarListeners = () => {
-                    btnConfirmar.removeEventListener('click', confirmarAccion);
-                    btnCancelar.removeEventListener('click', cancelarAccion);
-                };
-
-                btnConfirmar.addEventListener('click', confirmarAccion);
-                btnCancelar.addEventListener('click', cancelarAccion);
-            }
-        });
-    }
-
-    function confirmarAccion() {
-        // Aquí puedes añadir lógica real para eliminar (por ejemplo, llamada a API)
-
-        // Mostrar mensaje de éxito
-        const mensajeExito = document.createElement('div');
-        mensajeExito.className = 'mensaje-confirmacion';
-        mensajeExito.textContent = 'Eliminación realizada correctamente.';
-
-        contenedorFormulario.innerHTML = '';
-        contenedorFormulario.appendChild(mensajeExito);
-
-        // Ocultar el modal
-        document.getElementById('modal-confirmacion').style.display = 'none';
-    }
-
-
     generarMenuIzquierdoPorRol();
 
-const contenedorFormulario = document.getElementById('formulario-contenedor');
+    const contenedorFormulario = document.getElementById('formulario-contenedor');
 
-async function mostrarFormularioHorario() {
-    try {
-        const res = await fetch("/horarios/mi-horario");
-        const data = await res.json();
+    async function mostrarFormularioHorario() {
+        try {
+            const res = await fetch("/horarios/mi-horario");
+            const data = await res.json();
 
-        console.log("HORARIOS RECIBIDOS:", data); // Verificar que los datos son correctos
+            console.log("HORARIOS RECIBIDOS:", data); // Verificar que los datos son correctos
 
-        const calendarioResponse = await fetch("/static/calendario_vista.html");
-        const calendarioHTML = await calendarioResponse.text();
-        document.getElementById("columna-terciaria").style.display = "block"; // Hacer visible el contenedor
+            const calendarioResponse = await fetch("/static/calendario_vista.html");
+            const calendarioHTML = await calendarioResponse.text();
+            document.getElementById("columna-terciaria").style.display = "block"; // Hacer visible el contenedor
 
-        contenedorFormulario.innerHTML = calendarioHTML;
+            contenedorFormulario.innerHTML = calendarioHTML;
 
-        // Esperar al DOM antes de observar el calendario
-        setTimeout(() => {
-            renderizarCalendarioCuandoEsteVisible(data);
-        }, 50);
-    } catch (error) {
-        alert("Error al cargar el horario.");
-        console.error(error);
-    }
-}
-
-function renderizarCalendarioCuandoEsteVisible(horarios) {
-    const calendarEl = document.getElementById("calendar");
-    if (!calendarEl) return;
-
-    const observer = new ResizeObserver((entries) => {
-        for (const entry of entries) {
-            if (entry.contentRect.height > 0) {
-                observer.disconnect(); // Ya se ha hecho visible
-
-                const calendar = new FullCalendar.Calendar(calendarEl, {
-                    locale: 'es',
-                    initialView: 'dayGridMonth',
-                    height: "auto",
-                    events: getEventosDesdeHorarios(horarios)
-                });
-
-                calendar.render();
-                setTimeout(() => calendar.updateSize(), 100);
-            }
+            // Esperar al DOM antes de observar el calendario
+            setTimeout(() => {
+                renderizarCalendarioCuandoEsteVisible(data);
+            }, 50);
+        } catch (error) {
+            alert("Error al cargar el horario.");
+            console.error(error);
         }
-    });
+    }
 
-    observer.observe(calendarEl);
-}
+    function renderizarCalendarioCuandoEsteVisible(horarios) {
+        const calendarEl = document.getElementById("calendar");
+        if (!calendarEl) return;
 
-function getEventosDesdeHorarios(horarios) {
-    return horarios.flatMap(h => {
-        if (h.tipo_horario === "I") {
-            return [{
-                title: h.nombre_cliente || `Usuario ${h.id_cliente}`,
-                start: `${h.fecha}T${h.hora_inicio}`,
-                end: `${h.fecha}T${h.hora_fin}`,
-                backgroundColor: h.color,
-                borderColor: h.color,
-                textColor: "#fff"
-            }];
-        } else if (h.tipo_horario === "R") {
-            const eventos = [];
-            let current = new Date(h.fecha_inicio);
-            const end = new Date(h.fecha_fin);
+        const observer = new ResizeObserver((entries) => {
+            for (const entry of entries) {
+                if (entry.contentRect.height > 0) {
+                    observer.disconnect(); // Ya se ha hecho visible
 
-            while (current <= end) {
-                const dateStr = current.toISOString().split("T")[0];
-                eventos.push({
-                    title: `${h.nombre_cliente || `Usuario ${h.id_cliente}`}`,
-                    start: `${dateStr}T${h.hora_inicio}`,
-                    end: `${dateStr}T${h.hora_fin}`,
+                    const calendar = new FullCalendar.Calendar(calendarEl, {
+                        locale: 'es',
+                        initialView: 'dayGridMonth',
+                        height: "auto",
+                        events: getEventosDesdeHorarios(horarios)
+                    });
+
+                    calendar.render();
+                    setTimeout(() => calendar.updateSize(), 100);
+                }
+            }
+        });
+
+        observer.observe(calendarEl);
+    }
+
+    function getEventosDesdeHorarios(horarios) {
+        return horarios.flatMap(h => {
+            if (h.tipo_horario === "I") {
+                return [{
+                    title: h.nombre_cliente || `Usuario ${h.id_cliente}`,
+                    start: `${h.fecha}T${h.hora_inicio}`,
+                    end: `${h.fecha}T${h.hora_fin}`,
                     backgroundColor: h.color,
                     borderColor: h.color,
                     textColor: "#fff"
-                });
-                current.setDate(current.getDate() + 1);
+                }];
+            } else if (h.tipo_horario === "R") {
+                const eventos = [];
+                let current = new Date(h.fecha_inicio);
+                const end = new Date(h.fecha_fin);
+
+                while (current <= end) {
+                    const dateStr = current.toISOString().split("T")[0];
+                    eventos.push({
+                        title: `${h.nombre_cliente || `Usuario ${h.id_cliente}`}`,
+                        start: `${dateStr}T${h.hora_inicio}`,
+                        end: `${dateStr}T${h.hora_fin}`,
+                        backgroundColor: h.color,
+                        borderColor: h.color,
+                        textColor: "#fff"
+                    });
+                    current.setDate(current.getDate() + 1);
+                }
+                return eventos;
             }
-            return eventos;
-        }
-        return [];
-    });
-}
+            return [];
+        });
+    }
 
 </script>
 
