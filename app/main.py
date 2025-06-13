@@ -25,13 +25,18 @@ from app.routes import historico, cuidadores, hogares
 from app.routes.dispositivos import detalle, zonas
 from app.persons import clientes, data
 from app.routes import verhorario
+from app.routes.administracion.Cliente import Mod_Datos_Cliente
+from app.routes.administracion.Hogar import Mod_datos_Hogar
+from app.routes.administracion.Trabajador import Mod_Datos_Trabajador
 
 # Añadir la raíz del proyecto al sys.path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
+
 # Configuración inicial
 BASE_DIR = Path(__file__).resolve().parent.parent
 app = FastAPI()
+
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 templates = Jinja2Templates(directory=BASE_DIR / "templates")
 
@@ -65,6 +70,7 @@ def get_db():
     finally:
         db.close()
 
+
 # Manejo de excepciones CORREGIDO
 @app.exception_handler(StarletteHTTPException)
 async def custom_http_exception_handler(request: Request, exc: StarletteHTTPException):
@@ -75,6 +81,7 @@ async def custom_http_exception_handler(request: Request, exc: StarletteHTTPExce
     return await http_exception_handler(request, exc)
 
 # Registrar routers con protección de autenticación
+
 api_router = APIRouter(dependencies=[Depends(require_login)])
 api_router.include_router(data.router, prefix="/personas", tags=["Personas"])
 api_router.include_router(historico.router, prefix="/historico", tags=["Historico"])
@@ -84,7 +91,11 @@ api_router.include_router(zonas.router, prefix="/dispositivos", tags=["Zonas"])
 api_router.include_router(cuidadores.router)
 api_router.include_router(hogares.router)
 api_router.include_router(verhorario.router)
+api_router.include_router(Mod_Datos_Cliente.router)
+api_router.include_router(Mod_datos_Hogar.router)
+api_router.include_router(Mod_Datos_Trabajador.router)
 app.include_router(api_router)
+
 
 # Rutas principales
 @app.get("/", response_class=HTMLResponse)
