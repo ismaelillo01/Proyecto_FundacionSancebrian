@@ -271,8 +271,8 @@
                     { id: 2, nombre: "María", primerApellido: "Sánchez", estado: "inactivo" }
                 ],
                 clientes: [
-                    { id: 1, nombre: "Luis", primerApellido: "Martínez", estado: "activo" },
-                    { id: 2, nombre: "Sara", primerApellido: "Fernández", estado: "inactivo" }
+                    { id: 1, nombre: "Luis", primerApellido: "Martínez", estado: "activo", gestor:'1'},
+                    { id: 2, nombre: "Sara", primerApellido: "Fernández", estado: "inactivo", gestor:'2'}
                 ],
                 hogares: [
                     { id: 1, direccion: "Calle Mayor", estado: "activo" },
@@ -283,7 +283,7 @@
             const camposPorEntidad = {
                 gestores: ['nombre', 'primerApellido', 'segundoApellido', 'usuario', 'color', 'password', 'estado'],
                 cuidadores: ['nombre', 'primerApellido', 'segundoApellido', 'usuario', 'password', 'telefono', 'estado'],
-                clientes: ['nombre', 'primerApellido', 'segundoApellido', 'dni', 'sexo', 'fechaNacimiento', 'telefonoPersonal', 'telefonoFamiliar', 'hogar', 'descripcion', 'estado'],
+                clientes: ['gestor', 'nombre', 'primerApellido', 'segundoApellido', 'dni', 'sexo', 'fechaNacimiento', 'telefonoPersonal', 'telefonoFamiliar', 'hogar', 'descripcion', 'estado'],
                 hogares: ['direccion', 'codigo postal', 'Provincia','url_homeassistant', 'token_homeassistant', 'estado']
             };
 
@@ -322,7 +322,6 @@
 
                     // Generar el campo de gestor
                     if (clave === 'gestor') {
-                        console.log("Formulario generado", contenedorForm);
                         campo.innerHTML = `
             <div class="tarjeta-campo-horizontal">
                 <div class="titulo-campo">
@@ -339,6 +338,32 @@
             </div>
         `;
                     }
+
+                    else if (clave === 'hogar') {
+                        campo.innerHTML = `
+                    <div class="tarjeta-campo-horizontal">
+                        <div class="titulo-campo">
+                            <span class="icono-campo">🏡</span>
+                            <span class="etiqueta-campo">Hogar</span>
+                        </div>
+                        <div class="fila-editable">
+                            <select class="input-campo" name="hogar"></select>
+                        </div>
+                    </div>
+                `;
+
+                        const select = campo.querySelector('select');
+                        cargarHogares().then(hogares => {
+                            hogares.forEach(h => {
+                                const option = document.createElement('option');
+                                option.value = h.id;
+                                option.textContent = h.direccion;
+                                if (seleccionado.hogar == h.id) option.selected = true;
+                                select.appendChild(option);
+                            });
+                        });
+                    }
+
                     else if (clave === 'estado') {
                         campo.innerHTML = `
             <div class="tarjeta-campo-horizontal">
@@ -477,7 +502,12 @@
             <label>Fecha Nacimiento: <input type="date" name="fechaNacimiento"></label>
             <label>Teléfono personal: <input type="tel" name="telefonoPersonal"></label>
             <label>Teléfono familiar: <input type="tel" name="telefonoFamiliar"></label>
-            <label>Hogar: <input type="text" name="hogar"></label>
+            <label>Hogar:
+                <select name="hogar" id="hogar-select">
+                    <option value="">Cargando hogares...</option>
+                </select>
+            </label>
+
             <label>Estado:
               <select name="estado">
                 <option value="activo" selected>Activo</option>
@@ -521,6 +551,19 @@
             contenedorFormulario.innerHTML = '';
             contenedorFormulario.appendChild(mensajeInfo);
         });
+        const selectHogar = contenedorForm.querySelector('#hogar-select');
+        if (selectHogar) {
+            cargarHogares().then(hogares => {
+                selectHogar.innerHTML = '<option value="">Seleccione un hogar</option>';
+                hogares.forEach(h => {
+                    const option = document.createElement('option');
+                    option.value = h.id;
+                    option.textContent = h.direccion;
+                    selectHogar.appendChild(option);
+                });
+            });
+        }
+
 
         contenedorFormulario.appendChild(contenedorForm);
     }
@@ -528,6 +571,18 @@
     generarMenuIzquierdoPorRol();
 
     const contenedorFormulario = document.getElementById('formulario-contenedor');
+
+    async function cargarHogares() {
+        try {
+            const res = await fetch('/api/hogares');  // 👉 ajusta la URL a tu endpoint real
+            if (!res.ok) throw new Error('Error al obtener hogares');
+            const hogares = await res.json();  // Se espera un array: [{ id: 1, direccion: '...' }, ...]
+            return hogares;
+        } catch (error) {
+            console.error("Error cargando hogares:", error);
+            return [];
+        }
+    }
 
     async function mostrarFormularioHorario() {
         try {
@@ -551,6 +606,18 @@
             console.error(error);
         }
     }
+
+    async function cargarHogares() {
+        try {
+            const res = await fetch('/api/hogares');  // ajusta si usas otra ruta
+            if (!res.ok) throw new Error('Error al obtener hogares');
+            return await res.json();
+        } catch (error) {
+            console.error("Error cargando hogares:", error);
+            return [];
+        }
+    }
+
 
     function renderizarCalendarioCuandoEsteVisible(horarios) {
         const calendarEl = document.getElementById("calendar");
