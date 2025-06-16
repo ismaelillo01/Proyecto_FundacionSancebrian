@@ -321,23 +321,47 @@
                     campo.classList.add('campo-modificable');
 
                     // Generar el campo de gestor
-                    if (clave === 'gestor') {
-                        campo.innerHTML = `
-            <div class="tarjeta-campo-horizontal">
-                <div class="titulo-campo">
-                    <span class="icono-campo">👨‍💼</span>
-                    <span class="etiqueta-campo">Gestor</span>
-                </div>
-                <div class="fila-editable">
-                    <select class="input-campo" name="gestor">
-                        <option value="">Seleccione un gestor</option>
-                        <option value="1" ${seleccionado.gestor === '1' ? 'selected' : ''}>Juan Pérez</option>
-                        <option value="2" ${seleccionado.gestor === '2' ? 'selected' : ''}>Ana García</option>
-                    </select>
-                </div>
+if (clave === 'gestor') {
+    campo.innerHTML = `
+        <div class="tarjeta-campo-horizontal">
+            <div class="titulo-campo">
+                <span class="icono-campo">👨‍💼</span>
+                <span class="etiqueta-campo">Gestor</span>
             </div>
-        `;
-                    }
+            <div class="fila-editable">
+                <select class="input-campo" name="gestor">
+                    <option value="">Cargando gestores...</option>
+                </select>
+            </div>
+        </div>
+    `;
+
+    const select = campo.querySelector('select');
+
+fetch('/gestoresActivos')
+    .then(res => res.json())
+    .then(response => {
+        const gestores = response.data || [];  // ← nos aseguramos de acceder al array
+
+        select.innerHTML = '<option value="">Seleccione un gestor</option>';
+
+        gestores.forEach(gestor => {
+            const option = document.createElement('option');
+            option.value = gestor.id_gestor; // usamos id_gestor como valor
+            option.textContent = gestor.nombre; // solo mostramos el nombre
+            if (seleccionado.gestor == gestor.id_gestor) {
+                option.selected = true;
+            }
+            select.appendChild(option);
+        });
+    })
+    .catch(error => {
+        console.error('Error al cargar los gestores:', error);
+        select.innerHTML = '<option value="">Error al cargar</option>';
+    });
+
+}
+
 
                     else if (clave === 'hogar') {
                         campo.innerHTML = `
@@ -677,6 +701,13 @@
             return [];
         });
     }
+    
+
+
+
+
+
+    
 
 </script>
 

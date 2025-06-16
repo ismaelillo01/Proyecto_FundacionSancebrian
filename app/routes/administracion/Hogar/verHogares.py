@@ -1,3 +1,4 @@
+#app/routes/administracion/Hogar/verHogares.py
 from fastapi import APIRouter, HTTPException
 from app.database.db import get_connection
 

@@ -1,3 +1,4 @@
+#app/routes/hogares.py
 from fastapi import APIRouter, HTTPException
 from app.database.db import get_connection
 

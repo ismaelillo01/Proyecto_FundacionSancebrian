@@ -1,3 +1,4 @@
+#app/routes/administracion/trabajadores/verGestores.py
 from fastapi import Cookie, HTTPException, APIRouter
 from app.database.db import get_connection
 

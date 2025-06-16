@@ -1,3 +1,4 @@
+#app/routes/administracion/cliente/verClientes.py
 from fastapi import Cookie, HTTPException, APIRouter
 from app.database.db import get_connection
 
