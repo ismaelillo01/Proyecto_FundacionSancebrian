@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Administrar</title>
+    <link rel="stylesheet" href="../static/css/MiPortal2.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .estado-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .estado-caja {
+            background-color: #e8e8e8;
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 200px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+
+        .gestor-activo select, .gestor-inactivo select,
+        .cuidador-activo, .cuidador-inactivo,
+        .hogar-activo, .hogar-inactivo,
+        .cliente-activo, .cliente-inactivo {
+            width: 200px;
+            padding: 5px;
+        }
+
+        .boton-subgestor {
+            min-width: 150px;
+            height: 40px;
+        }
+
+        .boton-subcuidador {
+            min-width: 150px;
+            height: 40px;
+        }
+
+        .boton-subhogar {
+            min-width: 150px;
+            height: 40px;
+        }
+
+        .boton-subcliente {
+            min-width: 150px;
+            height: 40px;
+        }
+
+        /* Ya incluido anteriormente */
+        .estado-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 15px;
+        }
+        .estado-caja {
+            background-color: #e8e8e8;
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 200px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .gestor-activo, .gestor-inactivo,
+        .cuidador-activo, .cuidador-inactivo,
+        .hogar-activo, .hogar-inactivo,
+        .cliente-activo, .cliente-inactivo {
+            margin-top: 8px;
+        }
+
+        .gestor-activo label, .gestor-inactivo label,
+        .cuidador-activo label, .cuidador-inactivo label,
+        .hogar-activo label, .hogar-inactivo label,
+        .cliente-activo label, .cliente-inactivo label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: normal;
+        }
+
+        .gestor-activo select, .gestor-inactivo select,
+        .cuidador-activo select, .cuidador-inactivo select,
+        .hogar-activo select, .hogar-inactivo select,
+        .cliente-activo select, .cliente-inactivo select {
+            width: 200px;
+            padding: 5px;
+        }
+
+    </style>
+</head>
+<body>
+<header class="main-header" id="movible-header">
+    <div class="nav-left">
+        <a href="{{ url_for('root') }}"><img src="{{ url_for('static', path='img/logo_casa.png') }}" alt="Logo_Casa" class="Logo_Casa"/></a>
+    </div>
+    <div class="nav-center">
+        <img src="{{ url_for('static', path='img/img.png') }}" alt="Logo Fundación" class="logo"/>
+    </div>
+    <div class="nav-right">
+        <img src="{{ url_for('static', path='img/img_1.png') }}" alt="Foto perfil"/>
+        <div class="dropdown">
+            <span>{{ usuario or "Nombre Usuario" }}</span>
+            <div class="dropdown-content"><a href="{{ url_for('logout') }}">Cerrar sesión</a></div>
+        </div>
+    </div>
+</header>
+
+<main class="contenedor-principal">
+    <aside class="columna-izquierda">
+        <button class="boton-admin" onclick="mostrarOpciones('gestores')">Gestores</button>
+        <button class="boton-admin" onclick="mostrarOpciones('cuidadores')">Cuidadores</button>
+        <button class="boton-admin" onclick="mostrarOpciones('hogares')">Hogares</button>
+        <button class="boton-admin" onclick="mostrarOpciones('clientes')">Clientes</button>
+    </aside>
+
+    <section class="columna-derecha">
+        <div id="opciones-gestores" class="sub-botones fila-dos-botones">
+            <button class="boton-subgestor" onclick="mostrarFormularioGestor()">Añadir gestor</button>
+            <!-- Formulario Añadir Gestor -->
+            <form id="formulario-gestor" class="formulario-usuario" style="display: none;" onsubmit="event.preventDefault();">
+                <div class="campo-formulario">
+                    <label><i class="fas fa-user"></i> Nombre:</label>
+                    <input type="text" name="nombre" required>
+                </div>
+                <div class="campo-formulario">
+                    <label><i class="fas fa-user-tag"></i> Primer apellido:</label>
+                    <input type="text" name="apellido1" required>
+                </div>
+                <div class="campo-formulario">
+                    <label><i class="fas fa-user-tag"></i> Segundo apellido:</label>
+                    <input type="text" name="apellido2">
+                </div>
+                <div class="campo-formulario">
+                    <label><i class="fas fa-user-circle"></i> Nombre de usuario:</label>
+                    <input type="text" name="usuario" required>
+                </div>
+                <div class="campo-formulario">
+                    <label><i class="fas fa-lock"></i> Contraseña:</label>
+                    <input type="password" name="contrasena" required>
+                </div>
+                <button type="submit" class="boton-enviar">Guardar</button>
+            </form>
+            <button class="boton-subgestor" onclick="mostrarEstadosGestor()">Modificar gestor</button>
+
+            <!-- Contenedores separados para "Activo" e "Inactivo" -->
+            <div id="estado-gestor" class="estado-container" style="display: none;">
+                <div>
+                    <div class="estado-caja">Activo</div>
+                    <div class="gestor-activo">
+                        <label for="gestor-activo-select">Seleccionar gestor:</label>
+                        <select id="gestor-activo-select">
+                            <option value="">-- Seleccionar --</option>
+                            <option value="gestor1">Gestor 1</option>
+                            <option value="gestor2">Gestor 2</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="estado-caja">Inactivo</div>
+                    <div class="gestor-inactivo">
+                        <label for="gestor-inactivo-select">Seleccionar gestor:</label>
+                        <select id="gestor-inactivo-select">
+                            <option value="">-- Seleccionar --</option>
+                            <option value="gestor3">Gestor 3</option>
+                            <option value="gestor4">Gestor 4</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="opciones-cuidadores" class="sub-botones fila-dos-botones">
+            <button class="boton-subcuidador" onclick="mostrarFormularioCuidador()">Añadir cuidador</button>
+            <!-- Formulario Añadir Cuidador -->
+            <form id="formulario-cuidador" class="formulario-usuario" style="display: none;" onsubmit="event.preventDefault();">
+                <div class="campo-formulario">
+                    <label><i class="fas fa-user"></i> Nombre:</label>
+                    <input type="text" name="nombre" required>
+                </div>
+                <div class="campo-formulario">
+                    <label><i class="fas fa-user-tag"></i> Primer apellido:</label>
+                    <input type="text" name="apellido1" required>
+                </div>
+                <div class="campo-formulario">
+                    <label><i class="fas fa-user-tag"></i> Segundo apellido:</label>
+                    <input type="text" name="apellido2">
+                </div>
+                <div class="campo-formulario">
+                    <label><i class="fas fa-phone"></i> Teléfono:</label>
+                    <input type="tel" name="telefono" pattern="[0-9]{9}" placeholder="Ej: 612345678" required>
+                </div>
+                <div class="campo-formulario">
+                    <label><i class="fas fa-user-circle"></i> Nombre de usuario:</label>
+                    <input type="text" name="usuario" required>
+                </div>
+                <div class="campo-formulario">
+                    <label><i class="fas fa-lock"></i> Contraseña:</label>
+                    <input type="password" name="contrasena" required>
+                </div>
+                <button type="submit" class="boton-enviar">Guardar</button>
+            </form>
+            <button class="boton-subcuidador" onclick="mostrarEstadosCuidador()">Modificar cuidador</button>
+
+            <!-- Panel Activo/Inactivo para Cuidador -->
+            <div id="estado-cuidador" class="estado-container" style="display: none;">
+                <div>
+                    <div class="estado-caja">Activo</div>
+                    <div class="cuidador-activo">
+                        <label for="cuidador-activo-select">Seleccionar cuidador:</label>
+                        <select id="cuidador-activo-select">
+                            <option value="">-- Seleccionar --</option>
+                            <option value="cuidador1">Cuidador 1</option>
+                            <option value="cuidador2">Cuidador 2</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="estado-caja">Inactivo</div>
+                    <div class="cuidador-inactivo">
+                        <label for="cuidador-inactivo-select">Seleccionar cuidador:</label>
+                        <select id="cuidador-inactivo-select">
+                            <option value="">-- Seleccionar --</option>
+                            <option value="cuidador3">Cuidador 3</option>
+                            <option value="cuidador4">Cuidador 4</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="opciones-hogares" class="sub-botones fila-dos-botones">
+            <button class="boton-subcuidador" onclick="mostrarFormularioHogar()">Añadir hogar</button>
+            <!-- Formulario Añadir Hogar -->
+            <form id="formulario-hogar" class="formulario-usuario" style="display: none;" onsubmit="event.preventDefault();">
+                <div class="campo-formulario">
+                    <label><i class="fas fa-map-marker-alt"></i> Dirección:</label>
+                    <input type="text" name="direccion" required>
+                </div>
+                <div class="campo-formulario">
+                    <label><i class="fas fa-envelope"></i> Código Postal:</label>
+                    <input type="text" name="codigo_postal" pattern="[0-9]{5}" placeholder="Ej: 28001" required>
+                </div>
+                <div class="campo-formulario">
+                    <label><i class="fas fa-flag"></i> Provincia:</label>
+                    <input type="text" name="provincia" required>
+                </div>
+                <div class="campo-formulario">
+                    <label><i class="fas fa-link"></i> URL Home Assistant:</label>
+                    <input type="url" name="url_homeassistant" placeholder="https://..." required>
+                </div>
+                <div class="campo-formulario">
+                    <label><i class="fas fa-key"></i> Token Home Assistant:</label>
+                    <input type="text" name="token_homeassistant" required>
+                </div>
+                <button type="submit" class="boton-enviar">Guardar</button>
+            </form>
+            <button class="boton-subhogar" onclick="mostrarEstadosHogar()">Modificar hogar</button>
+
+            <div id="estado-hogar" class="estado-container" style="display: none;">
+                <div>
+                    <div class="estado-caja">Activo</div>
+                    <div class="hogar-activo">
+                        <label for="hogar-activo-select">Seleccionar hogar:</label>
+                        <select id="hogar-activo-select">
+                            <option value="">-- Seleccionar --</option>
+                            <option value="hogar1">Hogar 1</option>
+                            <option value="hogar2">Hogar 2</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="estado-caja">Inactivo</div>
+                    <div class="hogar-inactivo">
+                        <label for="hogar-inactivo-select">Seleccionar hogar:</label>
+                        <select id="hogar-inactivo-select">
+                            <option value="">-- Seleccionar --</option>
+                            <option value="hogar3">Hogar 3</option>
+                            <option value="hogar4">Hogar 4</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="opciones-clientes" class="sub-botones fila-dos-botones">
+            <button class="boton-subcliente" onclick="mostrarFormularioCliente()">Añadir cliente</button>
+            <!-- Formulario Añadir Cliente -->
+            <form id="formulario-cliente" class="formulario-usuario-dos-columnas" style="display: none;" onsubmit="event.preventDefault();">
+                <!-- Columna izquierda -->
+                <div class="columna-formulario">
+                    <div class="campo-formulario">
+                        <label><i class="fas fa-user-tie"></i> Gestor:</label>
+                        <select name="gestor" required>
+                            <option value="">-- Seleccionar gestor --</option>
+                            <option value="gestor1">Gestor 1</option>
+                            <option value="gestor2">Gestor 2</option>
+                        </select>
+                    </div>
+                    <div class="campo-formulario">
+                        <label><i class="fas fa-user"></i> Nombre:</label>
+                        <input type="text" name="nombre" required>
+                    </div>
+                    <div class="campo-formulario">
+                        <label><i class="fas fa-user-tag"></i> Primer apellido:</label>
+                        <input type="text" name="apellido1" required>
+                    </div>
+                    <div class="campo-formulario">
+                        <label><i class="fas fa-user-tag"></i> Segundo apellido:</label>
+                        <input type="text" name="apellido2">
+                    </div>
+                    <div class="campo-formulario">
+                        <label><i class="fas fa-id-card"></i> DNI:</label>
+                        <input type="text" name="dni" required>
+                    </div>
+                    <div class="campo-formulario">
+                        <label><i class="fas fa-venus-mars"></i> Sexo:</label>
+                        <select name="sexo" required>
+                            <option value="">-- Seleccionar sexo --</option>
+                            <option value="hombre">Hombre</option>
+                            <option value="mujer">Mujer</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Columna derecha -->
+                <div class="columna-formulario">
+                    <div class="campo-formulario">
+                        <label><i class="fas fa-calendar"></i> Fecha de nacimiento:</label>
+                        <input type="date" name="fecha_nacimiento" required>
+                    </div>
+                    <div class="campo-formulario">
+                        <label><i class="fas fa-phone"></i> Teléfono personal:</label>
+                        <input type="tel" name="telefono_personal">
+                    </div>
+                    <div class="campo-formulario">
+                        <label><i class="fas fa-phone-volume"></i> Teléfono familiar:</label>
+                        <input type="tel" name="telefono_familiar">
+                    </div>
+                    <div class="campo-formulario">
+                        <label><i class="fas fa-home"></i> Hogar:</label>
+                        <select name="hogar" required>
+                            <option value="">-- Seleccionar hogar --</option>
+                            <option value="hogar1">Hogar 1</option>
+                            <option value="hogar2">Hogar 2</option>
+                        </select>
+                    </div>
+                    <div class="campo-formulario">
+                        <label><i class="fas fa-align-left"></i> Descripción:</label>
+                        <textarea name="descripcion" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <div class="boton-enviar-contenedor">
+                    <button type="submit" class="boton-enviar">Guardar</button>
+                </div>
+            </form>
+            <button class="boton-subcliente" onclick="mostrarEstadosCliente()">Modificar cliente</button>
+
+            <div id="estado-cliente" class="estado-container" style="display: none;">
+                <div>
+                    <div class="estado-caja">Activo</div>
+                    <div class="cliente-activo">
+                        <label for="cliente-activo-select">Seleccionar cliente:</label>
+                        <select id="cliente-activo-select">
+                            <option value="">-- Seleccionar --</option>
+                            <option value="cliente1">Cliente 1</option>
+                            <option value="cliente2">Cliente 2</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="estado-caja">Inactivo</div>
+                    <div class="cliente-inactivo">
+                        <label for="cliente-inactivo-select">Seleccionar cliente:</label>
+                        <select id="cliente-inactivo-select">
+                            <option value="">-- Seleccionar --</option>
+                            <option value="cliente3">Cliente 3</option>
+                            <option value="cliente4">Cliente 4</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+</main>
+
+<script>
+    function mostrarOpciones(tipo) {
+        document.querySelectorAll('.sub-botones').forEach(div => div.style.display = 'none');
+
+        // Ocultar todos los paneles de estados y formularios
+        document.getElementById('estado-gestor').style.display = 'none';
+        document.getElementById('estado-cuidador').style.display = 'none';
+        document.getElementById('estado-hogar').style.display = 'none';
+        document.getElementById('estado-cliente').style.display = 'none';
+        document.getElementById('formulario-gestor').style.display = 'none';
+        document.getElementById('formulario-cuidador').style.display = 'none';
+        document.getElementById('formulario-hogar').style.display = 'none';
+        document.getElementById('formulario-cliente').style.display = 'none';
+
+        const panel = document.getElementById(`opciones-${tipo}`);
+        if (panel) panel.style.display = 'flex';
+    }
+
+    function mostrarFormularioGestor() {
+        // Cerrar panel de modificar si está abierto
+        document.getElementById('estado-gestor').style.display = 'none';
+
+        // Abrir formulario
+        document.getElementById('formulario-gestor').style.display = 'flex';
+    }
+
+    function mostrarEstadosGestor() {
+        // Cerrar formulario de añadir si está abierto
+        document.getElementById('formulario-gestor').style.display = 'none';
+
+        // Abrir panel de modificar
+        document.getElementById('estado-gestor').style.display = 'flex';
+    }
+
+    function mostrarFormularioCuidador() {
+        // Cerrar panel de modificar si está abierto
+        document.getElementById('estado-cuidador').style.display = 'none';
+
+        // Abrir formulario
+        document.getElementById('formulario-cuidador').style.display = 'flex';
+    }
+
+    function mostrarEstadosCuidador() {
+        // Cerrar formulario de añadir si está abierto
+        document.getElementById('formulario-cuidador').style.display = 'none';
+
+        // Abrir panel de modificar
+        document.getElementById('estado-cuidador').style.display = 'flex';
+    }
+
+    function mostrarFormularioHogar() {
+        // Cerrar panel de modificar si está abierto
+        document.getElementById('estado-hogar').style.display = 'none';
+
+        // Abrir formulario
+        document.getElementById('formulario-hogar').style.display = 'flex';
+    }
+
+    function mostrarEstadosHogar() {
+        // Cerrar formulario de añadir si está abierto
+        document.getElementById('formulario-hogar').style.display = 'none';
+
+        // Abrir panel de modificar
+        document.getElementById('estado-hogar').style.display = 'flex';
+    }
+
+    function mostrarFormularioCliente() {
+        // Cerrar panel de modificar si está abierto
+        document.getElementById('estado-cliente').style.display = 'none';
+
+        // Abrir formulario
+        document.getElementById('formulario-cliente').style.display = 'flex';
+    }
+
+    function mostrarEstadosCliente() {
+        // Cerrar formulario de añadir si está abierto
+        document.getElementById('formulario-cliente').style.display = 'none';
+
+        // Abrir panel de modificar
+        document.getElementById('estado-cliente').style.display = 'flex';
+    }
+
+    btnAñadir.addEventListener('click', () => {
+        formModificar.style.display = 'none';  // cierro modificar sin guardar
+        formAñadir.style.display = 'block';    // abro añadir
+    });
+
+    btnModificar.addEventListener('click', () => {
+        formAñadir.style.display = 'none';     // cierro añadir sin guardar
+        formModificar.style.display = 'block'; // abro modificar
+    });
+
+</script>
+</body>
+</html>
