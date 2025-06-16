@@ -1,3 +1,4 @@
+#app/dependencies/auth.py
 from fastapi import Request, HTTPException, status
 from fastapi.responses import RedirectResponse
 from app.database.db import get_connection

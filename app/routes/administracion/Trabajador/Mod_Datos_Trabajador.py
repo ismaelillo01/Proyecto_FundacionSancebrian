@@ -1,6 +1,6 @@
+#app/routes/administracion/trabajadores/Mod_Datos_Trabajador.py
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import Optional
 from app.database.db import get_db
 from app.database.models import Trabajador, Cuidador, Gestor
 from app.models.user import TrabajadorUpdate, CuidadorData, GestorData

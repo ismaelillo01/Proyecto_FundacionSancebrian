@@ -1,3 +1,4 @@
+#app/services/auth_service.py
 from app.database.db import get_connection
 
 def verificar_usuario(usuario: str, password: str) -> tuple[bool, str | None]:

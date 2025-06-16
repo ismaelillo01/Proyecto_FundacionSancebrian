@@ -1,3 +1,4 @@
+#app/routes/dispositivos/detalle.py
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 import requests

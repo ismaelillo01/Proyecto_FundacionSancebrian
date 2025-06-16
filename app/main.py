@@ -1,3 +1,4 @@
+#app/main.py
 import sys
 from pathlib import Path
 from datetime import datetime, date
@@ -25,9 +26,10 @@ from app.routes import historico, cuidadores, hogares
 from app.routes.dispositivos import detalle, zonas
 from app.persons import clientes, data
 from app.routes import verhorario
-from app.routes.administracion.Cliente import Mod_Datos_Cliente
-from app.routes.administracion.Hogar import Mod_datos_Hogar
-from app.routes.administracion.Trabajador import Mod_Datos_Trabajador
+from app.routes.administracion.Cliente import Mod_Datos_Cliente, verClientes
+from app.routes.administracion.Hogar import Mod_datos_Hogar, verHogares
+from app.routes.administracion.Trabajador import Mod_Datos_Trabajador, verCuidadores, verGestores
+
 
 # Añadir la raíz del proyecto al sys.path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
@@ -94,6 +96,10 @@ api_router.include_router(verhorario.router)
 api_router.include_router(Mod_Datos_Cliente.router)
 api_router.include_router(Mod_datos_Hogar.router)
 api_router.include_router(Mod_Datos_Trabajador.router)
+api_router.include_router(verClientes.router)
+api_router.include_router(verHogares.router)
+api_router.include_router(verGestores.router)
+api_router.include_router(verCuidadores.router)
 app.include_router(api_router)
 
 
