@@ -108,15 +108,8 @@ body {
 }
 
 /* --- contenedor principal: la fila que agrupa ambas columnas --- */
-.contenedor-principal{
-    display: flex;
-    height: calc(100vh - 80px);   /* alto total menos la cabecera */
-    align-items: stretch;         /* 🔸 hace que las columnas se estiren */
-    padding: 0;                   /* quitamos padding exterior */
-}
-
 /* --- columna izquierda (15 %) --- */
-.columna-izquierda{
+.columna-izquierda {
     width: 15%;
     background: #34495e;          /* color como en la captura */
     padding: 25px 10px;
@@ -124,14 +117,24 @@ body {
     display: flex;
     flex-direction: column;
     gap: 20px;                    /* separación entre botones */
+    height: 100vh;                /* Hace que la columna ocupe el alto completo de la pantalla */
+}
+
+/* --- contenedor principal: la fila que agrupa ambas columnas --- */
+.contenedor-principal {
+    display: flex;
+    height: 100vh;  /* Alto completo de la ventana */
+    align-items: stretch;  /* Hace que ambas columnas se estiren al alto completo */
+    padding: 0;
 }
 
 /* --- columna derecha (resto) --- */
-.columna-derecha{
+.columna-derecha {
     flex: 1;                      /* ocupa todo el espacio restante */
     padding: 30px;
     box-sizing: border-box;
 }
+
 
 /* --- botones principales --- */
 .boton-admin{
@@ -444,3 +447,32 @@ input, select, textarea {
             width: 200px;
             padding: 5px;
         }
+
+
+/* Contenedor de las dos columnas */
+/* Contenedor de las dos columnas */
+.columna-formulario-container {
+    display: flex;
+    justify-content: space-between;  /* Asegura que las columnas se distribuyan */
+    gap: 20px;                       /* Espacio entre las columnas */
+    width: 100%;                      /* Asegura que ocupe todo el ancho disponible */
+}
+
+/* Las columnas individuales */
+.columna-formulario {
+    flex: 1;                          /* Las columnas ocuparán el 50% del espacio */
+    min-width: 45%;                   /* Asegura que las columnas no sean más pequeñas que 45% */
+    box-sizing: border-box;           /* Asegura que el padding no afecte el tamaño total */
+}
+
+
+table {
+    width: 100%;  /* La tabla ocupa todo el ancho disponible dentro de la columna */
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+
+td {
+    padding: 10px;
+    vertical-align: top;  /* Alineación de celdas en la parte superior */
+}

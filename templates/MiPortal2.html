@@ -35,60 +35,107 @@
     </aside>
 
     <section class="columna-derecha">
+        <!-- Panel para Gestores -->
+        <!-- Panel para Gestores -->
         <div id="opciones-gestores" class="sub-botones fila-dos-botones">
             <button class="boton-subgestor" onclick="mostrarFormularioGestor()">Añadir gestor</button>
+
             <!-- Formulario Añadir Gestor -->
-        <form id="formulario-gestor" class="formulario-usuario" style="display: none;" onsubmit="event.preventDefault();">
-            <div class="campo-formulario">
-                <label><i class="fas fa-user"></i> Nombre:</label>
-                <input type="text" name="nombre" required>
-            </div>
-            <div class="campo-formulario">
-                <label><i class="fas fa-user-tag"></i> Primer apellido:</label>
-                <input type="text" name="apellido1" required>
-            </div>
-            <div class="campo-formulario">
-                <label><i class="fas fa-user-tag"></i> Segundo apellido:</label>
-                <input type="text" name="apellido2">
-            </div>
-            <div class="campo-formulario">
-                <label><i class="fas fa-user-circle"></i> Nombre de usuario:</label>
-                <input type="text" name="usuario" required>
-            </div>
-            <div class="campo-formulario">
-                <label><i class="fas fa-lock"></i> Contraseña:</label>
-                <input type="password" name="contrasena" required>
-            </div>
-            <button type="submit" class="boton-enviar">Guardar</button>
-        </form>
+            <form id="formulario-gestor" class="formulario-usuario" style="display: none;" onsubmit="event.preventDefault();">
+                <div class="campo-formulario">
+                    <label><i class="fas fa-user"></i> Nombre:</label>
+                    <input type="text" name="nombre" required>
+                </div>
+                <div class="campo-formulario">
+                    <label><i class="fas fa-user-tag"></i> Primer apellido:</label>
+                    <input type="text" name="apellido1" required>
+                </div>
+                <div class="campo-formulario">
+                    <label><i class="fas fa-user-tag"></i> Segundo apellido:</label>
+                    <input type="text" name="apellido2">
+                </div>
+                <div class="campo-formulario">
+                    <label><i class="fas fa-user-circle"></i> Nombre de usuario:</label>
+                    <input type="text" name="usuario" required>
+                </div>
+                <div class="campo-formulario">
+                    <label><i class="fas fa-lock"></i> Contraseña:</label>
+                    <input type="password" name="contrasena" required>
+                </div>
+                <div class="campo-formulario">
+                    <label><i class="fas fa-palette"></i> Color</label>
+                    <input type="color" name="color" value="#ff0000" required>
+                </div>
+                <button type="submit" class="boton-enviar">Guardar</button>
+            </form>
+
             <button class="boton-subgestor" onclick="mostrarEstadosGestor()">Modificar gestor</button>
 
-            <!-- Contenedores separados para "Activo" e "Inactivo" -->
+            <!-- Contenedor de Activos/Inactivos -->
             <div id="estado-gestor" class="estado-container" style="display: none;">
+                <!-- Gestores Activos -->
                 <div>
                     <div class="estado-caja">Activo</div>
                     <div id="gestor-activo">
                         <label for="gestor-activo-select">Seleccionar gestor:</label>
                         <select id="gestor-activo-select">
                             <option value="">-- Seleccionar --</option>
+                            <!-- Se llenará dinámicamente -->
                         </select>
                     </div>
                 </div>
 
+                <!-- Gestores Inactivos -->
                 <div>
                     <div class="estado-caja">Inactivo</div>
                     <div class="gestor-inactivo">
                         <label for="gestor-inactivo-select">Seleccionar gestor:</label>
                         <select id="gestor-inactivo-select">
                             <option value="">-- Seleccionar --</option>
+                            <!-- Se llenará dinámicamente -->
                         </select>
                     </div>
+                </div>
+                <!-- Formulario de edición para gestor seleccionado -->
+                <div id="editar-gestor" style="display: none;">
+                    <table>
+                        <tr>
+                            <td><label>Nombre:</label></td>
+                            <td><input type="text" id="nombre-gestor" disabled/></td>
+                        </tr>
+                        <tr>
+                            <td><label>Primer apellido:</label></td>
+                            <td><input type="text" id="apellido1-gestor" disabled/></td>
+                        </tr>
+                        <tr>
+                            <td><label>Segundo apellido:</label></td>
+                            <td><input type="text" id="apellido2-gestor" disabled/></td>
+                        </tr>
+                        <tr>
+                            <td><label>Nombre de usuario:</label></td>
+                            <td><input type="text" id="usuario-gestor" disabled/></td>
+                        </tr>
+                        <tr>
+                            <td><label>Contraseña:</label></td>
+                            <td><input type="password" id="contrasena-gestor" disabled/></td>
+                        </tr>
+                        <tr>
+                            <td><label>Color:</label></td>
+                            <td><input type="color" id="color-gestor" disabled/></td>
+                        </tr>
+                    </table>
+                    <button id="modificar-gestor" onclick="activarEdicionGestor()">Modificar</button>
+                    <button id="guardar-gestor" onclick="guardarCambiosGestor()" style="display: none;">Guardar cambios</button>
                 </div>
             </div>
         </div>
 
+
+
+        <!-- Sección de Cuidadores -->
         <div id="opciones-cuidadores" class="sub-botones fila-dos-botones">
             <button class="boton-subcuidador" onclick="mostrarFormularioCuidador()">Añadir cuidador</button>
+
             <!-- Formulario Añadir Cuidador -->
             <form id="formulario-cuidador" class="formulario-usuario" style="display: none;" onsubmit="event.preventDefault();">
                 <div class="campo-formulario">
@@ -117,36 +164,74 @@
                 </div>
                 <button type="submit" class="boton-enviar">Guardar</button>
             </form>
+
             <button class="boton-subcuidador" onclick="mostrarEstadosCuidador()">Modificar cuidador</button>
 
-            <!-- Panel Activo/Inactivo para Cuidador -->
+            <!-- Contenedor para Cuidadores Activos -->
             <div id="estado-cuidador" class="estado-container" style="display: none;">
                 <div>
                     <div class="estado-caja">Activo</div>
-                    <div class="cuidador-activo">
+                    <div id="cuidador-activo">
                         <label for="cuidador-activo-select">Seleccionar cuidador:</label>
                         <select id="cuidador-activo-select">
                             <option value="">-- Seleccionar --</option>
-
+                            <!-- Opciones se llenarán dinámicamente -->
                         </select>
                     </div>
                 </div>
 
+
+
+                <!-- Cuidadores Inactivos -->
                 <div>
                     <div class="estado-caja">Inactivo</div>
                     <div class="cuidador-inactivo">
                         <label for="cuidador-inactivo-select">Seleccionar cuidador:</label>
                         <select id="cuidador-inactivo-select">
                             <option value="">-- Seleccionar --</option>
-
                         </select>
                     </div>
+                </div>
+                <!-- Formulario para editar cuidador seleccionado -->
+                <div id="editar-cuidador" style="display: none;">
+                    <table>
+                        <tr>
+                            <td><label>Nombre:</label></td>
+                            <td><input type="text" id="nombre-cuidador" disabled/></td>
+                        </tr>
+                        <tr>
+                            <td><label>Primer apellido:</label></td>
+                            <td><input type="text" id="apellido1-cuidador" disabled/></td>
+                        </tr>
+                        <tr>
+                            <td><label>Segundo apellido:</label></td>
+                            <td><input type="text" id="apellido2-cuidador" disabled/></td>
+                        </tr>
+                        <tr>
+                            <td><label>Nombre de usuario:</label></td>
+                            <td><input type="text" id="usuario-cuidador" disabled/></td>
+                        </tr>
+                        <tr>
+                            <td><label>Contraseña:</label></td>
+                            <td><input type="password" id="contrasena-cuidador" disabled/></td>
+                        </tr>
+                        <tr>
+                            <td><label>Teléfono:</label></td>
+                            <td><input type="text" id="telefono-cuidador" disabled/></td>
+                        </tr>
+                    </table>
+                    <button id="modificar-cuidador" onclick="activarEdicionCuidador()">Modificar</button>
+                    <button id="guardar-cuidador" onclick="guardarCambiosCuidador()" style="display: none;">Guardar cambios</button>
                 </div>
             </div>
         </div>
 
+
+
+        <!-- Sección de Hogares -->
         <div id="opciones-hogares" class="sub-botones fila-dos-botones">
-            <button class="boton-subcuidador" onclick="mostrarFormularioHogar()">Añadir hogar</button>
+            <button class="boton-subhogar" onclick="mostrarFormularioHogar()">Añadir hogar</button>
+
             <!-- Formulario Añadir Hogar -->
             <form id="formulario-hogar" class="formulario-usuario" style="display: none;" onsubmit="event.preventDefault();">
                 <div class="campo-formulario">
@@ -171,35 +256,69 @@
                 </div>
                 <button type="submit" class="boton-enviar">Guardar</button>
             </form>
+
             <button class="boton-subhogar" onclick="mostrarEstadosHogar()">Modificar hogar</button>
 
+            <!-- Panel de Hogares Activos e Inactivos -->
             <div id="estado-hogar" class="estado-container" style="display: none;">
                 <div>
                     <div class="estado-caja">Activo</div>
-                    <div class="hogar-activo">
+                    <div id="hogar-activo">
                         <label for="hogar-activo-select">Seleccionar hogar:</label>
                         <select id="hogar-activo-select">
                             <option value="">-- Seleccionar --</option>
-
+                            <!-- Opciones se llenarán dinámicamente -->
                         </select>
                     </div>
                 </div>
 
+
+
+                <!-- Hogares Inactivos -->
                 <div>
                     <div class="estado-caja">Inactivo</div>
                     <div class="hogar-inactivo">
                         <label for="hogar-inactivo-select">Seleccionar hogar:</label>
                         <select id="hogar-inactivo-select">
                             <option value="">-- Seleccionar --</option>
-
                         </select>
                     </div>
+                </div>
+                <!-- Formulario para editar hogar seleccionado -->
+                <div id="editar-hogar" style="display: none;">
+                    <table>
+                        <tr>
+                            <td><label>Dirección:</label></td>
+                            <td><input type="text" id="direccion-hogar" disabled/></td>
+                        </tr>
+                        <tr>
+                            <td><label>Código Postal:</label></td>
+                            <td><input type="text" id="codigo_postal-hogar" disabled/></td>
+                        </tr>
+                        <tr>
+                            <td><label>Provincia:</label></td>
+                            <td><input type="text" id="provincia-hogar" disabled/></td>
+                        </tr>
+                        <tr>
+                            <td><label>URL Home Assistant:</label></td>
+                            <td><input type="text" id="url_homeassistant-hogar" disabled/></td>
+                        </tr>
+                        <tr>
+                            <td><label>Token Home Assistant:</label></td>
+                            <td><input type="text" id="token_homeassistant-hogar" disabled/></td>
+                        </tr>
+                    </table>
+                    <button id="modificar-hogar" onclick="activarEdicionHogar()">Modificar</button>
+                    <button id="guardar-hogar" onclick="guardarCambiosHogar()" style="display: none;">Guardar cambios</button>
                 </div>
             </div>
         </div>
 
+
+        <!-- Sección de Clientes -->
         <div id="opciones-clientes" class="sub-botones fila-dos-botones">
             <button class="boton-subcliente" onclick="mostrarFormularioCliente()">Añadir cliente</button>
+
             <!-- Formulario Añadir Cliente -->
             <form id="formulario-cliente" class="formulario-usuario-dos-columnas" style="display: none;" onsubmit="event.preventDefault();">
                 <!-- Columna izquierda -->
@@ -208,7 +327,7 @@
                         <label><i class="fas fa-user-tie"></i> Gestor:</label>
                         <select name="gestor" required>
                             <option value="">-- Seleccionar gestor --</option>
-
+                            <!-- Opciones se llenarán dinámicamente -->
                         </select>
                     </div>
                     <div class="campo-formulario">
@@ -255,7 +374,7 @@
                         <label><i class="fas fa-home"></i> Hogar:</label>
                         <select name="hogar" required>
                             <option value="">-- Seleccionar hogar --</option>
-
+                            <!-- Opciones se llenarán dinámicamente -->
                         </select>
                     </div>
                     <div class="campo-formulario">
@@ -268,29 +387,100 @@
                     <button type="submit" class="boton-enviar">Guardar</button>
                 </div>
             </form>
+
             <button class="boton-subcliente" onclick="mostrarEstadosCliente()">Modificar cliente</button>
 
+            <!-- Panel de Clientes Activos e Inactivos -->
             <div id="estado-cliente" class="estado-container" style="display: none;">
+                <!-- Clientes Activos -->
                 <div>
                     <div class="estado-caja">Activo</div>
-                    <div class="cliente-activo">
+                    <div id="cliente-activo">
                         <label for="cliente-activo-select">Seleccionar cliente:</label>
                         <select id="cliente-activo-select">
                             <option value="">-- Seleccionar --</option>
-
+                            <!-- Opciones se llenarán dinámicamente -->
                         </select>
                     </div>
                 </div>
-
+                <!-- Clientes Inactivos -->
                 <div>
                     <div class="estado-caja">Inactivo</div>
                     <div class="cliente-inactivo">
                         <label for="cliente-inactivo-select">Seleccionar cliente:</label>
                         <select id="cliente-inactivo-select">
                             <option value="">-- Seleccionar --</option>
-
                         </select>
                     </div>
+                </div>
+                <!-- Formulario para editar cliente seleccionado -->
+                <div id="editar-cliente" style="display: none;">
+                    <div class="columna-formulario-container">
+                        <!-- Columna izquierda -->
+                        <div class="columna-formulario">
+                            <!-- Campo de Gestor -->
+                            <div class="campo-formulario">
+                                <label><i class="fas fa-user-tie"></i> Gestor:</label>
+                                <select name="gestor" id="gestor-cliente" disabled>
+                                    <option value="">-- Seleccionar gestor --</option>
+                                    <!-- Opciones se llenarán dinámicamente -->
+                                </select>
+                            </div>
+                            <div class="campo-formulario">
+                                <label><i class="fas fa-user"></i> Nombre:</label>
+                                <input type="text" id="nombre-cliente" disabled />
+                            </div>
+                            <div class="campo-formulario">
+                                <label><i class="fas fa-user-tag"></i> Primer apellido:</label>
+                                <input type="text" id="apellido1-cliente" disabled />
+                            </div>
+                            <div class="campo-formulario">
+                                <label>Segundo apellido:</label>
+                                <input type="text" id="apellido2-cliente" disabled />
+                            </div>
+                            <div class="campo-formulario">
+                                <label>DNI:</label>
+                                <input type="text" id="dni-cliente" disabled />
+                            </div>
+                        </div>
+
+                        <!-- Columna derecha -->
+                        <div class="columna-formulario">
+                            <div class="campo-formulario">
+                                <label><i class="fas fa-venus-mars"></i> Sexo:</label>
+                                <select name="sexo" id="sexo-cliente" disabled>
+                                    <option value="">-- Seleccionar sexo --</option>
+                                    <option value="hombre">Hombre</option>
+                                    <option value="mujer">Mujer</option>
+                                </select>
+                            </div>
+                            <div class="campo-formulario">
+                                <label><i class="fas fa-calendar"></i> Fecha de nacimiento:</label>
+                                <input type="date" id="fecha_nacimiento-cliente" disabled />
+                            </div>
+                            <div class="campo-formulario">
+                                <label><i class="fas fa-phone"></i> Teléfono personal:</label>
+                                <input type="tel" id="telefono-personal-cliente" disabled />
+                            </div>
+                            <div class="campo-formulario">
+                                <label><i class="fas fa-phone-volume"></i> Teléfono familiar:</label>
+                                <input type="tel" id="telefono-familiar-cliente" disabled />
+                            </div>
+                            <div class="campo-formulario">
+                                <label><i class="fas fa-home"></i> Hogar:</label>
+                                <select id="hogar-cliente" disabled>
+                                    <option value="">-- Seleccionar hogar --</option>
+                                </select>
+                            </div>
+                            <div class="campo-formulario">
+                                <label><i class="fas fa-align-left"></i> Descripción:</label>
+                                <textarea id="descripcion-cliente" rows="3" disabled></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="modificar-cliente" onclick="activarEdicionCliente()">Modificar</button>
+                    <button id="guardar-cliente" onclick="guardarCambiosCliente()" style="display: none;">Guardar cambios</button>
                 </div>
             </div>
         </div>
@@ -327,6 +517,7 @@
         // Abrir formulario
         document.getElementById('formulario-gestor').style.display = 'flex';
     }
+
 
 
     function mostrarFormularioCuidador() {
@@ -380,7 +571,7 @@
                     const id = item.id || item.id_gestor || item.id_cliente || item.id_cuidador || item.id_hogar;
 
                     option.value = id;
-                    
+
                     // Usar el formatter personalizado si está disponible, o mostrar un campo común
                     option.textContent = formatter ? formatter(item) : (item.nombre || item.direccion || 'Sin nombre');
                     selectElement.appendChild(option);
@@ -404,11 +595,125 @@
         const selectInactivo = document.getElementById('gestor-inactivo-select');
 
         contenedor.style.display = 'flex';
-        cargarDatos('/gestoresActivos', selectActivo, 'gestor', 'activo', gestor => 
+        cargarDatos('/gestoresActivos', selectActivo, 'gestor', 'activo', gestor =>
             `${gestor.nombre} ${gestor.apellido1} ${gestor.apellido2 || ''}`.trim());
-        cargarDatos('/gestoresInactivos', selectInactivo, 'gestor', 'inactivo', gestor => 
+        cargarDatos('/gestoresInactivos', selectInactivo, 'gestor', 'inactivo', gestor =>
             `${gestor.nombre} ${gestor.apellido1} ${gestor.apellido2 || ''}`.trim());
+
+        // Agregar evento para cargar los detalles del gestor seleccionado
+        selectActivo.addEventListener('change', function () {
+            const gestorId = this.value;
+            if (gestorId) {
+                obtenerDatosGestor(gestorId);
+            }
+        });
     }
+
+    // Función para cargar los gestores activos en el select
+    function cargarGestoresActivos() {
+        fetch('/gestoresActivos')
+            .then(response => response.json())
+            .then(data => {
+                const selectActivo = document.getElementById('gestor-activo-select');
+                data.data.forEach(gestor => {
+                    const option = document.createElement('option');
+                    option.value = gestor.id_gestor;
+                    option.textContent = `${gestor.nombre} ${gestor.apellido1} ${gestor.apellido2 || ''}`;
+                    selectActivo.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error al cargar gestores activos:', error));
+    }
+
+    // Función para cargar los gestores inactivos en el select
+    function cargarGestoresInactivos() {
+        fetch('/gestoresInactivos')
+            .then(response => response.json())
+            .then(data => {
+                const selectInactivo = document.getElementById('gestor-inactivo-select');
+                data.data.forEach(gestor => {
+                    const option = document.createElement('option');
+                    option.value = gestor.id_gestor;
+                    option.textContent = `${gestor.nombre} ${gestor.apellido1} ${gestor.apellido2 || ''}`;
+                    selectInactivo.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error al cargar gestores inactivos:', error));
+    }
+
+    function obtenerDatosGestor(id) {
+        console.log(`Obteniendo detalles del gestor con ID: ${id}`);  // Debugging
+        fetch(`/gestorDetalles/${id}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);  // Verifica que los datos sean correctos
+                if (data.success && data.data) {
+                    // Los campos se muestran vacíos inicialmente.
+                    document.getElementById('nombre-gestor').value = '';
+                    document.getElementById('apellido1-gestor').value = '';
+                    document.getElementById('apellido2-gestor').value = '';
+                    document.getElementById('usuario-gestor').value = '';
+                    document.getElementById('contrasena-gestor').value = '';
+                    document.getElementById('color-gestor').value = '#000000'; // Color por defecto
+
+                    // Mostrar la tabla de edición
+                    document.getElementById('editar-gestor').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error al cargar los detalles del gestor:', error);
+            });
+    }
+
+    function activarEdicionGestor() {
+        // Al hacer clic en "Modificar", habilitamos los campos para su edición.
+        document.getElementById('nombre-gestor').disabled = false;
+        document.getElementById('apellido1-gestor').disabled = false;
+        document.getElementById('apellido2-gestor').disabled = false;
+        document.getElementById('usuario-gestor').disabled = false;
+        document.getElementById('contrasena-gestor').disabled = false;
+        document.getElementById('color-gestor').disabled = false;
+
+        // Mostrar el botón "Guardar cambios"
+        document.getElementById('guardar-gestor').style.display = 'inline';
+        document.getElementById('modificar-gestor').style.display = 'none';
+    }
+
+    function guardarCambiosGestor() {
+        const gestorData = {
+            nombre: document.getElementById('nombre-gestor').value,
+            apellido1: document.getElementById('apellido1-gestor').value,
+            apellido2: document.getElementById('apellido2-gestor').value,
+            nombre_usuario: document.getElementById('usuario-gestor').value,
+            contrasena: document.getElementById('contrasena-gestor').value,
+            color: document.getElementById('color-gestor').value
+        };
+
+        const gestorId = document.getElementById('gestor-activo-select').value;
+
+        fetch(`/gestorDetalles/${gestorId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(gestorData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);  // Verifica que los datos sean correctos
+                if (data.success) {
+                    alert('Gestor actualizado correctamente');
+                    // Ocultar la tabla de edición después de guardar
+                    document.getElementById('editar-gestor').style.display = 'none';
+                } else {
+                    alert('Error al actualizar gestor');
+                }
+            })
+            .catch(error => {
+                console.error('Error al guardar los cambios:', error);
+            });
+    }
+
 
     function mostrarContenedorCuidadores() {
         const contenedor = document.getElementById('estado-cuidador');
@@ -526,9 +831,10 @@ async function handleFetch(url, options, successMessage) {
         apellido2: formData.get('apellido2'),
         nombre_usuario: formData.get('usuario'),
         contraseña: formData.get('contrasena'),
+        color: formData.get('color'), // Obtener el valor del campo color
         activo: 'activo',
         gestor_data: {
-            color: 'rojo'
+            color: formData.get('color') // También puedes agregarlo en el objeto 'gestor_data'
         }
     };
 
@@ -674,9 +980,248 @@ async function handleFetch(url, options, successMessage) {
 
 
     // Inicialización (opcional, para cargar datos al abrir la página)
-    document.addEventListener('DOMContentLoaded', () => {
-        // Puedes cargar datos iniciales aquí si lo deseas
+    // Evento para seleccionar un gestor activo
+    document.getElementById('gestor-activo-select').addEventListener('change', function () {
+        const gestorId = this.value;
+        if (gestorId) {
+            mostrarFormularioEdicion('gestor', gestorId, 'activo');
+        }
     });
+
+    // Evento para seleccionar un gestor inactivo
+    document.getElementById('gestor-inactivo-select').addEventListener('change', function () {
+        const gestorId = this.value;
+        if (gestorId) {
+            mostrarFormularioEdicion('gestor', gestorId, 'inactivo');
+        }
+    });
+
+    // Función para mostrar el formulario de edición debajo del selector (activo/inactivo)
+    function mostrarFormularioEdicion(tipo, id, estado) {
+        // Ocultar formularios anteriores
+        document.querySelectorAll(`#editar-${tipo}`).forEach(form => form.style.display = 'none');
+
+        // Mostrar formulario de edición para el gestor
+        const formulario = document.getElementById(`editar-${tipo}`);
+        formulario.style.display = 'block';
+
+        // Limpiar campos
+        document.getElementById(`nombre-${tipo}`).value = '';
+        document.getElementById(`apellido1-${tipo}`).value = '';
+        document.getElementById(`apellido2-${tipo}`).value = '';
+        document.getElementById(`usuario-${tipo}`).value = '';
+        document.getElementById(`contrasena-${tipo}`).value = '';
+        document.getElementById(`color-${tipo}`).value = '#000000';  // Color por defecto
+
+        // Obtener datos del gestor y llenar los campos
+        fetch(`/${tipo}Detalles/${id}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    document.getElementById(`nombre-${tipo}`).value = data.data.nombre;
+                    document.getElementById(`apellido1-${tipo}`).value = data.data.apellido1;
+                    document.getElementById(`apellido2-${tipo}`).value = data.data.apellido2 || '';
+                    document.getElementById(`usuario-${tipo}`).value = data.data.nombre_usuario;
+                    document.getElementById(`contrasena-${tipo}`).value = data.data.contrasena;
+                    document.getElementById(`color-${tipo}`).value = data.data.color || '#000000';
+                }
+            })
+            .catch(error => console.error(`Error al cargar los detalles del ${tipo}:`, error));
+
+        // Habilitar los campos para edición
+        document.getElementById(`nombre-${tipo}`).disabled = false;
+        document.getElementById(`apellido1-${tipo}`).disabled = false;
+        document.getElementById(`apellido2-${tipo}`).disabled = false;
+        document.getElementById(`usuario-${tipo}`).disabled = false;
+        document.getElementById(`contrasena-${tipo}`).disabled = false;
+        document.getElementById(`color-${tipo}`).disabled = false;
+
+        // Mostrar los botones de modificación y guardado
+        document.getElementById(`modificar-${tipo}`).style.display = 'inline';
+        document.getElementById(`guardar-${tipo}`).style.display = 'none';
+    }
+
+    // Evento para seleccionar un cuidador activo
+    document.getElementById('cuidador-activo-select').addEventListener('change', function () {
+        const cuidadorId = this.value;
+        if (cuidadorId) {
+            mostrarFormularioEdicion('cuidador', cuidadorId, 'activo');
+        }
+    });
+
+    // Evento para seleccionar un cuidador inactivo
+    document.getElementById('cuidador-inactivo-select').addEventListener('change', function () {
+        const cuidadorId = this.value;
+        if (cuidadorId) {
+            mostrarFormularioEdicion('cuidador', cuidadorId, 'inactivo');
+        }
+    });
+
+    // Función para mostrar el formulario de edición debajo del selector (activo/inactivo)
+    function mostrarFormularioEdicion(tipo, id, estado) {
+        // Ocultar formularios anteriores
+        document.querySelectorAll(`#editar-${tipo}`).forEach(form => form.style.display = 'none');
+
+        // Mostrar formulario de edición para el cuidador
+        const formulario = document.getElementById(`editar-${tipo}`);
+        formulario.style.display = 'block';
+
+        // Limpiar campos
+        document.getElementById(`nombre-${tipo}`).value = '';
+        document.getElementById(`apellido1-${tipo}`).value = '';
+        document.getElementById(`apellido2-${tipo}`).value = '';
+        document.getElementById(`usuario-${tipo}`).value = '';
+        document.getElementById(`contrasena-${tipo}`).value = '';
+        document.getElementById(`telefono-${tipo}`).value = '';
+
+        // Obtener datos del cuidador y llenar los campos
+        fetch(`/${tipo}Detalles/${id}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    document.getElementById(`nombre-${tipo}`).value = data.data.nombre;
+                    document.getElementById(`apellido1-${tipo}`).value = data.data.apellido1;
+                    document.getElementById(`apellido2-${tipo}`).value = data.data.apellido2 || '';
+                    document.getElementById(`usuario-${tipo}`).value = data.data.nombre_usuario;
+                    document.getElementById(`contrasena-${tipo}`).value = data.data.contrasena;
+                    document.getElementById(`telefono-${tipo}`).value = data.data.telefono;
+                }
+            })
+            .catch(error => console.error(`Error al cargar los detalles del ${tipo}:`, error));
+
+        // Habilitar los campos para edición
+        document.getElementById(`nombre-${tipo}`).disabled = false;
+        document.getElementById(`apellido1-${tipo}`).disabled = false;
+        document.getElementById(`apellido2-${tipo}`).disabled = false;
+        document.getElementById(`usuario-${tipo}`).disabled = false;
+        document.getElementById(`contrasena-${tipo}`).disabled = false;
+        document.getElementById(`telefono-${tipo}`).disabled = false;
+
+        // Mostrar los botones de modificación y guardado
+        document.getElementById(`modificar-${tipo}`).style.display = 'inline';
+        document.getElementById(`guardar-${tipo}`).style.display = 'none';
+    }
+
+    // Evento para seleccionar un hogar activo
+    document.getElementById('hogar-activo-select').addEventListener('change', function () {
+        const hogarId = this.value;
+        if (hogarId) {
+            mostrarFormularioEdicion('hogar', hogarId, 'activo');
+        }
+    });
+
+    // Evento para seleccionar un hogar inactivo
+    document.getElementById('hogar-inactivo-select').addEventListener('change', function () {
+        const hogarId = this.value;
+        if (hogarId) {
+            mostrarFormularioEdicion('hogar', hogarId, 'inactivo');
+        }
+    });
+
+    // Función para mostrar el formulario de edición debajo del selector (activo/inactivo)
+    function mostrarFormularioEdicion(tipo, id, estado) {
+        // Ocultar formularios anteriores
+        document.querySelectorAll(`#editar-${tipo}`).forEach(form => form.style.display = 'none');
+
+        // Mostrar formulario de edición para el hogar
+        const formulario = document.getElementById(`editar-${tipo}`);
+        formulario.style.display = 'block';
+
+        // Limpiar campos
+        document.getElementById(`direccion-${tipo}`).value = '';
+        document.getElementById(`codigo_postal-${tipo}`).value = '';
+        document.getElementById(`provincia-${tipo}`).value = '';
+        document.getElementById(`url_homeassistant-${tipo}`).value = '';
+        document.getElementById(`token_homeassistant-${tipo}`).value = '';
+
+        // Obtener datos del hogar y llenar los campos
+        fetch(`/${tipo}Detalles/${id}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    document.getElementById(`direccion-${tipo}`).value = data.data.direccion;
+                    document.getElementById(`codigo_postal-${tipo}`).value = data.data.codigo_postal;
+                    document.getElementById(`provincia-${tipo}`).value = data.data.provincia;
+                    document.getElementById(`url_homeassistant-${tipo}`).value = data.data.url_homeassistant;
+                    document.getElementById(`token_homeassistant-${tipo}`).value = data.data.token_homeassistant;
+                }
+            })
+            .catch(error => console.error(`Error al cargar los detalles del ${tipo}:`, error));
+
+        // Habilitar los campos para edición
+        document.getElementById(`direccion-${tipo}`).disabled = false;
+        document.getElementById(`codigo_postal-${tipo}`).disabled = false;
+        document.getElementById(`provincia-${tipo}`).disabled = false;
+        document.getElementById(`url_homeassistant-${tipo}`).disabled = false;
+        document.getElementById(`token_homeassistant-${tipo}`).disabled = false;
+
+        // Mostrar los botones de modificación y guardado
+        document.getElementById(`modificar-${tipo}`).style.display = 'inline';
+        document.getElementById(`guardar-${tipo}`).style.display = 'none';
+    }
+
+    // Evento para seleccionar un cliente activo
+    document.getElementById('cliente-activo-select').addEventListener('change', function () {
+        const clienteId = this.value;
+        if (clienteId) {
+            mostrarFormularioEdicion('cliente', clienteId, 'activo');
+        }
+    });
+
+    // Evento para seleccionar un cliente inactivo
+    document.getElementById('cliente-inactivo-select').addEventListener('change', function () {
+        const clienteId = this.value;
+        if (clienteId) {
+            mostrarFormularioEdicion('cliente', clienteId, 'inactivo');
+        }
+    });
+
+    // Función para mostrar el formulario de edición debajo del selector (activo/inactivo)
+    function mostrarFormularioEdicion(tipo, id, estado) {
+        // Ocultar formularios anteriores
+        document.querySelectorAll(`#editar-${tipo}`).forEach(form => form.style.display = 'none');
+
+        // Mostrar formulario de edición para el cliente
+        const formulario = document.getElementById(`editar-${tipo}`);
+        formulario.style.display = 'block';
+
+        // Limpiar campos
+        document.getElementById(`nombre-${tipo}`).value = '';
+        document.getElementById(`apellido1-${tipo}`).value = '';
+        document.getElementById(`apellido2-${tipo}`).value = '';
+        document.getElementById(`usuario-${tipo}`).value = '';
+        document.getElementById(`contrasena-${tipo}`).value = '';
+        document.getElementById(`telefono-${tipo}`).value = '';
+
+        // Obtener datos del cliente y llenar los campos
+        fetch(`/${tipo}Detalles/${id}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    document.getElementById(`nombre-${tipo}`).value = data.data.nombre;
+                    document.getElementById(`apellido1-${tipo}`).value = data.data.apellido1;
+                    document.getElementById(`apellido2-${tipo}`).value = data.data.apellido2 || '';
+                    document.getElementById(`usuario-${tipo}`).value = data.data.nombre_usuario;
+                    document.getElementById(`contrasena-${tipo}`).value = data.data.contrasena;
+                    document.getElementById(`telefono-${tipo}`).value = data.data.telefono;
+                }
+            })
+            .catch(error => console.error(`Error al cargar los detalles del ${tipo}:`, error));
+
+        // Habilitar los campos para edición
+        document.getElementById(`nombre-${tipo}`).disabled = false;
+        document.getElementById(`apellido1-${tipo}`).disabled = false;
+        document.getElementById(`apellido2-${tipo}`).disabled = false;
+        document.getElementById(`usuario-${tipo}`).disabled = false;
+        document.getElementById(`contrasena-${tipo}`).disabled = false;
+        document.getElementById(`telefono-${tipo}`).disabled = false;
+
+        // Mostrar los botones de modificación y guardado
+        document.getElementById(`modificar-${tipo}`).style.display = 'inline';
+        document.getElementById(`guardar-${tipo}`).style.display = 'none';
+    }
+
+
 
 
 

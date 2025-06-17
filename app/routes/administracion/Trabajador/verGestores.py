@@ -81,3 +81,42 @@ def get_gestores(usuario: str = Cookie(None)):
             cursor.close()
         if conn:
             conn.close()
+
+    # Ruta para obtener detalles de un gestor específico
+@router.get("/gestorDetalles/{id}")
+def get_gestor_detalles(id: int, usuario: str = Cookie(None)):
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+                       SELECT g.id_gestor, t.nombre, t.apellido1, t.apellido2, t.nombre_usuario, t.contraseña, t.activo, g.color
+                       FROM trabajadores t
+                                JOIN gestores g on t.id_trabajador = g.id_gestor
+                       WHERE g.id_gestor = %s
+                       """, (id,))
+
+        row = cursor.fetchone()
+        if row:
+            gestor = {
+                "id_gestor": row[0],
+                "nombre": row[1],
+                "apellido1": row[2],
+                "apellido2": row[3],
+                "nombre_usuario": row[4],
+                "contraseña": row[5],
+                "activo": row[6],
+                "color": row[7]
+            }
+            return {"success": True, "data": gestor}
+        else:
+            raise HTTPException(status_code=404, detail="Gestor no encontrado")
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
