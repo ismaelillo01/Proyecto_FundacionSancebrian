@@ -1,0 +1,393 @@
+/* Reset, layout y estilos generales */
+* { box-sizing: border-box; }
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f5f7fa;
+    margin: 0; padding: 15px 15px 100px 15px;
+    color: #34495e;
+    user-select: none;
+    display: flex; flex-direction: column; align-items: center;
+    min-height: 100vh;
+}
+h1 {
+    margin: 6px 0 16px;
+    font-weight: 700;
+    font-size: 1.9rem;
+    color: #2c3e50;
+    text-align: center;
+    user-select: none;
+}
+form#scheduleForm {
+    max-width: 920px;
+    width: 100%;
+    background: white;
+    padding: 16px 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    margin-bottom: 24px;
+    user-select: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px 18px;
+    align-items: end;
+}
+form#scheduleForm label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #34495e;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+form#scheduleForm select,
+form#scheduleForm input[type="date"],
+form#scheduleForm input[type="time"] {
+    padding: 6px 8px;
+    font-size: 0.9rem;
+    border: none;
+    border-bottom: 2px solid #bbb;
+    background: transparent;
+    outline-offset: 0;
+    transition: border-color 0.3s ease;
+    color: #34495e;
+    min-width: 140px;
+}
+form#scheduleForm select:focus,
+form#scheduleForm input[type="date"]:focus,
+form#scheduleForm input[type="time"]:focus {
+    border-bottom-color: #2980b9;
+    outline: none;
+}
+label.checkbox-label {
+    grid-column: 1 / -1;
+    font-weight: 700;
+    font-size: 0.9rem;
+    user-select: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #34495e;
+    padding-top: 8px;
+}
+label.checkbox-label input[type="checkbox"] {
+    width: 18px; height: 18px; cursor: pointer;
+}
+form#scheduleForm button {
+    grid-column: 1 / -1;
+    padding: 10px 28px;
+    background: #2980b9;
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    user-select: none;
+    justify-self: center;
+    min-width: 140px;
+}
+form#scheduleForm button:hover {
+    background: #1c5980;
+}
+.range-fields {
+    display: none;
+    flex-direction: column;
+}
+.range-fields label {
+    min-width: auto;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+.range-fields input {
+    min-width: 140px;
+    padding: 6px 8px;
+}
+#mainContainer {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: none;
+    width: 100%;
+    gap: 16px;
+    height: 620px;
+}
+#calendar, #logTableContainer {
+    flex: 1;
+    height: 100%;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.14);
+    padding: 18px 20px;
+    overflow-y: auto;
+}
+#logTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.6rem;
+
+}
+#logTable thead {
+    background: #2980b9;
+    color: white;
+    user-select: none;
+}
+
+#logTable th, #logTable td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap; /* ✅ antes era nowrap */
+    word-break: break-word; /* ✅ permite saltos de línea */
+}
+
+#logTable tbody tr:hover {
+    background-color: #f0f8ff;
+    cursor: pointer;
+}
+.fc-event-main-frame {
+    white-space: normal !important;
+    font-weight: 600;
+    font-size: 0.9rem !important;
+    line-height: 1.2;
+    padding: 5px 8px !important;
+    text-align: center;
+    color: white !important;
+    user-select: none;
+}
+/* Popup styles */
+#editPopupOverlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.35);
+    display: none; z-index: 1700;
+    backdrop-filter: blur(3px);
+}
+#editPopup {
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 22px 28px;
+    border-radius: 14px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.28);
+    width: 340px;
+    z-index: 1800;
+    display: none;
+    font-size: 1rem;
+    color: #34495e;
+    user-select: none;
+}
+#editPopup h3 {
+    margin: 0 0 16px 0;
+    font-weight: 700;
+    color: #2c3e50;
+    text-align: center;
+    letter-spacing: 0.7px;
+}
+#editPopup label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: block;
+    margin-bottom: 8px;
+}
+#editPopup input[type="date"],
+#editPopup input[type="time"],
+#editPopup select {
+    width: 100%;
+    padding: 7px 10px;
+    font-size: 1rem;
+    border: 1.5px solid #dcdfe6;
+    border-radius: 8px;
+    margin-bottom: 14px;
+    transition: border-color 0.3s ease;
+    outline-offset: 2px;
+    color: #34495e;
+    background: white;
+}
+#editPopup input[type="date"]:focus,
+#editPopup input[type="time"]:focus,
+#editPopup select:focus {
+    border-color: #2980b9;
+    outline: none;
+    box-shadow: 0 0 8px #2980b9cc;
+}
+#editPopup .actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+}
+#editPopup button {
+    flex: 1;
+    padding: 10px 0;
+    font-weight: 700;
+    font-size: 1rem;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.25s ease;
+}
+#editPopup #deleteBtnPopup {
+    background: #e74c3c;
+    color: white;
+}
+#editPopup #deleteBtnPopup:hover {
+    background: #c0392b;
+}
+#editPopup #saveBtnPopup {
+    background: #27ae60;
+    color: white;
+}
+#editPopup #saveBtnPopup:hover {
+    background: #1e8449;
+}
+#editPopup #cancelBtnPopup {
+    background: #bdc3c7;
+    color: #2c3e50;
+}
+#editPopup #cancelBtnPopup:hover {
+    background: #95a5a6;
+}
+
+.desc-icon {
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: transform 0.2s ease;
+}
+
+.desc-icon:hover {
+    transform: scale(1.2);
+}
+
+
+
+/* Aparece cuando la burbuja es activada */
+.tooltip-bubble.show {
+    display: block;
+    opacity: 1;
+}
+
+
+
+.tooltip-bubble::-webkit-scrollbar {
+    width: 8px;
+}
+.tooltip-bubble::-webkit-scrollbar-thumb {
+    background-color: rgba(255,255,255,0.4);
+    border-radius: 4px;
+}
+/* Mayusculas para los meses calendario */
+.fc .fc-toolbar-title {
+    text-transform: uppercase;
+}
+/* Mayusculas para los dias calendario */
+.fc .fc-col-header-cell-cushion {
+    text-transform: uppercase;
+}
+/* Desaparece boton Guardar Horarios cuando sale pop-up*/
+.hide-on-popup {
+    display: none !important;
+}
+
+
+
+@media (max-width: 768px) {
+    html, body {
+        width: 100%;
+        overflow-x: hidden;
+        margin: 0;
+        padding: 0;
+        padding-bottom: 150px;
+    }
+
+    #mainContainer {
+        display: block; /* cambia flex por bloque */
+        width: 100%;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    form#scheduleForm {
+        width: 100%;
+        padding: 16px;
+        box-sizing: border-box;
+        margin-bottom: 20px;
+    }
+
+    form#scheduleForm button {
+        width: 100%;
+        margin-top: 12px;
+    }
+
+    #calendar {
+        width: 100%;
+        height: auto !important;
+        min-height: 620px;
+        overflow: visible !important;
+        padding: 16px;
+        box-sizing: border-box;
+        margin-bottom: 20px;
+    }
+
+    #calendar .fc {
+        width: 100% !important;
+        height: auto !important;
+    }
+
+    #logTableContainer {
+        width: 100%;
+        overflow-x: auto;
+        padding: 16px;
+        box-sizing: border-box;
+        margin-bottom: 40px;
+    }
+
+    #logTable {
+        width: 100%;
+        min-width: 560px;
+    }
+
+    #editPopup {
+        width: 90vw;
+        max-height: 90vh;
+        padding: 18px 20px;
+        font-size: 0.95rem;
+        overflow-y: auto;
+    }
+
+    #editPopup .actions {
+        flex-direction: column;
+    }
+
+    #editPopup button {
+        width: 100%;
+    }
+
+    #saveToDatabase {
+        display: block;
+        width: 90%;
+        max-width: 100%;
+        margin: 0 auto 40px auto;
+        text-align: center;
+    }
+    .tooltip-bubble {
+        width: 80%;  /* Se ajusta al 80% de la pantalla */
+        font-size: 1.2rem; /* Aumentamos el tamaño del texto */
+        max-width: none; /* No limitamos el ancho */
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%); /* Centrado absoluto */
+    }
+}
+
+@media (max-width: 767px) {
+    .tooltip-bubble {
+        max-width: 400px; /* Ajustar el tamaño en escritorio */
+        top: 50%;  /* Centrado vertical */
+        left: 50%; /* Centrado horizontal */
+        transform: translate(-50%, -50%);
+    }
+}
+
+
+
