@@ -6,95 +6,8 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Administrar</title>
-    <link rel="stylesheet" href="../static/css/MiPortal2.css"/>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/miportal2.css') }}"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .estado-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            margin-top: 15px;
-        }
-
-        .estado-caja {
-            background-color: #e8e8e8;
-            border: 1px solid #ccc;
-            padding: 10px;
-            width: 200px;
-            text-align: center;
-            font-weight: bold;
-        }
-
-
-        .gestor-activo select, .gestor-inactivo select,
-        .cuidador-activo, .cuidador-inactivo,
-        .hogar-activo, .hogar-inactivo,
-        .cliente-activo, .cliente-inactivo {
-            width: 200px;
-            padding: 5px;
-        }
-
-        .boton-subgestor {
-            min-width: 150px;
-            height: 40px;
-        }
-
-        .boton-subcuidador {
-            min-width: 150px;
-            height: 40px;
-        }
-
-        .boton-subhogar {
-            min-width: 150px;
-            height: 40px;
-        }
-
-        .boton-subcliente {
-            min-width: 150px;
-            height: 40px;
-        }
-
-        /* Ya incluido anteriormente */
-        .estado-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            margin-top: 15px;
-        }
-        .estado-caja {
-            background-color: #e8e8e8;
-            border: 1px solid #ccc;
-            padding: 10px;
-            width: 200px;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .gestor-activo, .gestor-inactivo,
-        .cuidador-activo, .cuidador-inactivo,
-        .hogar-activo, .hogar-inactivo,
-        .cliente-activo, .cliente-inactivo {
-            margin-top: 8px;
-        }
-
-        .gestor-activo label, .gestor-inactivo label,
-        .cuidador-activo label, .cuidador-inactivo label,
-        .hogar-activo label, .hogar-inactivo label,
-        .cliente-activo label, .cliente-inactivo label {
-            display: block;
-            margin-bottom: 4px;
-            font-weight: normal;
-        }
-
-        .gestor-activo select, .gestor-inactivo select,
-        .cuidador-activo select, .cuidador-inactivo select,
-        .hogar-activo select, .hogar-inactivo select,
-        .cliente-activo select, .cliente-inactivo select {
-            width: 200px;
-            padding: 5px;
-        }
-
-    </style>
 </head>
 <body>
 <header class="main-header" id="movible-header">
@@ -125,41 +38,39 @@
         <div id="opciones-gestores" class="sub-botones fila-dos-botones">
             <button class="boton-subgestor" onclick="mostrarFormularioGestor()">Añadir gestor</button>
             <!-- Formulario Añadir Gestor -->
-            <form id="formulario-gestor" class="formulario-usuario" style="display: none;" onsubmit="event.preventDefault();">
-                <div class="campo-formulario">
-                    <label><i class="fas fa-user"></i> Nombre:</label>
-                    <input type="text" name="nombre" required>
-                </div>
-                <div class="campo-formulario">
-                    <label><i class="fas fa-user-tag"></i> Primer apellido:</label>
-                    <input type="text" name="apellido1" required>
-                </div>
-                <div class="campo-formulario">
-                    <label><i class="fas fa-user-tag"></i> Segundo apellido:</label>
-                    <input type="text" name="apellido2">
-                </div>
-                <div class="campo-formulario">
-                    <label><i class="fas fa-user-circle"></i> Nombre de usuario:</label>
-                    <input type="text" name="usuario" required>
-                </div>
-                <div class="campo-formulario">
-                    <label><i class="fas fa-lock"></i> Contraseña:</label>
-                    <input type="password" name="contrasena" required>
-                </div>
-                <button type="submit" class="boton-enviar">Guardar</button>
-            </form>
+        <form id="formulario-gestor" class="formulario-usuario" style="display: none;" onsubmit="event.preventDefault();">
+            <div class="campo-formulario">
+                <label><i class="fas fa-user"></i> Nombre:</label>
+                <input type="text" name="nombre" required>
+            </div>
+            <div class="campo-formulario">
+                <label><i class="fas fa-user-tag"></i> Primer apellido:</label>
+                <input type="text" name="apellido1" required>
+            </div>
+            <div class="campo-formulario">
+                <label><i class="fas fa-user-tag"></i> Segundo apellido:</label>
+                <input type="text" name="apellido2">
+            </div>
+            <div class="campo-formulario">
+                <label><i class="fas fa-user-circle"></i> Nombre de usuario:</label>
+                <input type="text" name="usuario" required>
+            </div>
+            <div class="campo-formulario">
+                <label><i class="fas fa-lock"></i> Contraseña:</label>
+                <input type="password" name="contrasena" required>
+            </div>
+            <button type="submit" class="boton-enviar">Guardar</button>
+        </form>
             <button class="boton-subgestor" onclick="mostrarEstadosGestor()">Modificar gestor</button>
 
             <!-- Contenedores separados para "Activo" e "Inactivo" -->
             <div id="estado-gestor" class="estado-container" style="display: none;">
                 <div>
                     <div class="estado-caja">Activo</div>
-                    <div class="gestor-activo">
+                    <div id="gestor-activo">
                         <label for="gestor-activo-select">Seleccionar gestor:</label>
                         <select id="gestor-activo-select">
                             <option value="">-- Seleccionar --</option>
-                            <option value="gestor1">Gestor 1</option>
-                            <option value="gestor2">Gestor 2</option>
                         </select>
                     </div>
                 </div>
@@ -170,8 +81,6 @@
                         <label for="gestor-inactivo-select">Seleccionar gestor:</label>
                         <select id="gestor-inactivo-select">
                             <option value="">-- Seleccionar --</option>
-                            <option value="gestor3">Gestor 3</option>
-                            <option value="gestor4">Gestor 4</option>
                         </select>
                     </div>
                 </div>
@@ -218,8 +127,7 @@
                         <label for="cuidador-activo-select">Seleccionar cuidador:</label>
                         <select id="cuidador-activo-select">
                             <option value="">-- Seleccionar --</option>
-                            <option value="cuidador1">Cuidador 1</option>
-                            <option value="cuidador2">Cuidador 2</option>
+
                         </select>
                     </div>
                 </div>
@@ -230,8 +138,7 @@
                         <label for="cuidador-inactivo-select">Seleccionar cuidador:</label>
                         <select id="cuidador-inactivo-select">
                             <option value="">-- Seleccionar --</option>
-                            <option value="cuidador3">Cuidador 3</option>
-                            <option value="cuidador4">Cuidador 4</option>
+
                         </select>
                     </div>
                 </div>
@@ -273,8 +180,7 @@
                         <label for="hogar-activo-select">Seleccionar hogar:</label>
                         <select id="hogar-activo-select">
                             <option value="">-- Seleccionar --</option>
-                            <option value="hogar1">Hogar 1</option>
-                            <option value="hogar2">Hogar 2</option>
+
                         </select>
                     </div>
                 </div>
@@ -285,8 +191,7 @@
                         <label for="hogar-inactivo-select">Seleccionar hogar:</label>
                         <select id="hogar-inactivo-select">
                             <option value="">-- Seleccionar --</option>
-                            <option value="hogar3">Hogar 3</option>
-                            <option value="hogar4">Hogar 4</option>
+
                         </select>
                     </div>
                 </div>
@@ -303,8 +208,7 @@
                         <label><i class="fas fa-user-tie"></i> Gestor:</label>
                         <select name="gestor" required>
                             <option value="">-- Seleccionar gestor --</option>
-                            <option value="gestor1">Gestor 1</option>
-                            <option value="gestor2">Gestor 2</option>
+
                         </select>
                     </div>
                     <div class="campo-formulario">
@@ -351,8 +255,7 @@
                         <label><i class="fas fa-home"></i> Hogar:</label>
                         <select name="hogar" required>
                             <option value="">-- Seleccionar hogar --</option>
-                            <option value="hogar1">Hogar 1</option>
-                            <option value="hogar2">Hogar 2</option>
+
                         </select>
                     </div>
                     <div class="campo-formulario">
@@ -374,8 +277,7 @@
                         <label for="cliente-activo-select">Seleccionar cliente:</label>
                         <select id="cliente-activo-select">
                             <option value="">-- Seleccionar --</option>
-                            <option value="cliente1">Cliente 1</option>
-                            <option value="cliente2">Cliente 2</option>
+
                         </select>
                     </div>
                 </div>
@@ -386,8 +288,7 @@
                         <label for="cliente-inactivo-select">Seleccionar cliente:</label>
                         <select id="cliente-inactivo-select">
                             <option value="">-- Seleccionar --</option>
-                            <option value="cliente3">Cliente 3</option>
-                            <option value="cliente4">Cliente 4</option>
+
                         </select>
                     </div>
                 </div>
@@ -398,6 +299,10 @@
 </main>
 
 <script>
+
+
+    // Función genérica para cargar datos en un select
+
     function mostrarOpciones(tipo) {
         document.querySelectorAll('.sub-botones').forEach(div => div.style.display = 'none');
 
@@ -423,13 +328,6 @@
         document.getElementById('formulario-gestor').style.display = 'flex';
     }
 
-    function mostrarEstadosGestor() {
-        // Cerrar formulario de añadir si está abierto
-        document.getElementById('formulario-gestor').style.display = 'none';
-
-        // Abrir panel de modificar
-        document.getElementById('estado-gestor').style.display = 'flex';
-    }
 
     function mostrarFormularioCuidador() {
         // Cerrar panel de modificar si está abierto
@@ -439,13 +337,6 @@
         document.getElementById('formulario-cuidador').style.display = 'flex';
     }
 
-    function mostrarEstadosCuidador() {
-        // Cerrar formulario de añadir si está abierto
-        document.getElementById('formulario-cuidador').style.display = 'none';
-
-        // Abrir panel de modificar
-        document.getElementById('estado-cuidador').style.display = 'flex';
-    }
 
     function mostrarFormularioHogar() {
         // Cerrar panel de modificar si está abierto
@@ -455,39 +346,339 @@
         document.getElementById('formulario-hogar').style.display = 'flex';
     }
 
-    function mostrarEstadosHogar() {
-        // Cerrar formulario de añadir si está abierto
-        document.getElementById('formulario-hogar').style.display = 'none';
+   function mostrarFormularioCliente() {
+    // Cerrar panel de modificar si está abierto
+    document.getElementById('estado-cliente').style.display = 'none';
 
-        // Abrir panel de modificar
-        document.getElementById('estado-hogar').style.display = 'flex';
+    // Abrir formulario
+    document.getElementById('formulario-cliente').style.display = 'flex';
+
+    // Llamadas para llenar los selects dinámicamente
+    const selectGestor = document.querySelector('select[name="gestor"]');
+    const selectHogar = document.querySelector('select[name="hogar"]');
+
+    cargarDatos('/gestoresActivos', selectGestor, 'gestor', 'activo', gestor => 
+        `${gestor.nombre} ${gestor.apellido1} ${gestor.apellido2 || ''}`.trim());
+    
+    cargarDatos('/VerHogaresActivos', selectHogar, 'hogar', 'activo', hogar => 
+        `${hogar.direccion} (${hogar.codigo_postal})`);
+}
+
+    function cargarDatos(url, selectElement, tipo, estado, formatter = null) {
+        fetch(url)
+            .then(response => response.json())
+            .then(json => {
+                if (!json.success || !Array.isArray(json.data)) {
+                    throw new Error('Respuesta incorrecta desde ' + url);
+                }
+
+                // Limpiar opciones excepto la primera
+                selectElement.length = 1;
+
+                json.data.forEach(item => {
+                    const option = document.createElement('option');
+                    const id = item.id || item.id_gestor || item.id_cliente || item.id_cuidador || item.id_hogar;
+
+                    option.value = id;
+                    
+                    // Usar el formatter personalizado si está disponible, o mostrar un campo común
+                    option.textContent = formatter ? formatter(item) : (item.nombre || item.direccion || 'Sin nombre');
+                    selectElement.appendChild(option);
+                });
+
+                // Añadir evento change para guardar la selección
+                selectElement.addEventListener('change', function() {
+                    seleccionesActuales[tipo][estado] = this.value;
+                    console.log(`Selección actualizada - ${tipo} ${estado}:`, this.value);
+                });
+            })
+            .catch(error => {
+                console.error('Error cargando ' + url + ':', error);
+            });
     }
 
-    function mostrarFormularioCliente() {
-        // Cerrar panel de modificar si está abierto
-        document.getElementById('estado-cliente').style.display = 'none';
+    // Funciones específicas para cada tipo
+    function mostrarContenedorGestores() {
+        const contenedor = document.getElementById('estado-gestor');
+        const selectActivo = document.getElementById('gestor-activo-select');
+        const selectInactivo = document.getElementById('gestor-inactivo-select');
 
-        // Abrir formulario
-        document.getElementById('formulario-cliente').style.display = 'flex';
+        contenedor.style.display = 'flex';
+        cargarDatos('/gestoresActivos', selectActivo, 'gestor', 'activo', gestor => 
+            `${gestor.nombre} ${gestor.apellido1} ${gestor.apellido2 || ''}`.trim());
+        cargarDatos('/gestoresInactivos', selectInactivo, 'gestor', 'inactivo', gestor => 
+            `${gestor.nombre} ${gestor.apellido1} ${gestor.apellido2 || ''}`.trim());
+    }
+
+    function mostrarContenedorCuidadores() {
+        const contenedor = document.getElementById('estado-cuidador');
+        const selectActivo = document.getElementById('cuidador-activo-select');
+        const selectInactivo = document.getElementById('cuidador-inactivo-select');
+
+        contenedor.style.display = 'flex';
+        cargarDatos('/cuidadoresActivos', selectActivo, 'cuidador', 'activo', cuidador => 
+            `${cuidador.nombre} ${cuidador.apellido1} ${cuidador.apellido2 || ''}`.trim());
+        cargarDatos('/cuidadoresInactivos', selectInactivo, 'cuidador', 'inactivo', cuidador => 
+            `${cuidador.nombre} ${cuidador.apellido1} ${cuidador.apellido2 || ''}`.trim());
+    }
+
+    function mostrarContenedorHogares() {
+        const contenedor = document.getElementById('estado-hogar');
+        const selectActivo = document.getElementById('hogar-activo-select');
+        const selectInactivo = document.getElementById('hogar-inactivo-select');
+
+        contenedor.style.display = 'flex';
+        cargarDatos('/VerHogaresActivos', selectActivo, 'hogar', 'activo', hogar => 
+            `${hogar.direccion} (${hogar.codigo_postal})`);
+        cargarDatos('/VerHogaresInactivos', selectInactivo, 'hogar', 'inactivo', hogar => 
+            `${hogar.direccion} (${hogar.codigo_postal})`);
+    }
+
+    function mostrarContenedorClientes() {
+        const contenedor = document.getElementById('estado-cliente');
+        const selectActivo = document.getElementById('cliente-activo-select');
+        const selectInactivo = document.getElementById('cliente-inactivo-select');
+
+        contenedor.style.display = 'flex';
+        cargarDatos('/clientesActivos', selectActivo, 'cliente', 'activo', cliente => 
+            `${cliente.nombre} ${cliente.apellido1} ${cliente.apellido2 || ''}`.trim());
+        cargarDatos('/clientesInactivos', selectInactivo, 'cliente', 'inactivo', cliente => 
+            `${cliente.nombre} ${cliente.apellido1} ${cliente.apellido2 || ''}`.trim());
+    }
+
+    // Función para obtener la selección actual
+    function obtenerSeleccion(tipo, estado) {
+        return seleccionesActuales[tipo][estado];
+    }
+
+    // Modificar las funciones existentes para usar las nuevas funciones de carga
+    function mostrarEstadosGestor() {
+        document.getElementById('formulario-gestor').style.display = 'none';
+        mostrarContenedorGestores();
+    }
+
+    function mostrarEstadosCuidador() {
+        document.getElementById('formulario-cuidador').style.display = 'none';
+        mostrarContenedorCuidadores();
+    }
+
+    function mostrarEstadosHogar() {
+        document.getElementById('formulario-hogar').style.display = 'none';
+        mostrarContenedorHogares();
     }
 
     function mostrarEstadosCliente() {
-        // Cerrar formulario de añadir si está abierto
         document.getElementById('formulario-cliente').style.display = 'none';
-
-        // Abrir panel de modificar
-        document.getElementById('estado-cliente').style.display = 'flex';
+        mostrarContenedorClientes();
     }
 
-    btnAñadir.addEventListener('click', () => {
-        formModificar.style.display = 'none';  // cierro modificar sin guardar
-        formAñadir.style.display = 'block';    // abro añadir
+
+    // Función para mostrar mensajes de debug
+function debug(message, data = null) {
+    console.log(`[DEBUG] ${message}`, data || '');
+    if (data && data.error) {
+        console.error('Error detallado:', data.error);
+    }
+}
+
+async function handleFetch(url, options, successMessage) {
+    try {
+        const response = await fetch(url, options);
+        let data;
+        
+        try {
+            data = await response.json();
+        } catch (e) {
+            debug('El servidor no devolvió JSON válido', {
+                status: response.status,
+                statusText: response.statusText
+            });
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+
+        debug('Respuesta del servidor:', data);
+
+        if (!response.ok || !data.success) {
+            const errorMsg = data.message || `Error ${response.status}`;
+            debug('Error en la respuesta', { response, data });
+            throw new Error(errorMsg);
+        }
+
+        alert(successMessage);
+        return data;
+    } catch (error) {
+        console.error('Error en la petición:', error);
+        alert(`Error: ${error.message}`);
+        throw error;
+    }
+}
+
+
+    // Modificar el submit del formulario de gestor
+ document.getElementById('formulario-gestor').onsubmit = async function(event) {
+    event.preventDefault();
+    debug('Intentando enviar formulario de gestor');
+
+    const formData = new FormData(this);
+    const gestorData = {
+        nombre: formData.get('nombre'),
+        apellido1: formData.get('apellido1'),
+        apellido2: formData.get('apellido2'),
+        nombre_usuario: formData.get('usuario'),
+        contraseña: formData.get('contrasena'),
+        activo: 'activo',
+        gestor_data: {
+            color: 'rojo'
+        }
+    };
+
+    debug('Datos del gestor preparados:', gestorData);
+    console.log('Datos a enviar (Gestor):', JSON.stringify(gestorData, null, 2));
+
+
+    try {
+        await handleFetch('/trabajadores/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(gestorData)
+        }, 'Gestor añadido correctamente');
+        
+        this.reset();
+    } catch (error) {
+        // El error ya fue manejado por handleFetch
+    }
+};
+    // Modificar el submit del formulario de cuidador
+  document.getElementById('formulario-cuidador').onsubmit = async function(event) {
+    event.preventDefault();
+    debug('Intentando enviar formulario de cuidador');
+
+    const formData = new FormData(this);
+    const cuidadorData = {
+        nombre: formData.get('nombre'),
+        apellido1: formData.get('apellido1'),
+        apellido2: formData.get('apellido2'),
+        nombre_usuario: formData.get('usuario'),
+        contraseña: formData.get('contrasena'),
+        cuidador_data: {
+        telefono: formData.get('telefono')
+        },
+        activo: 'activo',
+    };
+
+    debug('Datos del cuidador preparados:', cuidadorData);
+
+    try {
+        await handleFetch('/trabajadores/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(cuidadorData)
+        }, 'Cuidador añadido correctamente');
+        
+        this.reset();
+    } catch (error) {
+        // El error ya fue manejado por handleFetch
+    }
+};
+
+    // Modificar el submit del formulario de hogar (ya funciona pero añado debug)
+    document.getElementById('formulario-hogar').onsubmit = async function(event) {
+        event.preventDefault();
+        debug('Intentando enviar formulario de hogar');
+
+        const formData = new FormData(this);
+        const hogarData = {
+            url: formData.get('url_homeassistant'),
+            token: formData.get('token_homeassistant'),
+            direccion: formData.get('direccion'),
+            codigo_postal: formData.get('codigo_postal'),
+            provincia: formData.get('provincia'),
+            activo: 'activo',
+        };
+
+        debug('Datos del hogar preparados:', hogarData);
+
+        try {
+            const response = await fetch('/hogares/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(hogarData)
+            });
+            
+            const data = await response.json();
+            debug('Respuesta del servidor:', data);
+
+            if (data.success) {
+                alert('Hogar añadido correctamente');
+                this.reset();
+            } else {
+                alert(`Error al añadir hogar: ${data.message || 'Error desconocido'}`);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error de conexión al intentar añadir hogar');
+        }
+    };
+
+    // Modificar el submit del formulario de cliente (ya funciona pero añado debug)
+   document.getElementById('formulario-cliente').onsubmit = async function(event) {
+    event.preventDefault();
+    debug('Intentando enviar formulario de cliente');
+
+    const formData = new FormData(this);
+    
+    // Validación básica
+    if (!formData.get('dni') || !/^[0-9]{8}[A-Za-z]$/.test(formData.get('dni'))) {
+        alert('Por favor, introduce un DNI válido (8 números y 1 letra)');
+        return;
+    }
+
+    if (!formData.get('fecha_nacimiento')) {
+        alert('Por favor, introduce una fecha de nacimiento válida');
+        return;
+    }
+
+    const clienteData = {
+        nombre: formData.get('nombre'),
+        apellido1: formData.get('apellido1'),
+        apellido2: formData.get('apellido2'),
+        dni: formData.get('dni').toUpperCase(), // Aseguramos mayúscula
+        sexo: formData.get('sexo'),
+        descripcion: formData.get('descripcion'),
+        fecha_nacimiento: formData.get('fecha_nacimiento'),
+        telefono_contacto: formData.get('telefono_personal'),
+        telefono_familiar: formData.get('telefono_familiar'),
+        id_hogar: parseInt(formData.get('hogar')), // Aseguramos número
+        id_gestor: parseInt(formData.get('gestor')), // Aseguramos número
+        activo: 'activo',
+    };
+
+    debug('Datos del cliente preparados:', clienteData);
+
+    try {
+        await handleFetch('/clientes/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(clienteData)
+        }, 'Cliente añadido correctamente');
+        
+        this.reset();
+    } catch (error) {
+        // El error ya fue manejado por handleFetch
+    }
+};
+
+
+
+
+    // Inicialización (opcional, para cargar datos al abrir la página)
+    document.addEventListener('DOMContentLoaded', () => {
+        // Puedes cargar datos iniciales aquí si lo deseas
     });
 
-    btnModificar.addEventListener('click', () => {
-        formAñadir.style.display = 'none';     // cierro añadir sin guardar
-        formModificar.style.display = 'block'; // abro modificar
-    });
+
 
 </script>
 </body>

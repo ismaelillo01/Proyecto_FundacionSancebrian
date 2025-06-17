@@ -122,6 +122,13 @@ async def mi_portal(request: Request, auth=Depends(require_login)):
     role = request.cookies.get("user_role", "cuidador")
     return templates.TemplateResponse("MiPortal.html", {"request": request, "usuario": usuario, "role": role})
 
+
+@app.get("/miportal2", response_class=HTMLResponse, name="miportal2")
+async def mi_portal(request: Request, auth=Depends(require_login)):
+    usuario = request.cookies.get("usuario", "")
+    role = request.cookies.get("user_role", "cuidador")
+    return templates.TemplateResponse("MiPortal2.html", {"request": request, "usuario": usuario, "role": role})
+
 @app.get("/datos", response_class=HTMLResponse, name="datos_sensor")
 async def datos(request: Request, usuario_id: int = Query(...), auth=Depends(require_login)):
     from app.persons.clientes import get_cliente_detalle
