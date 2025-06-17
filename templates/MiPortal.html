@@ -140,26 +140,53 @@
     function renderizarCalendarioCuandoEsteVisible(h){ /* ... */ }
     function getEventosDesdeHorarios(h){ /* ... */ }
     async function mostrarFormularioHorario () {
-        contenedorFormulario.innerHTML = '<div class="mensaje-cargando">Cargando horario…</div>';
-        try {
-            /* datos JSON del horario */
-            const r1 = await fetch('/horarios/mi-horario');          // <- endpoint que ya tenías
-            if (!r1.ok) throw new Error('No se pudo obtener el horario');
-            const horarios = await r1.json();
+    contenedorFormulario.innerHTML = '<div class="mensaje-cargando">Cargando horario…</div>';
+    try {
+        // datos JSON del horario
+        const r1 = await fetch('/horarios/mi-horario');
+        if (!r1.ok) throw new Error('No se pudo obtener el horario');
+        const horarios = await r1.json();
 
-            /* vista con el div #calendar */
-            const r2 = await fetch('/static/calendario_vista.html'); // <- html con <div id="calendar">
-            const htmlCal = await r2.text();
-            contenedorFormulario.innerHTML = htmlCal;
+        // Preparar los eventos en formato compatible con FullCalendar
+        const eventos = horarios.map(h => ({
+            title: h.nombre_cliente, // Título del evento (puedes modificar esto)
+            start: `${h.fecha_inicio}T${h.hora_inicio}`, // Fecha y hora de inicio
+            end: `${h.fecha_fin}T${h.hora_fin}`, // Fecha y hora de fin
+            color: h.color, // Color de evento
+            description: h.descripcion // Descripción del evento
+        }));
 
-            /* espera 1 tick para que el DOM exista */
-            setTimeout(()=>renderizarCalendarioCuandoEsteVisible(horarios),50);
+        // Vista con el div #calendar
+        const r2 = await fetch('/static/calendario_vista.html');
+        const htmlCal = await r2.text();
+        contenedorFormulario.innerHTML = htmlCal;
 
-        } catch (e){
-            contenedorFormulario.innerHTML =
-                `<div class="mensaje-error">${e.message}</div>`;
-        }
+        // Espera 1 tick para que el DOM exista
+        setTimeout(() => renderizarCalendarioCuandoEsteVisible(eventos), 50);
+
+    } catch (e) {
+        contenedorFormulario.innerHTML = `<div class="mensaje-error">${e.message}</div>`;
     }
+}
+
+function renderizarCalendarioCuandoEsteVisible(eventos) {
+    // Inicializamos el calendario con los eventos
+    const calendarEl = document.getElementById('calendar');
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        events: eventos, // Pasa los eventos preparados
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        initialView: 'dayGridMonth',
+        eventClick: function(info) {
+            alert('Evento: ' + info.event.title);
+        },
+    });
+    calendar.render();
+}
+
 
     /* --------------------- inicialización --------------------- */
     generarMenuIzquierdoPorRol();

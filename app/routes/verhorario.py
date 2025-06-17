@@ -1,14 +1,27 @@
-#app/routes/verhorario.py
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database.db import get_db, get_connection
 from app.dependencies.auth import get_current_user
 from app.database.models import Horario
+from datetime import datetime, timedelta
 
 def segundos_a_hora(segundos: int) -> str:
     h = segundos // 3600
     m = (segundos % 3600) // 60
     return f"{h:02}:{m:02}"
+
+# Función para manejar la conversión correcta de datetime o timedelta a segundos
+def convertir_a_segundos(valor):
+    if isinstance(valor, timedelta):
+        # Si es un objeto timedelta, usamos total_seconds
+        return int(valor.total_seconds())
+    elif isinstance(valor, datetime):
+        # Si es un objeto datetime, calculamos la diferencia con la fecha base
+        return int((valor - datetime(1970, 1, 1)).total_seconds())
+    elif isinstance(valor, (int, float)):
+        # Si ya es un número (segundos), lo retornamos tal cual
+        return int(valor)
+    return 0  # Si no es ninguno de los tipos esperados, retornamos 0
 
 router = APIRouter(prefix="/horarios", tags=["Horarios"])
 
@@ -36,10 +49,10 @@ def get_horarios_cuidador_actual(
         for row in rows:
             h = dict(zip(columnas, row))
 
-            # 🔧 Conversión forzada de segundos a "HH:MM"
+            # Conversión forzada de segundos a "HH:MM"
             try:
-                h["hora_inicio"] = segundos_a_hora(int(h["hora_inicio"]))
-                h["hora_fin"] = segundos_a_hora(int(h["hora_fin"]))
+                h["hora_inicio"] = segundos_a_hora(convertir_a_segundos(h["hora_inicio"]))
+                h["hora_fin"] = segundos_a_hora(convertir_a_segundos(h["hora_fin"]))
             except Exception as conv_error:
                 print("[ERROR] Fallo al convertir horas:", conv_error)
                 h["hora_inicio"] = "00:00"

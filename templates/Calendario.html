@@ -2,260 +2,15 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Calendario con Horarios Editable</title>
+  <title>HORARIOS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
-  <style>
-    /* Reset, layout y estilos generales */
-    * { box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f5f7fa;
-      margin: 0; padding: 15px;
-      color: #34495e;
-      user-select: none;
-      display: flex; flex-direction: column; align-items: center;
-      min-height: 100vh;
-    }
-    h1 {
-      margin: 6px 0 16px;
-      font-weight: 700;
-      font-size: 1.9rem;
-      color: #2c3e50;
-      text-align: center;
-      user-select: none;
-    }
-    form#scheduleForm {
-      max-width: 920px;
-      width: 100%;
-      background: white;
-      padding: 16px 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-      margin-bottom: 24px;
-      user-select: none;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 14px 18px;
-      align-items: end;
-    }
-    form#scheduleForm label {
-      font-weight: 600;
-      font-size: 0.9rem;
-      color: #34495e;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    form#scheduleForm select,
-    form#scheduleForm input[type="date"],
-    form#scheduleForm input[type="time"] {
-      padding: 6px 8px;
-      font-size: 0.9rem;
-      border: none;
-      border-bottom: 2px solid #bbb;
-      background: transparent;
-      outline-offset: 0;
-      transition: border-color 0.3s ease;
-      color: #34495e;
-      min-width: 140px;
-    }
-    form#scheduleForm select:focus,
-    form#scheduleForm input[type="date"]:focus,
-    form#scheduleForm input[type="time"]:focus {
-      border-bottom-color: #2980b9;
-      outline: none;
-    }
-    label.checkbox-label {
-      grid-column: 1 / -1;
-      font-weight: 700;
-      font-size: 0.9rem;
-      user-select: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #34495e;
-      padding-top: 8px;
-    }
-    label.checkbox-label input[type="checkbox"] {
-      width: 18px; height: 18px; cursor: pointer;
-    }
-    form#scheduleForm button {
-      grid-column: 1 / -1;
-      padding: 10px 28px;
-      background: #2980b9;
-      color: white;
-      font-weight: 700;
-      font-size: 1rem;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      user-select: none;
-      justify-self: center;
-      min-width: 140px;
-    }
-    form#scheduleForm button:hover {
-      background: #1c5980;
-    }
-    .range-fields {
-      display: none;
-      flex-direction: column;
-    }
-    .range-fields label {
-      min-width: auto;
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
-    .range-fields input {
-      min-width: 140px;
-      padding: 6px 8px;
-    }
-    #mainContainer {
-      display: flex;
-      max-width: 1100px;
-      width: 100%;
-      gap: 16px;
-      height: 620px;
-    }
-    #calendar, #logTableContainer {
-      width: 50%;
-      height: 100%;
-      background: white;
-      border-radius: 15px;
-      box-shadow: 0 8px 22px rgba(0,0,0,0.14);
-      padding: 18px 20px;
-      overflow-y: auto;
-    }
-    #logTable {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9rem;
-    }
-    #logTable thead {
-      background: #2980b9;
-      color: white;
-      user-select: none;
-    }
-    #logTable th, #logTable td {
-      padding: 10px 14px;
-      border-bottom: 1px solid #ddd;
-      text-align: center;
-      vertical-align: middle;
-      white-space: nowrap;
-    }
-    #logTable tbody tr:hover {
-      background-color: #f0f8ff;
-      cursor: pointer;
-    }
-    .fc-event-main-frame {
-      white-space: normal !important;
-      font-weight: 600;
-      font-size: 0.9rem !important;
-      line-height: 1.2;
-      padding: 5px 8px !important;
-      text-align: center;
-      color: white !important;
-      user-select: none;
-    }
-    /* Popup styles */
-    #editPopupOverlay {
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.35);
-      display: none; z-index: 1700;
-      backdrop-filter: blur(3px);
-    }
-    #editPopup {
-      position: fixed; top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 22px 28px;
-      border-radius: 14px;
-      box-shadow: 0 8px 28px rgba(0,0,0,0.28);
-      width: 340px;
-      z-index: 1800;
-      display: none;
-      font-size: 1rem;
-      color: #34495e;
-      user-select: none;
-    }
-    #editPopup h3 {
-      margin: 0 0 16px 0;
-      font-weight: 700;
-      color: #2c3e50;
-      text-align: center;
-      letter-spacing: 0.7px;
-    }
-    #editPopup label {
-      font-weight: 600;
-      font-size: 0.9rem;
-      display: block;
-      margin-bottom: 8px;
-    }
-    #editPopup input[type="date"],
-    #editPopup input[type="time"],
-    #editPopup select {
-      width: 100%;
-      padding: 7px 10px;
-      font-size: 1rem;
-      border: 1.5px solid #dcdfe6;
-      border-radius: 8px;
-      margin-bottom: 14px;
-      transition: border-color 0.3s ease;
-      outline-offset: 2px;
-      color: #34495e;
-      background: white;
-    }
-    #editPopup input[type="date"]:focus,
-    #editPopup input[type="time"]:focus,
-    #editPopup select:focus {
-      border-color: #2980b9;
-      outline: none;
-      box-shadow: 0 0 8px #2980b9cc;
-    }
-    #editPopup .actions {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-    }
-    #editPopup button {
-      flex: 1;
-      padding: 10px 0;
-      font-weight: 700;
-      font-size: 1rem;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      user-select: none;
-      transition: background-color 0.25s ease;
-    }
-    #editPopup #deleteBtnPopup {
-      background: #e74c3c;
-      color: white;
-    }
-    #editPopup #deleteBtnPopup:hover {
-      background: #c0392b;
-    }
-    #editPopup #saveBtnPopup {
-      background: #27ae60;
-      color: white;
-    }
-    #editPopup #saveBtnPopup:hover {
-      background: #1e8449;
-    }
-    #editPopup #cancelBtnPopup {
-      background: #bdc3c7;
-      color: #2c3e50;
-    }
-    #editPopup #cancelBtnPopup:hover {
-      background: #95a5a6;
-    }
-  </style>
+  <link rel="stylesheet" href="{{ url_for('static', path='css/estilosCalendario.css') }}">
 </head>
 <body>
 
-<h1>Calendario con Horarios Editable</h1>
+<h1>HORARIOS</h1>
 
 <form id="scheduleForm" aria-label="Formulario para añadir horarios">
   <label for="userSelect">Trabajador
@@ -296,6 +51,25 @@
   <label for="endTime">Hora fin
     <input type="time" id="endTime" required aria-required="true" title="Hora fin" />
   </label>
+
+  <label for="descriptionInput" style="grid-column: 1 / -1;">
+    Descripción (opcional)
+    <textarea
+            id="descriptionInput"
+            rows="4"
+            style="
+      min-height: 80px;
+      resize: vertical;
+      padding: 8px 10px;
+      font-size: 0.95rem;
+      border: 1.5px solid #ccc;
+      border-radius: 8px;
+      background: #fefefe;
+      color: #34495e;
+    "
+    ></textarea>
+  </label>
+
 
   <button type="submit" aria-label="Añadir horario">Añadir</button>
 </form>
@@ -349,7 +123,28 @@
   <input type="time" id="popupEndTime" required />
 
   <label for="popupDescription">Descripción</label>
-  <input type="text" id="popupDescription" />
+  <textarea
+          id="popupDescription"
+          rows="4"
+          style="resize: vertical; min-height: 80px; padding: 8px 10px; font-size: 0.95rem; border: 1.5px solid #ccc; border-radius: 8px; background: #fefefe; color: #34495e; width: 100%;"
+          readonly
+  ></textarea>
+
+  <button
+          id="editDescriptionBtn"
+          type="button"
+          style="background:#3498db; color:white; border:none; padding:6px 10px; border-radius:6px; cursor:pointer; display:block; margin-top:10px;">
+    Editar Descripción
+  </button>
+
+
+
+
+  <!-- Botón de eliminar el rango en el popup -->
+  <button id="deleteRangeBtn" type="button" style="background:#e74c3c; color:white; border:none; padding:6px 10px; border-radius:6px; cursor:pointer; display:none;">
+    Eliminar todo el rango
+  </button>
+
 
   <div class="actions" style="margin-top: 14px; display:flex; gap:12px; justify-content: space-between;">
     <button id="deleteBtnPopup" type="button" style="flex:1; background:#e74c3c; color:white; border:none; border-radius:8px; cursor:pointer;">Eliminar</button>
@@ -357,9 +152,9 @@
     <button id="cancelBtnPopup" type="button" style="flex:1; background:#bdc3c7; color:#2c3e50; border:none; border-radius:8px; cursor:pointer;">Cancelar</button>
   </div>
 </div>
-<div style="position: fixed; bottom: 20px; right: 20px;">
-  <button id="saveToDatabase" style="padding: 12px 24px; background: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
-    Guardar en Base de Datos
+<div style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 9999;">
+  <button id="saveToDatabase" style="font-size: larger; height: 50px; width: 600px; padding: 12px 24px; background: orangered; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight:  bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+    Guardar Horarios
   </button>
 </div>
 
@@ -370,7 +165,7 @@
   class CalendarApp {
     constructor() {
       this.colors = [
-        '#1abc9c','#2ecc71','#3498db','#9b59b6','#e67e22','#e74c3c','#34495e','#f39c12','#d35400','#7f8c8d'
+        '#1abc9c', '#e74c3c', '#3498db', '#f1c40f', '#8e44ad', '#e67e22', '#2ecc71', '#e84393', '#16a085', '#34495e'
       ];
       this.colorIndex = 0;
       this.schedules = [];
@@ -399,13 +194,13 @@ id_cliente: Number(schedule.client),
 });
 }
 
-      
+
       initElements() {
         // Elementos del DOM
         this.calendarEl = document.getElementById('calendar');
         this.editOverlay = document.getElementById('editPopupOverlay');
         this.editPopup = document.getElementById('editPopup');
-        
+
         // Formulario principal
         this.userSelect = document.getElementById('userSelect');
         this.clientSelect = document.getElementById('clientSelect');
@@ -417,7 +212,7 @@ id_cliente: Number(schedule.client),
         this.startTimeInput = document.getElementById('startTime');
         this.endTimeInput = document.getElementById('endTime');
         this.scheduleForm = document.getElementById('scheduleForm');
-        
+
         // Popup de edición
         this.popupUser = document.getElementById('popupUser');
         this.popupClient = document.getElementById('popupClient');
@@ -428,35 +223,108 @@ id_cliente: Number(schedule.client),
         this.deleteBtn = document.getElementById('deleteBtnPopup');
         this.saveBtn = document.getElementById('saveBtnPopup');
         this.cancelBtn = document.getElementById('cancelBtnPopup');
-        
+
         // Tabla de registros
         this.logTableBody = document.querySelector('#logTable tbody');
       }
-      
-      initEventListeners() {
-        // Rango de fechas
-        this.useRangeCheckbox.addEventListener('change', () => this.toggleRangeFields());
-        
-        // Formulario principal
-        this.scheduleForm.addEventListener('submit', (e) => this.handleFormSubmit(e));
-        
-        // Popup de edición
-        this.saveBtn.addEventListener('click', () => this.handleSave());
-        this.deleteBtn.addEventListener('click', () => this.handleDelete());
-        this.cancelBtn.addEventListener('click', () => this.hideEditPopup());
-        
-        // Cierre con ESC
-        document.addEventListener('keydown', (e) => {
-          if(e.key === 'Escape' && this.editPopup.style.display === 'block') {
-            this.hideEditPopup();
-          }
-        });
-        
-        // Click en fila de tabla
-        this.logTableBody.addEventListener('click', (e) => this.handleTableRowClick(e));
+
+    initEventListeners() {
+      // Rango de fechas
+      this.useRangeCheckbox.addEventListener('change', () => this.toggleRangeFields());
+
+      // Formulario principal
+      this.scheduleForm.addEventListener('submit', (e) => this.handleFormSubmit(e));
+
+      // Popup de edición
+      this.saveBtn.addEventListener('click', () => this.handleSave());
+      this.deleteBtn.addEventListener('click', () => this.handleDelete());
+      this.cancelBtn.addEventListener('click', () => this.hideEditPopup());
+
+      // ✅ Botón para eliminar todo el rango
+      document.getElementById('deleteRangeBtn').addEventListener('click', () => {
+        const groupId = document.getElementById('deleteRangeBtn').dataset.groupId;
+        if (!groupId) return;
+
+        if (!confirm('¿Seguro que deseas eliminar todo el rango de fechas?')) return;
+
+        // Eliminar todos los eventos con ese groupId
+        app.schedules = app.schedules.filter(s => s.groupId !== groupId);
+
+        app.renderAllEvents();
+        app.updateLogTable();
+        app.hideEditPopup();
+      });
+
+      // Cierre con tecla ESC
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && this.editPopup.style.display === 'block') {
+          this.hideEditPopup();
+        }
+      });
+
+      // Click en fila de tabla
+      this.logTableBody.addEventListener('click', (e) => this.handleTableRowClick(e));
+
+      // Añadir un listener para el botón de "Editar Descripción" en el popup
+      const editDescriptionBtn = document.getElementById('editDescriptionBtn');
+      if (editDescriptionBtn) {
+        editDescriptionBtn.addEventListener('click', () => this.enableDescriptionEditing());
       }
-      
-      initCalendar() {
+    }
+
+    enableDescriptionEditing() {
+      const descriptionField = document.getElementById('popupDescription');
+
+      // Hacer el campo editable
+      descriptionField.removeAttribute('readonly');  // El campo ya puede ser editado
+
+      // Cambiar el texto del botón para "Guardar"
+      document.getElementById('editDescriptionBtn').textContent = "Guardar Descripción";
+
+      // Cambiar el estilo del botón para que parezca un botón de guardar
+      document.getElementById('editDescriptionBtn').style.backgroundColor = "#27ae60";
+      document.getElementById('editDescriptionBtn').style.color = "white";
+
+      // Añadir un nuevo listener para guardar la descripción
+      document.getElementById('editDescriptionBtn').removeEventListener('click', this.enableDescriptionEditing); // Eliminar evento anterior
+      document.getElementById('editDescriptionBtn').addEventListener('click', () => this.saveDescription());
+    }
+
+    saveDescription() {
+      const descriptionField = document.getElementById('popupDescription');
+      const newDescription = descriptionField.value;
+
+      // Guardar la nueva descripción en el horario actual
+      if (this.editingItem) {
+        const schedule = this.schedules.find(s => s.id === this.editingItem.id);
+
+        if (schedule) {
+          schedule.description = newDescription;  // Actualizamos la descripción
+        }
+      }
+
+      // Deshabilitar la edición
+      descriptionField.setAttribute('readonly', true);
+
+      // Cambiar el texto del botón para volver a "Editar"
+      document.getElementById('editDescriptionBtn').textContent = "Editar Descripción";
+      document.getElementById('editDescriptionBtn').style.backgroundColor = "#3498db";
+      document.getElementById('editDescriptionBtn').style.color = "white";
+
+      // Volver a añadir el evento para editar
+      document.getElementById('editDescriptionBtn').removeEventListener('click', this.saveDescription);
+      document.getElementById('editDescriptionBtn').addEventListener('click', () => this.enableDescriptionEditing());
+
+      // Actualizamos la vista para reflejar la nueva descripción
+      this.renderAllEvents();
+      this.updateLogTable();
+    }
+
+
+
+
+
+    initCalendar() {
         this.calendar = new FullCalendar.Calendar(this.calendarEl, {
           locale: 'es',
           firstDay: 1,
@@ -472,13 +340,13 @@ id_cliente: Number(schedule.client),
           eventClick: this.handleEventClick.bind(this)
         });
         this.calendar.render();
-      }
-      
+        }
+
       loadInitialData() {
         this.loadHomes();
         this.loadCaregivers();
       }
-      
+
       // Métodos de carga de datos
 async loadHomes() {
   try {
@@ -499,7 +367,7 @@ async loadHomes() {
     console.error("Error en fetch hogares:", error);
   }
 }
-      
+
       async loadCaregivers() {
         try {
           const res = await fetch('/trabajadores/cuidadores');
@@ -520,7 +388,7 @@ async loadHomes() {
           console.error("Error en fetch cuidadores:", error);
         }
       }
-      
+
       addOption(selectElement, value, text) {
         const option = document.createElement('option');
         option.value = value;
@@ -528,7 +396,7 @@ async loadHomes() {
         console.log("Insertando opción:", { value, text });
         selectElement.appendChild(option);
       }
-      
+
       // Métodos de manejo de UI
       toggleRangeFields() {
         if(this.useRangeCheckbox.checked) {
@@ -548,7 +416,7 @@ async loadHomes() {
           this.rangeEndDateInput.value = '';
         }
       }
-      
+
       showEditPopup(isRange = false) {
         this.editOverlay.style.display = 'block';
         this.editPopup.style.display = 'block';
@@ -556,8 +424,10 @@ async loadHomes() {
         this.editOverlay.setAttribute('aria-hidden', 'false');
         this.popupDate.disabled = isRange;
         this.editPopup.focus();
+        document.getElementById('saveToDatabase').classList.add('hide-on-popup');
+
       }
-      
+
       hideEditPopup() {
         this.editOverlay.style.display = 'none';
         this.editPopup.style.display = 'none';
@@ -565,19 +435,52 @@ async loadHomes() {
         this.editOverlay.setAttribute('aria-hidden', 'true');
         this.editingItem = null;
         this.popupDate.disabled = false;
+        document.getElementById('saveToDatabase').classList.remove('hide-on-popup');
+
       }
-      
-      fillEditPopup(schedule) {
-        this.popupUser.value = schedule.user;
-        this.popupClient.value = schedule.client;
-        this.popupDate.value = schedule.date || schedule.startDate || '';
-        this.popupStartTime.value = schedule.startTime;
-        this.popupEndTime.value = schedule.endTime;
-        this.popupDescription.value = schedule.description || '';
+
+    fillEditPopup(schedule) {
+      this.popupUser.value = schedule.user;
+      this.popupClient.value = schedule.client;
+      this.popupDate.value = schedule.date || schedule.startDate || '';
+      this.popupStartTime.value = schedule.startTime;  // Hora de inicio editable
+      this.popupEndTime.value = schedule.endTime;      // Hora de fin editable
+      this.popupDescription.value = schedule.description || '';
+
+      // Deshabilitar la fecha, ya que no queremos que se modifique
+      this.popupDate.disabled = true;
+      this.popupStartTime.disabled = false;  // Habilitar la hora de inicio
+      this.popupEndTime.disabled = false;    // Habilitar la hora de fin
+
+      const deleteRangeBtn = document.getElementById('deleteRangeBtn');
+
+      // Mostrar el botón solo si es parte de un grupo y NO está sobrescrito individualmente
+      if (schedule.groupId) {
+        const isOverridden = this.schedules.some(s =>
+                s.type === 'single' &&
+                s.date === schedule.date &&
+                s.parentId === schedule.groupId &&
+                s.id !== schedule.id // Asegura que no sea este mismo, sino un override real
+        );
+
+        if (!isOverridden) {
+          deleteRangeBtn.style.display = 'inline-block';
+          deleteRangeBtn.dataset.groupId = schedule.groupId;
+        } else {
+          deleteRangeBtn.style.display = 'none';
+          deleteRangeBtn.removeAttribute('data-group-id');
+        }
+      } else {
+        deleteRangeBtn.style.display = 'none';
+        deleteRangeBtn.removeAttribute('data-group-id');
       }
-      
-      // Métodos de manejo de eventos
-      handleFormSubmit(e) {
+    }
+
+
+
+
+    // Métodos de manejo de eventos
+handleFormSubmit(e) {
   e.preventDefault();
 
   // 1. DEFINIR VARIABLES PRIMERO
@@ -617,97 +520,149 @@ async loadHomes() {
   this.resetForm();
 }
 
-handleRangeSchedule(user, userName, client, clientName, startTime, endTime) {
-  const startRange = this.rangeStartDateInput.value;
-  const endRange = this.rangeEndDateInput.value;
+    handleRangeSchedule(user, userName, client, clientName, startTime, endTime) {
+      const startRange = this.rangeStartDateInput.value;
+      const endRange = this.rangeEndDateInput.value;
+      const description = document.getElementById('descriptionInput').value;
 
-  if (!startRange || !endRange) {
-    alert('Por favor, selecciona fechas para el rango.');
-    return;
-  }
-
-  if (startRange > endRange) {
-    alert('La fecha de inicio no puede ser posterior a la final.');
-    return;
-  }
-
-  this.schedules.push({
-    type: 'range',
-    id: this.generateId(),
-    user,
-    userName,
-    client,
-    clientName,
-    startDate: startRange,
-    endDate: endRange,
-    startTime,
-    endTime,
-    color: this.getNextColor(),
-    excludedDays: [],
-    description: ''
-  });
-}
-
-      
- handleSingleSchedule(user, userName, client, clientName, startTime, endTime) {
-  const date = this.singleDateInput.value;
-
-  if (!date) {
-    alert('Por favor, selecciona una fecha individual.');
-    return;
-  }
-
-  this.schedules.push({
-    type: 'single',
-    id: this.generateId(),
-    user,
-    userName,
-    client,
-    clientName,
-    date,
-    startTime,
-    endTime,
-    color: this.getNextColor(),
-    description: ''
-  });
-}
-
-      
-      handleEventClick(info) {
-        const event = info.event;
-        const ext = event.extendedProps;
-        this.editingItem = null;
-        
-        if(ext.isSingle) {
-          this.handleSingleEventClick(ext.id);
-        } else if(ext.isRangeDay) {
-          this.handleRangeDayEventClick(ext.parentId, ext.date);
-        } else if(ext.isRange) {
-          this.handleRangeEventClick(ext.id);
-        }
+      if (!startRange || !endRange) {
+        alert('Por favor, selecciona fechas para el rango.');
+        return;
       }
-      
-      handleSingleEventClick(id) {
-        const schedule = this.schedules.find(s => s.type === 'single' && s.id === id);
-        if(!schedule) return alert('Evento no encontrado.');
-        
-        this.fillEditPopup(schedule);
-        this.showEditPopup(false);
-        this.editingItem = { type: 'single', id };
+
+      if (startRange > endRange) {
+        alert('La fecha de inicio no puede ser posterior a la final.');
+        return;
       }
-      
-      handleRangeDayEventClick(parentId, date) {
-        const singleOverride = this.schedules.find(s => 
+
+      const sharedColor = this.getNextColor(); // Color para el evento
+      const groupId = this.generateId(); // ID único para agrupar los días del rango
+
+      const current = new Date(startRange);
+      const end = new Date(endRange);
+
+      while (current <= end) {
+        const dateStr = this.formatDate(current); // Fecha del día
+
+        // Crear evento para el calendario para este día específico
+        this.calendar.addEvent({
+          id: `rangeDay-${groupId}-${dateStr}`,
+          title: `${userName} - ${clientName}`,
+          start: `${dateStr}T${startTime}`,
+          end: `${dateStr}T${endTime}`,
+          backgroundColor: sharedColor,
+          borderColor: sharedColor,
+          textColor: 'white',
+          extendedProps: {
+            isRangeDay: true,
+            parentId: groupId,
+            date: dateStr,
+            description: description || '' // Asignar la descripción a este día
+          }
+        });
+
+        // Agregar este día a la tabla, creando una fila por cada día individual
+        this.schedules.push({
+          type: 'single',
+          id: this.generateId(),
+          user,
+          userName,
+          client,
+          clientName,
+          date: dateStr,
+          startTime,
+          endTime,
+          color: sharedColor,
+          description: description || '',
+          groupId
+        });
+
+        current.setDate(current.getDate() + 1); // Avanzar al siguiente día
+      }
+
+      // Actualizar la tabla con los días recién añadidos
+      this.updateLogTable();
+
+      this.useRangeCheckbox.checked = false;
+      this.toggleRangeFields();  // Esto es clave para restaurar el modo 'fecha individual'
+
+    }
+
+
+
+
+
+
+    handleSingleSchedule(user, userName, client, clientName, startTime, endTime) {
+      const date = this.singleDateInput.value;
+      const description = document.getElementById('descriptionInput').value;
+
+      if (!date) {
+        alert('Por favor, selecciona una fecha individual.');
+        return;
+      }
+
+      this.schedules.push({
+        type: 'single',
+        id: this.generateId(),
+        user,
+        userName,
+        client,
+        clientName,
+        date,
+        startTime,
+        endTime,
+        color: this.getNextColor(),
+        description: description || ''
+      });
+    }
+
+
+
+    handleEventClick(info) {
+      const event = info.event;
+      const ext = event.extendedProps;
+      this.editingItem = null;
+
+      if (ext.isSingle) {
+        this.handleSingleEventClick(ext.id);  // Sólo se edita la descripción de un día individual
+      } else if (ext.isRange) {
+        this.handleRangeEventClick(ext.id, ext.groupId); // Aquí pasamos el groupId
+      }
+    }
+
+
+
+
+    handleSingleEventClick(id) {
+      const schedule = this.schedules.find(s => s.type === 'single' && s.id === id);
+      if (!schedule) return alert('Evento no encontrado.');
+
+      this.fillEditPopup(schedule);
+      this.showEditPopup(false);
+      this.editingItem = { type: 'single', id };
+
+      // 👇 Si es una sobrescritura de un rango, ocultamos el botón "Eliminar rango"
+      const deleteRangeBtn = document.getElementById('deleteRangeBtn');
+      if (schedule.parentId) {
+        deleteRangeBtn.style.display = 'none';
+        deleteRangeBtn.removeAttribute('data-group-id');
+      }
+    }
+
+
+    handleRangeDayEventClick(parentId, date) {
+        const singleOverride = this.schedules.find(s =>
           s.type === 'single' && s.parentId === parentId && s.date === date
         );
-        
+
         if(singleOverride) {
           this.fillEditPopup(singleOverride);
           this.editingItem = { type: 'rangeDay', parentId, date };
         } else {
           const parentRange = this.schedules.find(s => s.type === 'range' && s.id === parentId);
           if(!parentRange) return alert('Rango padre no encontrado.');
-          
+
           this.fillEditPopup({
             user: parentRange.user,
             client: parentRange.client,
@@ -719,67 +674,85 @@ handleRangeSchedule(user, userName, client, clientName, startTime, endTime) {
           });
           this.editingItem = { type: 'rangeDay', parentId, date };
         }
-        
+
         this.showEditPopup(false);
       }
-      
-      handleRangeEventClick(id) {
-        const schedule = this.schedules.find(s => s.type === 'range' && s.id === id);
-        if(!schedule) return alert('Rango no encontrado.');
-        
-        this.fillEditPopup(schedule);
-        this.showEditPopup(true);
-        this.editingItem = { type: 'range', id };
+
+    handleRangeEventClick(id, groupId) {
+      const schedule = this.schedules.find(s => s.id === id);
+      if (!schedule) return alert('Rango no encontrado.');
+
+      this.fillEditPopup(schedule);
+      this.showEditPopup(true);
+      this.editingItem = { type: 'range', id, groupId };  // Guardamos el groupId
+    }
+
+
+    handleTableRowClick(e) {
+      const tr = e.target.closest('tr');
+      if (!tr) return;
+
+      const id = tr.dataset.id;
+      const type = tr.dataset.type;
+
+      this.editingItem = { type, id };
+      const schedule = this.schedules.find(s => s.id === id && s.type === type);
+      if (!schedule) return alert('Horario no encontrado');
+
+      this.fillEditPopup(schedule);
+      this.showEditPopup(type === 'range');
+    }
+
+
+    handleSave() {
+      if (!this.editingItem) return;
+
+      const user = this.popupUser.value;
+      const client = this.popupClient.value;
+      const date = this.popupDate.value;
+      const startTime = this.popupStartTime.value;
+      const endTime = this.popupEndTime.value;
+      const description = this.popupDescription.value;
+
+      if (!user || !client || !startTime || !endTime) {
+        alert('Por favor, completa todos los campos obligatorios.');
+        return;
       }
-      
-      handleTableRowClick(e) {
-        const tr = e.target.closest('tr');
-        if(!tr) return;
-        
-        const id = tr.dataset.id;
-        const type = tr.dataset.type;
-        
-        this.editingItem = {type, id};
-        const schedule = this.schedules.find(s => s.id === id && s.type === type);
-        if(!schedule) return alert('Horario no encontrado');
-        
-        this.fillEditPopup(schedule);
-        this.showEditPopup(type === 'range');
+
+      switch (this.editingItem.type) {
+        case 'range':
+          this.updateRangeSchedule(user, client, startTime, endTime, description);
+          break;
+
+        case 'single':
+          this.updateSingleSchedule(user, client, date, startTime, endTime, description);
+          break;
+
+        case 'rangeDay':
+          this.updateRangeDaySchedule(user, client, date, startTime, endTime, description);
+
+          // ➤ Verificar si ahora ese día ha sido sobrescrito como 'single'
+          const override = this.schedules.find(s =>
+                  s.type === 'single' &&
+                  s.parentId === this.editingItem.parentId &&
+                  s.date === date
+          );
+          if (override) {
+            // Actualizamos editingItem y volvemos a cargar el popup para ocultar el botón
+            this.editingItem = { type: 'single', id: override.id };
+            this.fillEditPopup(override);
+          }
+          break;
       }
-      
-      handleSave() {
-        if(!this.editingItem) return;
-        
-        const user = this.popupUser.value;
-        const client = this.popupClient.value;
-        const date = this.popupDate.value;
-        const startTime = this.popupStartTime.value;
-        const endTime = this.popupEndTime.value;
-        const description = this.popupDescription.value;
-        
-        if(!user || !client || !startTime || !endTime) {
-          alert('Por favor, completa todos los campos obligatorios.');
-          return;
-        }
-        
-        switch(this.editingItem.type) {
-          case 'range':
-            this.updateRangeSchedule(user, client, startTime, endTime, description);
-            break;
-          case 'single':
-            this.updateSingleSchedule(user, client, date, startTime, endTime, description);
-            break;
-          case 'rangeDay':
-            this.updateRangeDaySchedule(user, client, date, startTime, endTime, description);
-            break;
-        }
-        
-        this.renderAllEvents();
-        this.updateLogTable();
-        this.hideEditPopup();
-      }
-      
-      updateRangeSchedule(user, client, startTime, endTime, description) {
+
+      this.renderAllEvents();   // Refrescar el calendario
+      this.updateLogTable();    // Refrescar la tabla de registros
+      this.hideEditPopup();     // Ocultar el popup
+    }
+
+
+
+    updateRangeSchedule(user, client, startTime, endTime, description) {
         const range = this.schedules.find(s => s.id === this.editingItem.id);
         if(range) {
           range.user = user;
@@ -789,139 +762,177 @@ handleRangeSchedule(user, userName, client, clientName, startTime, endTime) {
           range.description = description;
         }
       }
-      
-      updateSingleSchedule(user, client, date, startTime, endTime, description) {
-        if(!date) {
-          alert('Por favor, selecciona una fecha.');
-          return;
+
+    updateSingleSchedule(user, client, date, startTime, endTime, description) {
+      if (!date) {
+        alert('Por favor, selecciona una fecha.');
+        return;
+      }
+
+      const single = this.schedules.find(s => s.id === this.editingItem.id);
+      if (single) {
+        single.user = user;
+        single.client = client;
+        if (single.date !== date) {
+          single.date = date;
+          single.color = this.getNextColor();  // Si cambia la fecha, cambiamos el color
         }
-        
-        const single = this.schedules.find(s => s.id === this.editingItem.id);
-        if(single) {
-          single.user = user;
-          single.client = client;
-          if(single.date !== date) {
-            single.date = date;
-            single.color = this.getNextColor();
-          }
-          single.startTime = startTime;
-          single.endTime = endTime;
-          single.description = description;
+        single.startTime = startTime;  // Actualizar la hora de inicio
+        single.endTime = endTime;      // Actualizar la hora de fin
+        single.description = description;
+      }
+    }
+
+
+    updateRangeDaySchedule(user, client, date, startTime, endTime, description) {
+      const parentRange = this.schedules.find(
+              s => s.type === 'range' && s.id === this.editingItem.parentId
+      );
+
+      if (!parentRange) {
+        alert('Rango padre no encontrado.');
+        return;
+      }
+
+      let override = this.schedules.find(
+              s => s.type === 'single' &&
+                      s.parentId === this.editingItem.parentId &&
+                      s.date === date
+      );
+
+      if (override) {
+        override.user = user;
+        override.client = client;
+        override.startTime = startTime;
+        override.endTime = endTime;
+        override.color = this.getNextColor();
+        override.description = description;
+
+        // 🔁 Ya no es parte del rango: eliminar groupId y parentId si existen
+        delete override.groupId;
+        delete override.parentId;
+      } else {
+        override = {
+          type: 'single',
+          id: this.generateId(),
+          user,
+          client,
+          date,
+          startTime,
+          endTime,
+          color: this.getNextColor(),
+          description
+        };
+        this.schedules.push(override);
+
+        if (!parentRange.excludedDays.includes(date)) {
+          parentRange.excludedDays.push(date);
         }
       }
-      
-      updateRangeDaySchedule(user, client, date, startTime, endTime, description) {
-        const parentRange = this.schedules.find(s => s.type === 'range' && s.id === this.editingItem.parentId);
-        if(!parentRange) {
-          alert('Rango padre no encontrado.');
-          return;
-        }
-        
-        let override = this.schedules.find(s => 
-          s.type === 'single' && s.parentId === this.editingItem.parentId && s.date === date
-        );
-        
-        if(override) {
-          override.user = user;
-          override.client = client;
-          override.startTime = startTime;
-          override.endTime = endTime;
-          override.color = this.getNextColor();
-          override.description = description;
-        } else {
-          override = {
-            type: 'single',
-            id: this.generateId(),
-            user,
-            client,
-            date,
-            startTime,
-            endTime,
-            color: this.getNextColor(),
-            parentId: this.editingItem.parentId,
-            description
-          };
-          this.schedules.push(override);
-          
-          if(!parentRange.excludedDays.includes(date)) {
-            parentRange.excludedDays.push(date);
-          }
-        }
-        
-        this.splitRangeByExcludedDays(parentRange);
+
+      // Reorganiza el rango si tiene días excluidos o separados
+      this.splitRangeByExcludedDays(parentRange);
+
+      // 🧼 Ocultar botón de eliminar rango (solo para este día modificado)
+      const deleteRangeBtn = document.getElementById('deleteRangeBtn');
+      deleteRangeBtn.style.display = 'none';
+      deleteRangeBtn.removeAttribute('data-group-id');
+
+      // 🧠 Refrescar el popup como día individual (eliminamos manualmente posibles residuos)
+      this.editingItem = { type: 'single', id: override.id };
+
+      const updatedOverride = {
+        ...override,
+        parentId: undefined,
+        groupId: undefined
+      };
+      this.fillEditPopup(updatedOverride);
+    }
+
+
+
+
+
+    handleDelete() {
+      if (!this.editingItem) return;
+      if (!confirm('¿Seguro que quieres eliminar este horario?')) return;
+
+      switch (this.editingItem.type) {
+        case 'range':
+          this.deleteRangeSchedule();
+          break;
+        case 'single':
+          this.deleteSingleSchedule();
+          break;
+        case 'rangeDay':
+          this.deleteRangeDaySchedule();
+          break;
       }
-      
-      handleDelete() {
-        if(!this.editingItem) return;
-        if(!confirm('¿Seguro que quieres eliminar este horario?')) return;
-        
-        switch(this.editingItem.type) {
-          case 'range':
-            this.deleteRangeSchedule();
-            break;
-          case 'single':
-            this.deleteSingleSchedule();
-            break;
-          case 'rangeDay':
-            this.deleteRangeDaySchedule();
-            break;
+
+      this.renderAllEvents();  // Refrescar el calendario
+      this.updateLogTable();   // Refrescar la tabla de registros
+      this.hideEditPopup();    // Ocultar el popup
+    }
+
+
+    deleteRangeSchedule() {
+      const index = this.schedules.findIndex(s => s.id === this.editingItem.id);
+      if (index !== -1) {
+        const rangeId = this.schedules[index].id;
+        // Eliminar todos los eventos hijos (días del rango)
+        for (let i = this.schedules.length - 1; i >= 0; i--) {
+          if (this.schedules[i].parentId === rangeId) this.schedules.splice(i, 1);
         }
-        
-        this.renderAllEvents();
-        this.updateLogTable();
-        this.hideEditPopup();
+        this.schedules.splice(index, 1); // Eliminar el evento principal del rango
       }
-      
-      deleteRangeSchedule() {
-        const index = this.schedules.findIndex(s => s.id === this.editingItem.id);
-        if(index !== -1) {
-          const rangeId = this.schedules[index].id;
-          // Eliminar todos los eventos hijos
-          for(let i = this.schedules.length - 1; i >= 0; i--) {
-            if(this.schedules[i].parentId === rangeId) this.schedules.splice(i,1);
-          }
-          this.schedules.splice(index,1);
-        }
+    }
+
+
+    deleteSingleSchedule() {
+      const index = this.schedules.findIndex(s => s.id === this.editingItem.id);
+      if (index !== -1) {
+        this.schedules.splice(index, 1);
       }
-      
-      deleteSingleSchedule() {
-        const index = this.schedules.findIndex(s => s.id === this.editingItem.id);
-        if(index !== -1) {
-          this.schedules.splice(index,1);
-        }
+    }
+
+
+    deleteRangeDaySchedule() {
+      const parentRange = this.schedules.find(s => s.type === 'range' && s.id === this.editingItem.parentId);
+      if (!parentRange) return alert('Rango padre no encontrado.');
+
+      const dateToRemove = this.editingItem.date;
+
+      // Verificar si el día está en el rango excluido
+      if (!parentRange.excludedDays.includes(dateToRemove)) {
+        parentRange.excludedDays.push(dateToRemove);
       }
-      
-      deleteRangeDaySchedule() {
-        const parentRange = this.schedules.find(s => s.type === 'range' && s.id === this.editingItem.parentId);
-        if(!parentRange) return alert('Rango padre no encontrado.');
-        
-        const dateToRemove = this.editingItem.date;
-        
-        if(!parentRange.excludedDays.includes(dateToRemove)) {
-          parentRange.excludedDays.push(dateToRemove);
-        }
-        this.splitRangeByExcludedDays(parentRange);
-      }
-      
-      // Métodos de utilidad
+
+      // Reorganizar el rango después de eliminar el día
+      this.splitRangeByExcludedDays(parentRange);
+    }
+
+
+
+    // Métodos de utilidad
       generateId() {
         return '_' + Math.random().toString(36).substr(2, 9);
       }
-      
+
       getNextColor() {
         return this.colors[this.colorIndex++ % this.colors.length];
       }
-      
+
       formatDate(date) {
         const yyyy = date.getFullYear();
         const mm = String(date.getMonth()+1).padStart(2,'0');
         const dd = String(date.getDate()).padStart(2,'0');
         return `${yyyy}-${mm}-${dd}`;
       }
-      
+
       resetForm() {
         this.scheduleForm.reset();
-        
+        document.getElementById('descriptionInput').value = '';
+
         if(this.useRangeCheckbox.checked) {
           this.useRangeCheckbox.checked = false;
           this.rangeFields.style.display = 'none';
@@ -933,31 +944,42 @@ handleRangeSchedule(user, userName, client, clientName, startTime, endTime) {
           this.rangeEndDateInput.value = '';
         }
       }
-      
+
       // Métodos de renderizado
-      renderEventContent(arg) {
-        let container = document.createElement('div');
-        container.style.fontWeight = '600';
-        container.style.fontSize = '0.9rem';
-        container.style.lineHeight = '1.2';
-        container.style.whiteSpace = 'normal';
-        container.style.textAlign = 'center';
-        container.style.userSelect = 'none';
-        
-        let title = arg.event.title;
-        let parts = title.split(' - ');
-        let clientName = parts.length > 1 ? parts[1] : title;
-        
-        let clientNode = document.createElement('div');
-        clientNode.textContent = clientName;
-        container.appendChild(clientNode);
-        
-        return { domNodes: [container] };
+    renderEventContent(arg) {
+      const container = document.createElement('div');
+      container.style.fontWeight = '600';
+      container.style.fontSize = '0.9rem';
+      container.style.lineHeight = '1.2';
+      container.style.whiteSpace = 'normal';
+      container.style.textAlign = 'center';
+      container.style.userSelect = 'none';
+
+      const title = arg.event.title;
+      const parts = title.split(' - ');
+      const clientName = parts.length > 1 ? parts[1] : title;
+
+      const clientNode = document.createElement('div');
+      clientNode.textContent = clientName;
+      container.appendChild(clientNode);
+
+      const description = arg.event.extendedProps.description;
+      if (description) {
+        const descNode = document.createElement('div');
+        descNode.textContent = description;
+        descNode.style.fontSize = '0.8rem';
+        descNode.style.fontWeight = '400';
+        descNode.style.marginTop = '2px';
+        container.appendChild(descNode);
       }
-      
-      renderAllEvents() {
+
+      return { domNodes: [container] };
+    }
+
+
+    renderAllEvents() {
         this.calendar.getEvents().forEach(ev => ev.remove());
-        
+
         this.schedules.forEach(schedule => {
           if(schedule.type === 'range') {
             this.renderRangeSchedule(schedule);
@@ -966,19 +988,19 @@ handleRangeSchedule(user, userName, client, clientName, startTime, endTime) {
           }
         });
       }
-      
+
       renderRangeSchedule(schedule) {
         let current = new Date(schedule.startDate);
         const end = new Date(schedule.endDate);
-        
+
         while(current <= end) {
           const dateStr = this.formatDate(current);
-          
+
           if(schedule.excludedDays.includes(dateStr)) {
             current.setDate(current.getDate()+1);
             continue;
           }
-          
+
           this.calendar.addEvent({
             id: `rangeDay-${schedule.id}-${dateStr}`,
             title: `${schedule.userName || schedule.user} - ${schedule.clientName || schedule.client}`,
@@ -993,16 +1015,16 @@ handleRangeSchedule(user, userName, client, clientName, startTime, endTime) {
               date: dateStr
             }
           });
-          
+
           current.setDate(current.getDate()+1);
         }
-        
+
         // Renderizar overrides individuales para este rango
         this.schedules
           .filter(s => s.type === 'single' && s.parentId === schedule.id)
           .forEach(single => this.renderSingleSchedule(single));
       }
-      
+
       renderSingleSchedule(schedule) {
         this.calendar.addEvent({
           id: `single-${schedule.id}`,
@@ -1020,39 +1042,150 @@ handleRangeSchedule(user, userName, client, clientName, startTime, endTime) {
           }
         });
       }
-      
-      updateLogTable() {
-        console.log("SCHEDULES EN LA TABLA:", this.schedules);
-        this.logTableBody.innerHTML = '';
-        
-        this.schedules.forEach(schedule => {
-          const tr = document.createElement('tr');
-          tr.dataset.id = schedule.id;
-          tr.dataset.type = schedule.type;
-          tr.style.backgroundColor = schedule.color + '33';
-          
-          let dates = '';
-          if(schedule.type === 'range') {
-            dates = `${schedule.startDate} → ${schedule.endDate}`;
-          } else {
-            dates = schedule.date;
-          }
-          
-          tr.innerHTML = `
-            <td>${schedule.userName || schedule.user}</td>
-            <td>${schedule.clientName || schedule.client}</td>
-            <td>${dates}</td>
-            <td>${schedule.startTime}</td>
-            <td>${schedule.endTime}</td>
-            <td>${schedule.description || 'No descripción'}</td>
-            <td><div style="width:20px; height:16px; background-color:${schedule.color}; border-radius:4px; margin:auto;"></div></td>
-          `;
-          
-          this.logTableBody.appendChild(tr);
-        });
+
+    updateLogTable() {
+      this.logTableBody.innerHTML = '';  // Limpiar la tabla antes de añadir nuevas filas
+
+      // Ordenar los horarios por fecha y hora de inicio
+      const sortedSchedules = this.schedules.sort((a, b) => {
+        const dateA = new Date(`${a.date}T${a.startTime}`);
+        const dateB = new Date(`${b.date}T${b.startTime}`);
+        return dateA - dateB;
+      });
+
+      // Función para escapar caracteres especiales
+      function escapeHTML(text) {
+        return text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
       }
-      
-      splitRangeByExcludedDays(range) {
+
+      // Iterar sobre los horarios ordenados y crear filas para la tabla
+      sortedSchedules.forEach(s => {
+        const tr = document.createElement('tr');
+
+        tr.dataset.id = s.id;
+        tr.dataset.type = s.type;
+        tr.style.backgroundColor = s.color + '33';
+
+        tr.innerHTML = `
+      <td>${s.userName || s.user}</td>
+      <td>${s.clientName || s.client}</td>
+      <td>${s.date}</td>
+      <td>${s.startTime}</td>
+      <td>${s.endTime}</td>
+      <td class="desc-cell">
+        <span
+          class="desc-icon"
+          data-desc="${escapeHTML(s.description || 'No hay descripción')}"
+        >📝</span>
+        <div class="tooltip-bubble" style="display: none;"></div>
+      </td>
+      <td>
+        <div style="width:20px; height:16px; background-color:${s.color}; border-radius:4px; margin:auto;"></div>
+      </td>
+    `;
+
+        this.logTableBody.appendChild(tr);
+      });
+
+      // Activar tooltips de descripción
+      this.logTableBody.querySelectorAll('.desc-icon').forEach(icon => {
+        //Sirve estas dos lineas para que la descripcion salga abajo de la web al pasar el raton por el emoji
+        //icon.addEventListener('mouseenter', (e) => this.showTooltip(e, icon.dataset.desc));
+        //icon.addEventListener('mouseleave', () => this.hideTooltip());
+
+        icon.addEventListener('click', (e) => {
+          e.stopPropagation();
+
+          // Eliminar burbuja anterior si existe
+          const existing = document.getElementById('fixedDescTooltip');
+          if (existing) existing.remove();
+
+          // Crear la nueva burbuja centrada
+          const tooltip = document.createElement('div');
+          tooltip.id = 'fixedDescTooltip';
+          tooltip.style.position = 'fixed';
+          tooltip.style.top = '50%';
+          tooltip.style.left = '50%';
+          tooltip.style.transform = 'translate(-50%, -50%)';
+          tooltip.style.zIndex = '9999';
+          tooltip.style.maxWidth = '80%';
+          tooltip.style.background = 'linear-gradient(135deg, #ffffff, #f0f0f0)';
+          tooltip.style.border = '2px solid #333';
+          tooltip.style.padding = '15px';
+          tooltip.style.borderRadius = '16px';
+          tooltip.style.boxShadow = '0 12px 24px rgba(0, 0, 0, 0.25)';
+          tooltip.style.fontSize = '1rem';
+          tooltip.style.color = '#2c3e50';
+          tooltip.style.lineHeight = '1.5';
+          tooltip.style.overflowX = 'auto';
+          tooltip.style.animation = 'fadeInScale 0.3s ease-out';
+
+          tooltip.innerHTML = `
+        <pre style="
+          margin: 0;
+          font-family: monospace;
+          white-space: pre-wrap;
+          font-size: 1rem;
+          line-height: 1.5;
+          text-align: left;
+        ">${icon.dataset.desc}</pre>
+      `;
+
+          tooltip.addEventListener('click', () => tooltip.remove());
+          document.body.appendChild(tooltip);
+        });
+      });
+    }
+
+
+
+
+
+
+
+
+
+
+    showTooltip(e, text) {
+      let tooltip = document.getElementById('descTooltip');
+      if (!tooltip) {
+        tooltip = document.createElement('div');
+        tooltip.id = 'descTooltip';
+        tooltip.className = 'tooltip-bubble';
+        document.body.appendChild(tooltip);
+      }
+
+      // Reemplazar saltos de línea por <br>
+      const formattedText = text
+              .replace(/\n/g, '<br>')
+              .replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;')
+              .replace(/  /g, '&nbsp;&nbsp;');
+      tooltip.innerHTML = `<pre style="margin:0; font-family:inherit; white-space:pre-wrap;">${text}</pre>`;
+
+
+
+      const rect = e.target.getBoundingClientRect();
+      const tooltipWidth = 360; // Mismo que el max-width del CSS
+      const left = rect.left + window.scrollX + rect.width / 2 - tooltipWidth / 2;
+
+      tooltip.style.top = `${rect.bottom + window.scrollY + 6}px`;
+      tooltip.style.left = `${Math.max(left, 10)}px`; // Evita que se salga por la izquierda
+      tooltip.style.opacity = '1';
+    }
+
+
+
+
+    hideTooltip() {
+      const tooltip = document.getElementById('descTooltip');
+      if (tooltip) tooltip.style.opacity = '0';
+    }
+
+    splitRangeByExcludedDays(range) {
         const excluded = [...range.excludedDays];
         this.schedules
           .filter(s => s.type === 'single' && s.parentId === range.id)
@@ -1060,15 +1193,15 @@ handleRangeSchedule(user, userName, client, clientName, startTime, endTime) {
             if(!excluded.includes(o.date)) excluded.push(o.date);
           });
         excluded.sort();
-        
+
         const startDate = new Date(range.startDate);
         const endDate = new Date(range.endDate);
-        
+
         const idx = this.schedules.findIndex(s => s.id === range.id);
         if(idx !== -1) this.schedules.splice(idx,1);
-        
+
         let currentStart = new Date(startDate);
-        
+
         excluded.forEach(exDateStr => {
           const exDate = new Date(exDateStr);
           if(exDate > currentStart && exDate <= endDate) {
@@ -1090,7 +1223,7 @@ handleRangeSchedule(user, userName, client, clientName, startTime, endTime) {
             currentStart = new Date(exDate.getTime() + 86400000);
           }
         });
-        
+
         if(currentStart <= endDate) {
           this.schedules.push({
             type: 'range',
@@ -1106,9 +1239,12 @@ handleRangeSchedule(user, userName, client, clientName, startTime, endTime) {
           });
         }
       }
-      
+
     }
-    
+
+
+
+
 
 document.getElementById('saveToDatabase').addEventListener('click', function () {
   if (app.schedules.length === 0) {
@@ -1154,8 +1290,79 @@ document.getElementById('saveToDatabase').addEventListener('click', function () 
 });
 
     // Inicializar la aplicación
-  const app = new CalendarApp();  // Guarda la instancia 
+  const app = new CalendarApp();  // Guarda la instancia
   });
+
+
+
+
+
+  function toggleDescBubble(icon, event) {
+
+    event.stopPropagation();
+
+    // Cerrar cualquier otro tooltip abierto
+    const existing = document.getElementById('fixedDescTooltip');
+    if (existing) existing.remove();
+
+    const description = icon.dataset.desc || 'Sin descripción';
+
+    const tooltip = document.createElement('div');
+    tooltip.id = 'fixedDescTooltip';
+    tooltip.className = 'tooltip-bubble';
+    tooltip.style.position = 'fixed';
+    tooltip.style.top = '50%';
+    tooltip.style.left = '50%';
+    tooltip.style.transform = 'translate(-50%, -50%)';
+    tooltip.style.zIndex = '10000';
+    tooltip.style.maxWidth = '360px';
+    tooltip.style.background = '#fefefe';
+    tooltip.style.border = '2px solid #34495e';
+    tooltip.style.padding = '12px 18px';
+    tooltip.style.borderRadius = '12px';
+    tooltip.style.boxShadow = '0 6px 18px rgba(0,0,0,0.3)';
+    tooltip.style.fontSize = '1rem';
+    tooltip.style.lineHeight = '1.4';
+    tooltip.style.color = '#2c3e50';
+
+    // Cerrar al hacer clic
+    tooltip.addEventListener('click', () => tooltip.remove());
+
+
+    tooltip.innerHTML = `<pre style="margin:0; font-family:inherit; white-space:pre-wrap;">${description}</pre>`;
+
+
+
+    document.body.appendChild(tooltip);
+    console.log("👆 Hiciste clic en el icono de descripción");
+  }
+
+  document.addEventListener('click', (e) => {
+    const tooltip = document.getElementById('fixedDescTooltip');
+    if (tooltip && !tooltip.contains(e.target)) {
+      tooltip.remove();
+    }
+  });
+
+  // Habilitar tabulaciones dentro de los campos de descripción
+  [this.popupDescription, document.getElementById('descriptionInput')].forEach(textarea => {
+    textarea.addEventListener('keydown', function(e) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+
+        // Insertar el carácter de tabulación
+        this.value = this.value.substring(0, start) + "\t" + this.value.substring(end);
+
+        // Mover el cursor después del tab
+        this.selectionStart = this.selectionEnd = start + 1;
+      }
+    });
+  });
+
+
 
 </script>
 
