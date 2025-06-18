@@ -36,6 +36,8 @@ class ClienteUpdate(BaseModel):
     telefono_familiar: Optional[str] = None
     email: Optional[str] = None
     activo: Optional[str] = None
+    id_gestor: Optional[int] = None   
+    id_hogar: Optional[int] = None
 
 class TrabajadorBase(BaseModel):
     nombre_usuario: str

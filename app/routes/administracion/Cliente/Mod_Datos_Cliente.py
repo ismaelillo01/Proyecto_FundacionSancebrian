@@ -45,7 +45,7 @@ async def modificar_cliente(
         )
 
     # Actualizar campos en la tabla Cliente si están presentes en los datos
-    cliente_fields = ['activo']
+    cliente_fields = ['activo', 'id_gestor', 'id_hogar']
     for field in cliente_fields:
         if field in datos.dict(exclude_unset=True):
             setattr(cliente, field, getattr(datos, field))

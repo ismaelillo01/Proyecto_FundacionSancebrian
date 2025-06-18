@@ -448,6 +448,11 @@ input, select, textarea {
             padding: 5px;
         }
 
+        input[disabled], select[disabled], textarea[disabled] {
+    color: #000 !important;
+    background-color: #f3f3f3;
+}
+
 
 /* Contenedor de las dos columnas */
 /* Contenedor de las dos columnas */

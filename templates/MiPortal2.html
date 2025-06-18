@@ -490,9 +490,13 @@
 
 <script>
 
+    // Almacenes locales de datos completos
+    const datosGestores = {};
+    const datosCuidadores = {};
+    const datosHogares = {};
+    const datosClientes = {};
 
     // Función genérica para cargar datos en un select
-
     function mostrarOpciones(tipo) {
         document.querySelectorAll('.sub-botones').forEach(div => div.style.display = 'none');
 
@@ -511,51 +515,66 @@
     }
 
     function mostrarFormularioGestor() {
-        // Cerrar panel de modificar si está abierto
         document.getElementById('estado-gestor').style.display = 'none';
-
-        // Abrir formulario
         document.getElementById('formulario-gestor').style.display = 'flex';
     }
 
-
-
     function mostrarFormularioCuidador() {
-        // Cerrar panel de modificar si está abierto
         document.getElementById('estado-cuidador').style.display = 'none';
-
-        // Abrir formulario
         document.getElementById('formulario-cuidador').style.display = 'flex';
     }
 
-
     function mostrarFormularioHogar() {
-        // Cerrar panel de modificar si está abierto
         document.getElementById('estado-hogar').style.display = 'none';
-
-        // Abrir formulario
         document.getElementById('formulario-hogar').style.display = 'flex';
     }
 
-   function mostrarFormularioCliente() {
-    // Cerrar panel de modificar si está abierto
-    document.getElementById('estado-cliente').style.display = 'none';
+    function mostrarFormularioCliente() {
+        document.getElementById('estado-cliente').style.display = 'none';
+        document.getElementById('formulario-cliente').style.display = 'flex';
 
-    // Abrir formulario
-    document.getElementById('formulario-cliente').style.display = 'flex';
+        const selectGestor = document.querySelector('select[name="gestor"]');
+        const selectHogar = document.querySelector('select[name="hogar"]');
 
-    // Llamadas para llenar los selects dinámicamente
-    const selectGestor = document.querySelector('select[name="gestor"]');
-    const selectHogar = document.querySelector('select[name="hogar"]');
+        cargarDatos('/gestoresActivos', selectGestor, 'gestor', 'activo', gestor => 
+            `${gestor.nombre} ${gestor.apellido1} ${gestor.apellido2 || ''}`.trim());
+        
+        cargarDatos('/VerHogaresActivos', selectHogar, 'hogar', 'activo', hogar => 
+            `${hogar.direccion} (${hogar.codigo_postal})`);
+    }
 
-    cargarDatos('/gestoresActivos', selectGestor, 'gestor', 'activo', gestor => 
-        `${gestor.nombre} ${gestor.apellido1} ${gestor.apellido2 || ''}`.trim());
     
-    cargarDatos('/VerHogaresActivos', selectHogar, 'hogar', 'activo', hogar => 
-        `${hogar.direccion} (${hogar.codigo_postal})`);
-}
+function cargarDatos(url, selectElement, tipo, estado, formatter = null) {
+    let almacen;
+    if (tipo === 'gestor') almacen = datosGestores;
+    else if (tipo === 'cuidador') almacen = datosCuidadores;
+    else if (tipo === 'hogar') almacen = datosHogares;
+    else if (tipo === 'cliente') almacen = datosClientes;
 
-    function cargarDatos(url, selectElement, tipo, estado, formatter = null) {
+    fetch(url)
+        .then(response => response.json())
+        .then(json => {
+            if (!json.success || !Array.isArray(json.data)) {
+                throw new Error('Respuesta incorrecta desde ' + url);
+            }
+
+            selectElement.length = 1;
+            almacen && Object.keys(almacen).forEach(k => delete almacen[k]);  // limpiar
+
+            json.data.forEach(item => {
+                const id = item.id || item.id_gestor || item.id_cliente || item.id_cuidador || item.id_hogar;
+                almacen && (almacen[id] = item);  // guardar objeto completo
+
+                const option = document.createElement('option');
+                option.value = id;
+                option.textContent = formatter ? formatter(item) : (item.nombre || item.direccion || 'Sin nombre');
+                selectElement.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Error cargando ' + url + ':', error);
+        });
+
         fetch(url)
             .then(response => response.json())
             .then(json => {
@@ -563,24 +582,14 @@
                     throw new Error('Respuesta incorrecta desde ' + url);
                 }
 
-                // Limpiar opciones excepto la primera
                 selectElement.length = 1;
 
                 json.data.forEach(item => {
                     const option = document.createElement('option');
                     const id = item.id || item.id_gestor || item.id_cliente || item.id_cuidador || item.id_hogar;
-
                     option.value = id;
-
-                    // Usar el formatter personalizado si está disponible, o mostrar un campo común
                     option.textContent = formatter ? formatter(item) : (item.nombre || item.direccion || 'Sin nombre');
                     selectElement.appendChild(option);
-                });
-
-                // Añadir evento change para guardar la selección
-                selectElement.addEventListener('change', function() {
-                    seleccionesActuales[tipo][estado] = this.value;
-                    console.log(`Selección actualizada - ${tipo} ${estado}:`, this.value);
                 });
             })
             .catch(error => {
@@ -588,175 +597,40 @@
             });
     }
 
-    // Funciones específicas para cada tipo
+    // Funciones para mostrar contenedores
     function mostrarContenedorGestores() {
-        const contenedor = document.getElementById('estado-gestor');
-        const selectActivo = document.getElementById('gestor-activo-select');
-        const selectInactivo = document.getElementById('gestor-inactivo-select');
-
-        contenedor.style.display = 'flex';
-        cargarDatos('/gestoresActivos', selectActivo, 'gestor', 'activo', gestor =>
-            `${gestor.nombre} ${gestor.apellido1} ${gestor.apellido2 || ''}`.trim());
-        cargarDatos('/gestoresInactivos', selectInactivo, 'gestor', 'inactivo', gestor =>
-            `${gestor.nombre} ${gestor.apellido1} ${gestor.apellido2 || ''}`.trim());
-
-        // Agregar evento para cargar los detalles del gestor seleccionado
-        selectActivo.addEventListener('change', function () {
-            const gestorId = this.value;
-            if (gestorId) {
-                obtenerDatosGestor(gestorId);
-            }
-        });
+        document.getElementById('estado-gestor').style.display = 'flex';
+        cargarDatos('/gestoresActivos', document.getElementById('gestor-activo-select'), 'gestor', 'activo', 
+            gestor => `${gestor.nombre} ${gestor.apellido1} ${gestor.apellido2 || ''}`.trim());
+        cargarDatos('/gestoresInactivos', document.getElementById('gestor-inactivo-select'), 'gestor', 'inactivo', 
+            gestor => `${gestor.nombre} ${gestor.apellido1} ${gestor.apellido2 || ''}`.trim());
     }
-
-    // Función para cargar los gestores activos en el select
-    function cargarGestoresActivos() {
-        fetch('/gestoresActivos')
-            .then(response => response.json())
-            .then(data => {
-                const selectActivo = document.getElementById('gestor-activo-select');
-                data.data.forEach(gestor => {
-                    const option = document.createElement('option');
-                    option.value = gestor.id_gestor;
-                    option.textContent = `${gestor.nombre} ${gestor.apellido1} ${gestor.apellido2 || ''}`;
-                    selectActivo.appendChild(option);
-                });
-            })
-            .catch(error => console.error('Error al cargar gestores activos:', error));
-    }
-
-    // Función para cargar los gestores inactivos en el select
-    function cargarGestoresInactivos() {
-        fetch('/gestoresInactivos')
-            .then(response => response.json())
-            .then(data => {
-                const selectInactivo = document.getElementById('gestor-inactivo-select');
-                data.data.forEach(gestor => {
-                    const option = document.createElement('option');
-                    option.value = gestor.id_gestor;
-                    option.textContent = `${gestor.nombre} ${gestor.apellido1} ${gestor.apellido2 || ''}`;
-                    selectInactivo.appendChild(option);
-                });
-            })
-            .catch(error => console.error('Error al cargar gestores inactivos:', error));
-    }
-
-    function obtenerDatosGestor(id) {
-        console.log(`Obteniendo detalles del gestor con ID: ${id}`);  // Debugging
-        fetch(`/gestorDetalles/${id}`)
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);  // Verifica que los datos sean correctos
-                if (data.success && data.data) {
-                    // Los campos se muestran vacíos inicialmente.
-                    document.getElementById('nombre-gestor').value = '';
-                    document.getElementById('apellido1-gestor').value = '';
-                    document.getElementById('apellido2-gestor').value = '';
-                    document.getElementById('usuario-gestor').value = '';
-                    document.getElementById('contrasena-gestor').value = '';
-                    document.getElementById('color-gestor').value = '#000000'; // Color por defecto
-
-                    // Mostrar la tabla de edición
-                    document.getElementById('editar-gestor').style.display = 'block';
-                }
-            })
-            .catch(error => {
-                console.error('Error al cargar los detalles del gestor:', error);
-            });
-    }
-
-    function activarEdicionGestor() {
-        // Al hacer clic en "Modificar", habilitamos los campos para su edición.
-        document.getElementById('nombre-gestor').disabled = false;
-        document.getElementById('apellido1-gestor').disabled = false;
-        document.getElementById('apellido2-gestor').disabled = false;
-        document.getElementById('usuario-gestor').disabled = false;
-        document.getElementById('contrasena-gestor').disabled = false;
-        document.getElementById('color-gestor').disabled = false;
-
-        // Mostrar el botón "Guardar cambios"
-        document.getElementById('guardar-gestor').style.display = 'inline';
-        document.getElementById('modificar-gestor').style.display = 'none';
-    }
-
-    function guardarCambiosGestor() {
-        const gestorData = {
-            nombre: document.getElementById('nombre-gestor').value,
-            apellido1: document.getElementById('apellido1-gestor').value,
-            apellido2: document.getElementById('apellido2-gestor').value,
-            nombre_usuario: document.getElementById('usuario-gestor').value,
-            contrasena: document.getElementById('contrasena-gestor').value,
-            color: document.getElementById('color-gestor').value
-        };
-
-        const gestorId = document.getElementById('gestor-activo-select').value;
-
-        fetch(`/gestorDetalles/${gestorId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(gestorData)
-        })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);  // Verifica que los datos sean correctos
-                if (data.success) {
-                    alert('Gestor actualizado correctamente');
-                    // Ocultar la tabla de edición después de guardar
-                    document.getElementById('editar-gestor').style.display = 'none';
-                } else {
-                    alert('Error al actualizar gestor');
-                }
-            })
-            .catch(error => {
-                console.error('Error al guardar los cambios:', error);
-            });
-    }
-
 
     function mostrarContenedorCuidadores() {
-        const contenedor = document.getElementById('estado-cuidador');
-        const selectActivo = document.getElementById('cuidador-activo-select');
-        const selectInactivo = document.getElementById('cuidador-inactivo-select');
-
-        contenedor.style.display = 'flex';
-        cargarDatos('/cuidadoresActivos', selectActivo, 'cuidador', 'activo', cuidador => 
-            `${cuidador.nombre} ${cuidador.apellido1} ${cuidador.apellido2 || ''}`.trim());
-        cargarDatos('/cuidadoresInactivos', selectInactivo, 'cuidador', 'inactivo', cuidador => 
-            `${cuidador.nombre} ${cuidador.apellido1} ${cuidador.apellido2 || ''}`.trim());
+        document.getElementById('estado-cuidador').style.display = 'flex';
+        cargarDatos('/cuidadoresActivos', document.getElementById('cuidador-activo-select'), 'cuidador', 'activo', 
+            cuidador => `${cuidador.nombre} ${cuidador.apellido1} ${cuidador.apellido2 || ''}`.trim());
+        cargarDatos('/cuidadoresInactivos', document.getElementById('cuidador-inactivo-select'), 'cuidador', 'inactivo', 
+            cuidador => `${cuidador.nombre} ${cuidador.apellido1} ${cuidador.apellido2 || ''}`.trim());
     }
 
     function mostrarContenedorHogares() {
-        const contenedor = document.getElementById('estado-hogar');
-        const selectActivo = document.getElementById('hogar-activo-select');
-        const selectInactivo = document.getElementById('hogar-inactivo-select');
-
-        contenedor.style.display = 'flex';
-        cargarDatos('/VerHogaresActivos', selectActivo, 'hogar', 'activo', hogar => 
-            `${hogar.direccion} (${hogar.codigo_postal})`);
-        cargarDatos('/VerHogaresInactivos', selectInactivo, 'hogar', 'inactivo', hogar => 
-            `${hogar.direccion} (${hogar.codigo_postal})`);
+        document.getElementById('estado-hogar').style.display = 'flex';
+        cargarDatos('/VerHogaresActivos', document.getElementById('hogar-activo-select'), 'hogar', 'activo', 
+            hogar => `${hogar.direccion} (${hogar.codigo_postal})`);
+        cargarDatos('/VerHogaresInactivos', document.getElementById('hogar-inactivo-select'), 'hogar', 'inactivo', 
+            hogar => `${hogar.direccion} (${hogar.codigo_postal})`);
     }
 
     function mostrarContenedorClientes() {
-        const contenedor = document.getElementById('estado-cliente');
-        const selectActivo = document.getElementById('cliente-activo-select');
-        const selectInactivo = document.getElementById('cliente-inactivo-select');
-
-        contenedor.style.display = 'flex';
-        cargarDatos('/clientesActivos', selectActivo, 'cliente', 'activo', cliente => 
-            `${cliente.nombre} ${cliente.apellido1} ${cliente.apellido2 || ''}`.trim());
-        cargarDatos('/clientesInactivos', selectInactivo, 'cliente', 'inactivo', cliente => 
-            `${cliente.nombre} ${cliente.apellido1} ${cliente.apellido2 || ''}`.trim());
+        document.getElementById('estado-cliente').style.display = 'flex';
+        cargarDatos('/clientesActivos', document.getElementById('cliente-activo-select'), 'cliente', 'activo', 
+            cliente => `${cliente.nombre} ${cliente.apellido1} ${cliente.apellido2 || ''}`.trim());
+        cargarDatos('/clientesInactivos', document.getElementById('cliente-inactivo-select'), 'cliente', 'inactivo', 
+            cliente => `${cliente.nombre} ${cliente.apellido1} ${cliente.apellido2 || ''}`.trim());
     }
 
-    // Función para obtener la selección actual
-    function obtenerSeleccion(tipo, estado) {
-        return seleccionesActuales[tipo][estado];
-    }
-
-    // Modificar las funciones existentes para usar las nuevas funciones de carga
+    // Funciones para mostrar estados
     function mostrarEstadosGestor() {
         document.getElementById('formulario-gestor').style.display = 'none';
         mostrarContenedorGestores();
@@ -777,120 +651,399 @@
         mostrarContenedorClientes();
     }
 
+    // Función genérica para mostrar formulario de edición
+    function mostrarFormularioEdicion(tipo, id, estado) {
+        // Ocultar formularios anteriores
+        document.querySelectorAll(`#editar-${tipo}`).forEach(form => form.style.display = 'none');
 
-    // Función para mostrar mensajes de debug
-function debug(message, data = null) {
-    console.log(`[DEBUG] ${message}`, data || '');
-    if (data && data.error) {
-        console.error('Error detallado:', data.error);
+        // Mostrar formulario de edición
+        const formulario = document.getElementById(`editar-${tipo}`);
+        formulario.style.display = 'block';
+
+        // Limpiar y deshabilitar campos
+        const campos = document.querySelectorAll(`#editar-${tipo} input, #editar-${tipo} select, #editar-${tipo} textarea`);
+        campos.forEach(campo => {
+            campo.value = '';
+            campo.disabled = true;
+        });
+
+        // Determinar el endpoint según el tipo
+        let endpoint = '';
+        if (tipo === 'gestor' || tipo === 'cuidador') {
+            endpoint = `/trabajadores/${id}`;
+        } else {
+            endpoint = `/${tipo}/${id}`;
+        }
+
+        // Obtener datos del elemento seleccionado
+        fetch(endpoint)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    const item = data.data;
+                    
+                    // Rellenar campos según el tipo
+                    if (tipo === 'gestor') {
+                        document.getElementById('nombre-gestor').value = item.nombre || '';
+                        document.getElementById('apellido1-gestor').value = item.apellido1 || '';
+                        document.getElementById('apellido2-gestor').value = item.apellido2 || '';
+                        document.getElementById('usuario-gestor').value = item.nombre_usuario || '';
+                        document.getElementById('contrasena-gestor').value = item.contraseña || '';
+                        document.getElementById('color-gestor').value = item.gestor_data?.color || '#000000';
+                    } 
+                    else if (tipo === 'cuidador') {
+                        document.getElementById('nombre-cuidador').value = item.nombre || '';
+                        document.getElementById('apellido1-cuidador').value = item.apellido1 || '';
+                        document.getElementById('apellido2-cuidador').value = item.apellido2 || '';
+                        document.getElementById('usuario-cuidador').value = item.nombre_usuario || '';
+                        document.getElementById('contrasena-cuidador').value = item.contraseña || '';
+                        document.getElementById('telefono-cuidador').value = item.cuidador_data?.telefono || '';
+                    } 
+                    else if (tipo === 'hogar') {
+                        document.getElementById('direccion-hogar').value = item.direccion || '';
+                        document.getElementById('codigo_postal-hogar').value = item.Cod_Postal || '';
+                        document.getElementById('provincia-hogar').value = item.Provincia || '';
+                        document.getElementById('url_homeassistant-hogar').value = item.url || '';
+                        document.getElementById('token_homeassistant-hogar').value = item.token || '';
+                    } 
+                    else if (tipo === 'cliente') {
+                        document.getElementById('nombre-cliente').value = item.nombre || '';
+                        document.getElementById('apellido1-cliente').value = item.apellido1 || '';
+                        document.getElementById('apellido2-cliente').value = item.apellido2 || '';
+                        document.getElementById('dni-cliente').value = item.dni || '';
+                        document.getElementById('sexo-cliente').value = item.sexo || '';
+                        document.getElementById('fecha_nacimiento-cliente').value = item.fecha_nacimiento || '';
+                        document.getElementById('telefono-personal-cliente').value = item.telefono_contacto || '';
+                        document.getElementById('telefono-familiar-cliente').value = item.telefono_familiar || '';
+                        document.getElementById('descripcion-cliente').value = item.descripcion || '';
+                        
+                        // Cargar selects para gestor y hogar
+                        cargarDatos('/gestoresActivos', document.getElementById('gestor-cliente'), 'gestor', 'activo');
+                        cargarDatos('/VerHogaresActivos', document.getElementById('hogar-cliente'), 'hogar', 'activo');
+                        
+                        // Establecer valores seleccionados
+                        if (item.id_gestor) {
+                            document.getElementById('gestor-cliente').value = item.id_gestor;
+                        }
+                        if (item.id_hogar) {
+                            document.getElementById('hogar-cliente').value = item.id_hogar;
+                        }
+                    }
+                }
+            })
+            .catch(error => console.error(`Error al cargar los detalles del ${tipo}:`, error));
+
+        // Mostrar botones
+        document.getElementById(`modificar-${tipo}`).style.display = 'inline';
+        document.getElementById(`guardar-${tipo}`).style.display = 'none';
     }
-}
 
-async function handleFetch(url, options, successMessage) {
-    try {
-        const response = await fetch(url, options);
-        let data;
+    // Función para activar la edición
+    function activarEdicion(tipo) {
+        const campos = document.querySelectorAll(`#editar-${tipo} input, #editar-${tipo} select, #editar-${tipo} textarea`);
+        campos.forEach(campo => {
+            campo.disabled = false;
+        });
+
+        document.getElementById(`modificar-${tipo}`).style.display = 'none';
+        document.getElementById(`guardar-${tipo}`).style.display = 'inline';
+    }
+
+    // Función para guardar cambios
+    function guardarCambios(tipo) {
+        const select = document.querySelector(`#${tipo}-activo-select, #${tipo}-inactivo-select`);
+        const id = select.value;
+        const estado = select.id.includes('activo') ? 'activo' : 'inactivo';
         
+        let endpoint = '';
+        let data = {};
+
+        if (tipo === 'gestor') {
+            endpoint = `/trabajadores/${id}`;
+            data = {
+                nombre: document.getElementById('nombre-gestor').value,
+                apellido1: document.getElementById('apellido1-gestor').value,
+                apellido2: document.getElementById('apellido2-gestor').value,
+                nombre_usuario: document.getElementById('usuario-gestor').value,
+                contraseña: document.getElementById('contrasena-gestor').value,
+                activo: estado,
+                gestor_data: {
+                    color: document.getElementById('color-gestor').value
+                }
+            };
+        } 
+        else if (tipo === 'cuidador') {
+            endpoint = `/trabajadores/${id}`;
+            data = {
+                nombre: document.getElementById('nombre-cuidador').value,
+                apellido1: document.getElementById('apellido1-cuidador').value,
+                apellido2: document.getElementById('apellido2-cuidador').value,
+                nombre_usuario: document.getElementById('usuario-cuidador').value,
+                contraseña: document.getElementById('contrasena-cuidador').value,
+                activo: estado,
+                cuidador_data: {
+                    telefono: document.getElementById('telefono-cuidador').value
+                }
+            };
+        } 
+        else if (tipo === 'hogar') {
+            endpoint = `/hogares/${id}`;
+            data = {
+                direccion: document.getElementById('direccion-hogar').value,
+                Cod_Postal: document.getElementById('codigo_postal-hogar').value,
+                Provincia: document.getElementById('provincia-hogar').value,
+                url: document.getElementById('url_homeassistant-hogar').value,
+                token: document.getElementById('token_homeassistant-hogar').value,
+                activo: estado
+            };
+        } 
+        else if (tipo === 'cliente') {
+            endpoint = `/clientes/${id}`;
+            data = {
+                nombre: document.getElementById('nombre-cliente').value,
+                apellido1: document.getElementById('apellido1-cliente').value,
+                apellido2: document.getElementById('apellido2-cliente').value,
+                dni: document.getElementById('dni-cliente').value,
+                sexo: document.getElementById('sexo-cliente').value,
+                fecha_nacimiento: document.getElementById('fecha_nacimiento-cliente').value,
+                telefono_contacto: document.getElementById('telefono-personal-cliente').value,
+                telefono_familiar: document.getElementById('telefono-familiar-cliente').value,
+                descripcion: document.getElementById('descripcion-cliente').value,
+                id_gestor: document.getElementById('gestor-cliente').value,
+                id_hogar: document.getElementById('hogar-cliente').value,
+                email: "Pruebasgreggerg@gmail.com",
+                activo: estado
+            };
+            console.log("Datos enviados al guardar cliente:", data);
+
+        }
+
+        fetch(endpoint, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(`${tipo.charAt(0).toUpperCase() + tipo.slice(1)} actualizado correctamente`);
+                // Deshabilitar campos después de guardar
+                const campos = document.querySelectorAll(`#editar-${tipo} input, #editar-${tipo} select, #editar-${tipo} textarea`);
+                campos.forEach(campo => {
+                    campo.disabled = true;
+                });
+                
+                document.getElementById(`modificar-${tipo}`).style.display = 'inline';
+                document.getElementById(`guardar-${tipo}`).style.display = 'none';
+                
+                // Recargar los datos en los selects
+                if (tipo === 'gestor') {
+                    mostrarContenedorGestores();
+                } else if (tipo === 'cuidador') {
+                    mostrarContenedorCuidadores();
+                } else if (tipo === 'hogar') {
+                    mostrarContenedorHogares();
+                } else if (tipo === 'cliente') {
+                    mostrarContenedorClientes();
+                }
+            } else {
+                alert(`Error al actualizar ${tipo}: ${data.message || 'Error desconocido'}`);
+            }
+        })
+        .catch(error => {
+            console.error(`Error al actualizar ${tipo}:`, error);
+            alert(`Error al actualizar ${tipo}`);
+        });
+    }
+
+    // Funciones específicas para cada tipo (wrappers de las funciones genéricas)
+    function activarEdicionGestor() {
+        activarEdicion('gestor');
+    }
+
+    function guardarCambiosGestor() {
+        guardarCambios('gestor');
+    }
+
+    function activarEdicionCuidador() {
+        activarEdicion('cuidador');
+    }
+
+    function guardarCambiosCuidador() {
+        guardarCambios('cuidador');
+    }
+
+    function activarEdicionHogar() {
+        activarEdicion('hogar');
+    }
+
+    function guardarCambiosHogar() {
+        guardarCambios('hogar');
+    }
+
+    function activarEdicionCliente() {
+        activarEdicion('cliente');
+    }
+
+    function guardarCambiosCliente() {
+        guardarCambios('cliente');
+    }
+
+    // Event listeners para los selects
+    document.getElementById('gestor-activo-select').addEventListener('change', function() {
+        if (this.value) {
+            rellenarFormularioDesdeMemoria('gestor', this.value);
+        }
+    });
+
+    document.getElementById('gestor-inactivo-select').addEventListener('change', function() {
+        if (this.value) {
+            rellenarFormularioDesdeMemoria('gestor', this.value);
+        }
+    });
+
+    document.getElementById('cuidador-activo-select').addEventListener('change', function() {
+        if (this.value) {
+            rellenarFormularioDesdeMemoria('cuidador', this.value);
+        }
+    });
+
+    document.getElementById('cuidador-inactivo-select').addEventListener('change', function() {
+        if (this.value) {
+            rellenarFormularioDesdeMemoria('cuidador', this.value);
+        }
+    });
+
+    document.getElementById('hogar-activo-select').addEventListener('change', function() {
+        if (this.value) {
+            rellenarFormularioDesdeMemoria('hogar', this.value);
+        }
+    });
+
+    document.getElementById('hogar-inactivo-select').addEventListener('change', function() {
+        if (this.value) {
+            rellenarFormularioDesdeMemoria('hogar', this.value);
+        }
+    });
+
+    document.getElementById('cliente-activo-select').addEventListener('change', function() {
+        if (this.value) {
+            rellenarFormularioDesdeMemoria('cliente', this.value);
+        }
+    });
+
+    document.getElementById('cliente-inactivo-select').addEventListener('change', function() {
+        if (this.value) {
+            rellenarFormularioDesdeMemoria('cliente', this.value);
+        }
+    });
+
+    // Funciones para manejar formularios de creación
+    async function handleFetch(url, options, successMessage) {
         try {
-            data = await response.json();
-        } catch (e) {
-            debug('El servidor no devolvió JSON válido', {
-                status: response.status,
-                statusText: response.statusText
-            });
-            throw new Error(`Error ${response.status}: ${response.statusText}`);
+            const response = await fetch(url, options);
+            let data;
+            
+            try {
+                data = await response.json();
+            } catch (e) {
+                console.error('El servidor no devolvió JSON válido', {
+                    status: response.status,
+                    statusText: response.statusText
+                });
+                throw new Error(`Error ${response.status}: ${response.statusText}`);
+            }
+
+            console.log('Respuesta del servidor:', data);
+
+            if (!response.ok || !data.success) {
+                const errorMsg = data.message || `Error ${response.status}`;
+                console.error('Error en la respuesta', { response, data });
+                throw new Error(errorMsg);
+            }
+
+            alert(successMessage);
+            return data;
+        } catch (error) {
+            console.error('Error en la petición:', error);
+            alert(`Error: ${error.message}`);
+            throw error;
         }
-
-        debug('Respuesta del servidor:', data);
-
-        if (!response.ok || !data.success) {
-            const errorMsg = data.message || `Error ${response.status}`;
-            debug('Error en la respuesta', { response, data });
-            throw new Error(errorMsg);
-        }
-
-        alert(successMessage);
-        return data;
-    } catch (error) {
-        console.error('Error en la petición:', error);
-        alert(`Error: ${error.message}`);
-        throw error;
     }
-}
 
+    // Submit del formulario de gestor
+    document.getElementById('formulario-gestor').onsubmit = async function(event) {
+        event.preventDefault();
+        console.log('Intentando enviar formulario de gestor');
 
-    // Modificar el submit del formulario de gestor
- document.getElementById('formulario-gestor').onsubmit = async function(event) {
-    event.preventDefault();
-    debug('Intentando enviar formulario de gestor');
+        const formData = new FormData(this);
+        const gestorData = {
+            nombre: formData.get('nombre'),
+            apellido1: formData.get('apellido1'),
+            apellido2: formData.get('apellido2'),
+            nombre_usuario: formData.get('usuario'),
+            contraseña: formData.get('contrasena'),
+            color: formData.get('color'),
+            activo: 'activo',
+            gestor_data: {
+                color: formData.get('color')
+            }
+        };
 
-    const formData = new FormData(this);
-    const gestorData = {
-        nombre: formData.get('nombre'),
-        apellido1: formData.get('apellido1'),
-        apellido2: formData.get('apellido2'),
-        nombre_usuario: formData.get('usuario'),
-        contraseña: formData.get('contrasena'),
-        color: formData.get('color'), // Obtener el valor del campo color
-        activo: 'activo',
-        gestor_data: {
-            color: formData.get('color') // También puedes agregarlo en el objeto 'gestor_data'
+        console.log('Datos del gestor preparados:', gestorData);
+
+        try {
+            await handleFetch('/trabajadores/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(gestorData)
+            }, 'Gestor añadido correctamente');
+            
+            this.reset();
+        } catch (error) {
+            // El error ya fue manejado por handleFetch
         }
     };
 
-    debug('Datos del gestor preparados:', gestorData);
-    console.log('Datos a enviar (Gestor):', JSON.stringify(gestorData, null, 2));
+    // Submit del formulario de cuidador
+    document.getElementById('formulario-cuidador').onsubmit = async function(event) {
+        event.preventDefault();
+        console.log('Intentando enviar formulario de cuidador');
 
+        const formData = new FormData(this);
+        const cuidadorData = {
+            nombre: formData.get('nombre'),
+            apellido1: formData.get('apellido1'),
+            apellido2: formData.get('apellido2'),
+            nombre_usuario: formData.get('usuario'),
+            contraseña: formData.get('contrasena'),
+            cuidador_data: {
+                telefono: formData.get('telefono')
+            },
+            activo: 'activo',
+        };
 
-    try {
-        await handleFetch('/trabajadores/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(gestorData)
-        }, 'Gestor añadido correctamente');
-        
-        this.reset();
-    } catch (error) {
-        // El error ya fue manejado por handleFetch
-    }
-};
-    // Modificar el submit del formulario de cuidador
-  document.getElementById('formulario-cuidador').onsubmit = async function(event) {
-    event.preventDefault();
-    debug('Intentando enviar formulario de cuidador');
+        console.log('Datos del cuidador preparados:', cuidadorData);
 
-    const formData = new FormData(this);
-    const cuidadorData = {
-        nombre: formData.get('nombre'),
-        apellido1: formData.get('apellido1'),
-        apellido2: formData.get('apellido2'),
-        nombre_usuario: formData.get('usuario'),
-        contraseña: formData.get('contrasena'),
-        cuidador_data: {
-        telefono: formData.get('telefono')
-        },
-        activo: 'activo',
+        try {
+            await handleFetch('/trabajadores/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(cuidadorData)
+            }, 'Cuidador añadido correctamente');
+            
+            this.reset();
+        } catch (error) {
+            // El error ya fue manejado por handleFetch
+        }
     };
 
-    debug('Datos del cuidador preparados:', cuidadorData);
-
-    try {
-        await handleFetch('/trabajadores/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(cuidadorData)
-        }, 'Cuidador añadido correctamente');
-        
-        this.reset();
-    } catch (error) {
-        // El error ya fue manejado por handleFetch
-    }
-};
-
-    // Modificar el submit del formulario de hogar (ya funciona pero añado debug)
+    // Submit del formulario de hogar
     document.getElementById('formulario-hogar').onsubmit = async function(event) {
         event.preventDefault();
-        debug('Intentando enviar formulario de hogar');
+        console.log('Intentando enviar formulario de hogar');
 
         const formData = new FormData(this);
         const hogarData = {
@@ -902,7 +1055,7 @@ async function handleFetch(url, options, successMessage) {
             activo: 'activo',
         };
 
-        debug('Datos del hogar preparados:', hogarData);
+        console.log('Datos del hogar preparados:', hogarData);
 
         try {
             const response = await fetch('/hogares/', {
@@ -914,7 +1067,7 @@ async function handleFetch(url, options, successMessage) {
             });
             
             const data = await response.json();
-            debug('Respuesta del servidor:', data);
+            console.log('Respuesta del servidor:', data);
 
             if (data.success) {
                 alert('Hogar añadido correctamente');
@@ -928,302 +1081,110 @@ async function handleFetch(url, options, successMessage) {
         }
     };
 
-    // Modificar el submit del formulario de cliente (ya funciona pero añado debug)
-   document.getElementById('formulario-cliente').onsubmit = async function(event) {
-    event.preventDefault();
-    debug('Intentando enviar formulario de cliente');
+    // Submit del formulario de cliente
+    document.getElementById('formulario-cliente').onsubmit = async function(event) {
+        event.preventDefault();
+        console.log('Intentando enviar formulario de cliente');
 
-    const formData = new FormData(this);
-    
-    // Validación básica
-    if (!formData.get('dni') || !/^[0-9]{8}[A-Za-z]$/.test(formData.get('dni'))) {
-        alert('Por favor, introduce un DNI válido (8 números y 1 letra)');
-        return;
-    }
+        const formData = new FormData(this);
+        
+        // Validación básica
+        if (!formData.get('dni') || !/^[0-9]{8}[A-Za-z]$/.test(formData.get('dni'))) {
+            alert('Por favor, introduce un DNI válido (8 números y 1 letra)');
+            return;
+        }
 
-    if (!formData.get('fecha_nacimiento')) {
-        alert('Por favor, introduce una fecha de nacimiento válida');
-        return;
-    }
+        if (!formData.get('fecha_nacimiento')) {
+            alert('Por favor, introduce una fecha de nacimiento válida');
+            return;
+        }
 
-    const clienteData = {
-        nombre: formData.get('nombre'),
-        apellido1: formData.get('apellido1'),
-        apellido2: formData.get('apellido2'),
-        dni: formData.get('dni').toUpperCase(), // Aseguramos mayúscula
-        sexo: formData.get('sexo'),
-        descripcion: formData.get('descripcion'),
-        fecha_nacimiento: formData.get('fecha_nacimiento'),
-        telefono_contacto: formData.get('telefono_personal'),
-        telefono_familiar: formData.get('telefono_familiar'),
-        id_hogar: parseInt(formData.get('hogar')), // Aseguramos número
-        id_gestor: parseInt(formData.get('gestor')), // Aseguramos número
-        activo: 'activo',
+        const clienteData = {
+            nombre: formData.get('nombre'),
+            apellido1: formData.get('apellido1'),
+            apellido2: formData.get('apellido2'),
+            dni: formData.get('dni').toUpperCase(), // Aseguramos mayúscula
+            sexo: formData.get('sexo'),
+            descripcion: formData.get('descripcion'),
+            fecha_nacimiento: formData.get('fecha_nacimiento'),
+            telefono_contacto: formData.get('telefono_personal'),
+            telefono_familiar: formData.get('telefono_familiar'),
+            id_hogar: parseInt(formData.get('hogar')), // Aseguramos número
+            id_gestor: parseInt(formData.get('gestor')), // Aseguramos número
+            activo: 'activo',
+        };
+
+        console.log('Datos del cliente preparados:', clienteData);
+
+        try {
+            await handleFetch('/clientes/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(clienteData)
+            }, 'Cliente añadido correctamente');
+            
+            this.reset();
+        } catch (error) {
+            // El error ya fue manejado por handleFetch
+        }
     };
 
-    debug('Datos del cliente preparados:', clienteData);
 
-    try {
-        await handleFetch('/clientes/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(clienteData)
-        }, 'Cliente añadido correctamente');
-        
-        this.reset();
-    } catch (error) {
-        // El error ya fue manejado por handleFetch
-    }
-};
+function rellenarFormularioDesdeMemoria(tipo, id) {
+    let item;
+    if (tipo === 'gestor') item = datosGestores[id];
+    else if (tipo === 'cuidador') item = datosCuidadores[id];
+    else if (tipo === 'hogar') item = datosHogares[id];
+    else if (tipo === 'cliente') item = datosClientes[id];
 
+    if (!item) return;
 
+    document.querySelectorAll(`#editar-${tipo}`).forEach(form => form.style.display = 'block');
 
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
 
-    // Inicialización (opcional, para cargar datos al abrir la página)
-    // Evento para seleccionar un gestor activo
-    document.getElementById('gestor-activo-select').addEventListener('change', function () {
-        const gestorId = this.value;
-        if (gestorId) {
-            mostrarFormularioEdicion('gestor', gestorId, 'activo');
-        }
-    });
+    if (tipo === 'gestor') {
+        set('nombre-gestor', item.nombre);
+        set('apellido1-gestor', item.apellido1);
+        set('apellido2-gestor', item.apellido2);
+        set('usuario-gestor', item.nombre_usuario);
+        set('contrasena-gestor', item.contraseña);
+        set('color-gestor', item.gestor_data?.color || '#000000');
+    } else if (tipo === 'cuidador') {
+        set('nombre-cuidador', item.nombre);
+        set('apellido1-cuidador', item.apellido1);
+        set('apellido2-cuidador', item.apellido2);
+        set('usuario-cuidador', item.nombre_usuario);
+        set('contrasena-cuidador', item.contraseña);
+        set('telefono-cuidador', item.cuidador_data?.telefono);
+    } else if (tipo === 'hogar') {
+        set('direccion-hogar', item.direccion);
+        set('codigo_postal-hogar', item.codigo_postal || item.Cod_Postal);
+        set('provincia-hogar', item.provincia || item.Provincia);
+        set('url_homeassistant-hogar', item.url);
+        set('token_homeassistant-hogar', item.token);
+    } else if (tipo === 'cliente') {
+        set('nombre-cliente', item.nombre);
+        set('apellido1-cliente', item.apellido1);
+        set('apellido2-cliente', item.apellido2);
+        set('dni-cliente', item.dni);
+        set('sexo-cliente', item.sexo);
+        set('fecha_nacimiento-cliente', item.fecha_nacimiento);
+        set('telefono-personal-cliente', item.telefono_contacto);
+        set('telefono-familiar-cliente', item.telefono_familiar);
+        set('descripcion-cliente', item.descripcion);
 
-    // Evento para seleccionar un gestor inactivo
-    document.getElementById('gestor-inactivo-select').addEventListener('change', function () {
-        const gestorId = this.value;
-        if (gestorId) {
-            mostrarFormularioEdicion('gestor', gestorId, 'inactivo');
-        }
-    });
+        cargarDatos('/gestoresActivos', document.getElementById('gestor-cliente'), 'gestor', 'activo');
+        cargarDatos('/VerHogaresActivos', document.getElementById('hogar-cliente'), 'hogar', 'activo');
 
-    // Función para mostrar el formulario de edición debajo del selector (activo/inactivo)
-    function mostrarFormularioEdicion(tipo, id, estado) {
-        // Ocultar formularios anteriores
-        document.querySelectorAll(`#editar-${tipo}`).forEach(form => form.style.display = 'none');
-
-        // Mostrar formulario de edición para el gestor
-        const formulario = document.getElementById(`editar-${tipo}`);
-        formulario.style.display = 'block';
-
-        // Limpiar campos
-        document.getElementById(`nombre-${tipo}`).value = '';
-        document.getElementById(`apellido1-${tipo}`).value = '';
-        document.getElementById(`apellido2-${tipo}`).value = '';
-        document.getElementById(`usuario-${tipo}`).value = '';
-        document.getElementById(`contrasena-${tipo}`).value = '';
-        document.getElementById(`color-${tipo}`).value = '#000000';  // Color por defecto
-
-        // Obtener datos del gestor y llenar los campos
-        fetch(`/${tipo}Detalles/${id}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.data) {
-                    document.getElementById(`nombre-${tipo}`).value = data.data.nombre;
-                    document.getElementById(`apellido1-${tipo}`).value = data.data.apellido1;
-                    document.getElementById(`apellido2-${tipo}`).value = data.data.apellido2 || '';
-                    document.getElementById(`usuario-${tipo}`).value = data.data.nombre_usuario;
-                    document.getElementById(`contrasena-${tipo}`).value = data.data.contrasena;
-                    document.getElementById(`color-${tipo}`).value = data.data.color || '#000000';
-                }
-            })
-            .catch(error => console.error(`Error al cargar los detalles del ${tipo}:`, error));
-
-        // Habilitar los campos para edición
-        document.getElementById(`nombre-${tipo}`).disabled = false;
-        document.getElementById(`apellido1-${tipo}`).disabled = false;
-        document.getElementById(`apellido2-${tipo}`).disabled = false;
-        document.getElementById(`usuario-${tipo}`).disabled = false;
-        document.getElementById(`contrasena-${tipo}`).disabled = false;
-        document.getElementById(`color-${tipo}`).disabled = false;
-
-        // Mostrar los botones de modificación y guardado
-        document.getElementById(`modificar-${tipo}`).style.display = 'inline';
-        document.getElementById(`guardar-${tipo}`).style.display = 'none';
+        setTimeout(() => {
+            set('gestor-cliente', item.id_gestor);
+            set('hogar-cliente', item.id_hogar);
+        }, 1000);
     }
 
-    // Evento para seleccionar un cuidador activo
-    document.getElementById('cuidador-activo-select').addEventListener('change', function () {
-        const cuidadorId = this.value;
-        if (cuidadorId) {
-            mostrarFormularioEdicion('cuidador', cuidadorId, 'activo');
-        }
-    });
-
-    // Evento para seleccionar un cuidador inactivo
-    document.getElementById('cuidador-inactivo-select').addEventListener('change', function () {
-        const cuidadorId = this.value;
-        if (cuidadorId) {
-            mostrarFormularioEdicion('cuidador', cuidadorId, 'inactivo');
-        }
-    });
-
-    // Función para mostrar el formulario de edición debajo del selector (activo/inactivo)
-    function mostrarFormularioEdicion(tipo, id, estado) {
-        // Ocultar formularios anteriores
-        document.querySelectorAll(`#editar-${tipo}`).forEach(form => form.style.display = 'none');
-
-        // Mostrar formulario de edición para el cuidador
-        const formulario = document.getElementById(`editar-${tipo}`);
-        formulario.style.display = 'block';
-
-        // Limpiar campos
-        document.getElementById(`nombre-${tipo}`).value = '';
-        document.getElementById(`apellido1-${tipo}`).value = '';
-        document.getElementById(`apellido2-${tipo}`).value = '';
-        document.getElementById(`usuario-${tipo}`).value = '';
-        document.getElementById(`contrasena-${tipo}`).value = '';
-        document.getElementById(`telefono-${tipo}`).value = '';
-
-        // Obtener datos del cuidador y llenar los campos
-        fetch(`/${tipo}Detalles/${id}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.data) {
-                    document.getElementById(`nombre-${tipo}`).value = data.data.nombre;
-                    document.getElementById(`apellido1-${tipo}`).value = data.data.apellido1;
-                    document.getElementById(`apellido2-${tipo}`).value = data.data.apellido2 || '';
-                    document.getElementById(`usuario-${tipo}`).value = data.data.nombre_usuario;
-                    document.getElementById(`contrasena-${tipo}`).value = data.data.contrasena;
-                    document.getElementById(`telefono-${tipo}`).value = data.data.telefono;
-                }
-            })
-            .catch(error => console.error(`Error al cargar los detalles del ${tipo}:`, error));
-
-        // Habilitar los campos para edición
-        document.getElementById(`nombre-${tipo}`).disabled = false;
-        document.getElementById(`apellido1-${tipo}`).disabled = false;
-        document.getElementById(`apellido2-${tipo}`).disabled = false;
-        document.getElementById(`usuario-${tipo}`).disabled = false;
-        document.getElementById(`contrasena-${tipo}`).disabled = false;
-        document.getElementById(`telefono-${tipo}`).disabled = false;
-
-        // Mostrar los botones de modificación y guardado
-        document.getElementById(`modificar-${tipo}`).style.display = 'inline';
-        document.getElementById(`guardar-${tipo}`).style.display = 'none';
-    }
-
-    // Evento para seleccionar un hogar activo
-    document.getElementById('hogar-activo-select').addEventListener('change', function () {
-        const hogarId = this.value;
-        if (hogarId) {
-            mostrarFormularioEdicion('hogar', hogarId, 'activo');
-        }
-    });
-
-    // Evento para seleccionar un hogar inactivo
-    document.getElementById('hogar-inactivo-select').addEventListener('change', function () {
-        const hogarId = this.value;
-        if (hogarId) {
-            mostrarFormularioEdicion('hogar', hogarId, 'inactivo');
-        }
-    });
-
-    // Función para mostrar el formulario de edición debajo del selector (activo/inactivo)
-    function mostrarFormularioEdicion(tipo, id, estado) {
-        // Ocultar formularios anteriores
-        document.querySelectorAll(`#editar-${tipo}`).forEach(form => form.style.display = 'none');
-
-        // Mostrar formulario de edición para el hogar
-        const formulario = document.getElementById(`editar-${tipo}`);
-        formulario.style.display = 'block';
-
-        // Limpiar campos
-        document.getElementById(`direccion-${tipo}`).value = '';
-        document.getElementById(`codigo_postal-${tipo}`).value = '';
-        document.getElementById(`provincia-${tipo}`).value = '';
-        document.getElementById(`url_homeassistant-${tipo}`).value = '';
-        document.getElementById(`token_homeassistant-${tipo}`).value = '';
-
-        // Obtener datos del hogar y llenar los campos
-        fetch(`/${tipo}Detalles/${id}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.data) {
-                    document.getElementById(`direccion-${tipo}`).value = data.data.direccion;
-                    document.getElementById(`codigo_postal-${tipo}`).value = data.data.codigo_postal;
-                    document.getElementById(`provincia-${tipo}`).value = data.data.provincia;
-                    document.getElementById(`url_homeassistant-${tipo}`).value = data.data.url_homeassistant;
-                    document.getElementById(`token_homeassistant-${tipo}`).value = data.data.token_homeassistant;
-                }
-            })
-            .catch(error => console.error(`Error al cargar los detalles del ${tipo}:`, error));
-
-        // Habilitar los campos para edición
-        document.getElementById(`direccion-${tipo}`).disabled = false;
-        document.getElementById(`codigo_postal-${tipo}`).disabled = false;
-        document.getElementById(`provincia-${tipo}`).disabled = false;
-        document.getElementById(`url_homeassistant-${tipo}`).disabled = false;
-        document.getElementById(`token_homeassistant-${tipo}`).disabled = false;
-
-        // Mostrar los botones de modificación y guardado
-        document.getElementById(`modificar-${tipo}`).style.display = 'inline';
-        document.getElementById(`guardar-${tipo}`).style.display = 'none';
-    }
-
-    // Evento para seleccionar un cliente activo
-    document.getElementById('cliente-activo-select').addEventListener('change', function () {
-        const clienteId = this.value;
-        if (clienteId) {
-            mostrarFormularioEdicion('cliente', clienteId, 'activo');
-        }
-    });
-
-    // Evento para seleccionar un cliente inactivo
-    document.getElementById('cliente-inactivo-select').addEventListener('change', function () {
-        const clienteId = this.value;
-        if (clienteId) {
-            mostrarFormularioEdicion('cliente', clienteId, 'inactivo');
-        }
-    });
-
-    // Función para mostrar el formulario de edición debajo del selector (activo/inactivo)
-    function mostrarFormularioEdicion(tipo, id, estado) {
-        // Ocultar formularios anteriores
-        document.querySelectorAll(`#editar-${tipo}`).forEach(form => form.style.display = 'none');
-
-        // Mostrar formulario de edición para el cliente
-        const formulario = document.getElementById(`editar-${tipo}`);
-        formulario.style.display = 'block';
-
-        // Limpiar campos
-        document.getElementById(`nombre-${tipo}`).value = '';
-        document.getElementById(`apellido1-${tipo}`).value = '';
-        document.getElementById(`apellido2-${tipo}`).value = '';
-        document.getElementById(`usuario-${tipo}`).value = '';
-        document.getElementById(`contrasena-${tipo}`).value = '';
-        document.getElementById(`telefono-${tipo}`).value = '';
-
-        // Obtener datos del cliente y llenar los campos
-        fetch(`/${tipo}Detalles/${id}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.data) {
-                    document.getElementById(`nombre-${tipo}`).value = data.data.nombre;
-                    document.getElementById(`apellido1-${tipo}`).value = data.data.apellido1;
-                    document.getElementById(`apellido2-${tipo}`).value = data.data.apellido2 || '';
-                    document.getElementById(`usuario-${tipo}`).value = data.data.nombre_usuario;
-                    document.getElementById(`contrasena-${tipo}`).value = data.data.contrasena;
-                    document.getElementById(`telefono-${tipo}`).value = data.data.telefono;
-                }
-            })
-            .catch(error => console.error(`Error al cargar los detalles del ${tipo}:`, error));
-
-        // Habilitar los campos para edición
-        document.getElementById(`nombre-${tipo}`).disabled = false;
-        document.getElementById(`apellido1-${tipo}`).disabled = false;
-        document.getElementById(`apellido2-${tipo}`).disabled = false;
-        document.getElementById(`usuario-${tipo}`).disabled = false;
-        document.getElementById(`contrasena-${tipo}`).disabled = false;
-        document.getElementById(`telefono-${tipo}`).disabled = false;
-
-        // Mostrar los botones de modificación y guardado
-        document.getElementById(`modificar-${tipo}`).style.display = 'inline';
-        document.getElementById(`guardar-${tipo}`).style.display = 'none';
-    }
-
-
-
-
+    activarEdicion(tipo);
+}
 
 </script>
 </body>
